@@ -20,24 +20,24 @@ struct ContentView: View {
                     LogView()
                         .modifier(TerminalPlatter())
                 } header: {
-                    HeaderLabel("运行日志", symbol: "apple.terminal")
+                    HeaderLabel("Log Aktivitas", symbol: "apple.terminal")
                 } footer: {
                     Text("v\(AppInfo.appVersion) (Build \(AppInfo.appBuild)) · \(UIDevice.current.systemName) \(UIDevice.current.systemVersion) (\(buildNumber())) · \(machineName())")
                 }
                 
                 Section {
-                    Button("注销设备 (Respring)") {
+                    Button("Muat Ulang Perangkat (Respring)") {
                         mgr.shouldRespring = true
                     }
                     Button {
                         promptGlobalFactoryRestore()
                     } label: {
-                        Label("一键恢复原机出厂参数", systemImage: "arrow.counterclockwise.shield.fill")
+                        Label("Pulihkan Parameter Pabrik Asli Sekali Klik", systemImage: "arrow.counterclockwise.shield.fill")
                     }
                 } header: {
-                    HeaderLabel("快捷操作", symbol: "gearshape")
+                    HeaderLabel("Aksi Cepat", symbol: "gearshape")
                 } footer: {
-                    Text("「一键恢复原机出厂参数」将校验并原位还原 MobileGestalt 原厂备份（含跨重装系统金库冗余与 SHA-256 核验），同时自动清除锁屏底部文字、资产铭牌、伪监管残留与拨号键盘缓存。")
+                    Text("「Pulihkan Parameter Pabrik Asli Sekali Klik」 akan memverifikasi dan mengembalikan cadangan pabrik MobileGestalt secara in-place (termasuk redundansi vault lintas instalasi ulang sistem dan verifikasi SHA-256), sekaligus otomatis membersihkan teks bagian bawah layar kunci, plat nama aset, sisa pseudo-supervisi, dan cache keypad panggilan.")
                 }
             }
             .navigationTitle("Erosion")
@@ -46,7 +46,7 @@ struct ContentView: View {
                     Button {
                         showSettings = true
                     } label: {
-                        Label("设置", systemImage: "gear")
+                        Label("Pengaturan", systemImage: "gear")
                             .labelStyle(.iconOnly)
                     }
                 }
@@ -64,41 +64,41 @@ struct ContentView: View {
 
     private func promptGlobalFactoryRestore() {
         Alertinator.shared.alert(
-            title: "确认一键恢复原机出厂参数？",
+            title: "Konfirmasi pemulihan parameter pabrik asli sekali klik?",
             body: MGMsg.globalFactoryRestoreConfirm,
-            actionLabel: "确认恢复出厂参数",
+            actionLabel: "Konfirmasi Pemulihan Parameter Pabrik",
             action: {
                 switch mgExecuteFactoryRestore(alsoResetConfigAndKeypad: true) {
                 case .restoredSuccessfully(let details):
                     Haptic.shared.play(.soft)
                     Alertinator.shared.alert(
-                        title: "已恢复原机出厂参数！",
+                        title: "Parameter pabrik asli berhasil dipulihkan!",
                         body: details,
-                        actionLabel: "立即注销",
+                        actionLabel: "Muat Ulang Sekarang",
                         action: { mgr.shouldRespring = true }
                     )
                 case .blockedNeedsCleanRebuild(let title, let reason):
                     Alertinator.shared.alert(
                         title: title,
                         body: reason,
-                        actionLabel: "重建系统纯净原厂缓存",
+                        actionLabel: "Bangun Ulang Cache Pabrik Bersih Sistem",
                         action: {
                             switch mgExecuteCleanCacheRebuild(alsoResetConfigAndKeypad: true) {
                             case .success:
                                 Alertinator.shared.alert(
-                                    title: "已准备原厂缓存重建！",
+                                    title: "Cache pabrik siap dibangun ulang!",
                                     body: MGMsg.mgResetComp,
                                     showCancel: false,
-                                    actionLabel: "退出并手动重启",
+                                    actionLabel: "Keluar dan Restart Manual",
                                     action: { exitinator() }
                                 )
                             case .failure(let err):
-                                Alertinator.shared.alert(title: "重建缓存失败！", body: err.localizedDescription)
+                                Alertinator.shared.alert(title: "Gagal membangun ulang cache!", body: err.localizedDescription)
                             }
                         }
                     )
                 case .failed(let reason):
-                    Alertinator.shared.alert(title: "恢复原机出厂参数失败！", body: reason)
+                    Alertinator.shared.alert(title: "Gagal memulihkan parameter pabrik asli!", body: reason)
                 }
             }
         )
