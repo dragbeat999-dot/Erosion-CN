@@ -40,23 +40,23 @@ struct OperationsView: View {
     var body: some View {
         List {
             Section {
-                TextField("目标目录路径（如 /var/...）", text: $directory)
+                TextField("Path direktori target (mis. /var/...)", text: $directory)
                     .disabled(isAcc)
-                TextField("目标文件名", text: $fileName)
+                TextField("Nama file target", text: $fileName)
                     .disabled(isAcc)
                 HStack {
-                    Button("获取读写权限") {
+                    Button("Dapatkan izin baca/tulis") {
                         let cleanDir = normalizedDirectory
                         let cleanFile = normalizedFileName
                         directory = cleanDir
                         fileName = cleanFile
                         guard !cleanDir.isEmpty else {
-                            Alertinator.shared.alert(title: "目录路径为空！", body: "请先输入有效的目标目录路径。")
+                            Alertinator.shared.alert(title: "Path direktori kosong!", body: "Masukkan path direktori target yang valid terlebih dahulu.")
                             return
                         }
                         let dirRes = wq.grantAccess(path: cleanDir)
                         if !dirRes.0 {
-                            Alertinator.shared.alert(title: "获取目标目录权限失败！", body: "\(dirRes.1): \(dirRes.2)")
+                            Alertinator.shared.alert(title: "Gagal mendapatkan izin direktori target!", body: "\(dirRes.1): \(dirRes.2)")
                             return
                         }
                         if !cleanFile.isEmpty {
@@ -64,7 +64,7 @@ struct OperationsView: View {
                             if fm.fileExists(atPath: fullPath) {
                                 let fileRes = wq.grantAccess(path: fullPath)
                                 if !fileRes.0 {
-                                    Alertinator.shared.alert(title: "获取目标文件权限失败！", body: "\(fileRes.1): \(fileRes.2)")
+                                    Alertinator.shared.alert(title: "Gagal mendapatkan izin file target!", body: "\(fileRes.1): \(fileRes.2)")
                                     return
                                 }
                             }
@@ -76,35 +76,35 @@ struct OperationsView: View {
                         Spacer()
                         HStack {
                             Image(systemName: "checkmark")
-                            Text("已授权")
+                            Text("Sudah diizinkan")
                         }
                         .foregroundStyle(.green)
                     }
                 }
                 if isAcc {
-                    Button("更改目标路径", role: .destructive) {
+                    Button("Ubah path target", role: .destructive) {
                         isAcc = false
                         imprtName = ""
                         imprtData = Data()
                     }
                     
-                    Button("导出原文件") {
+                    Button("Ekspor file asli") {
                         let fileDir = "\(normalizedDirectory)/\(normalizedFileName)"
                         if let tempURL = makeTemp(URL(fileURLWithPath: fileDir)) {
                             presentShareSheet(with: tempURL)
                         } else {
-                            Alertinator.shared.alert(title: "导出原文件失败！", body: "无法读取或复制目标文件，请确认目标文件名存在且可读。")
+                            Alertinator.shared.alert(title: "Gagal mengekspor file asli!", body: "Tidak dapat membaca atau menyalin file target. Pastikan nama file target ada dan dapat dibaca.")
                         }
                     }
                     .disabled(normalizedFileName.isEmpty)
                 }
             } header: {
-                HeaderLabel("目标文件", symbol: "dot.scope")
+                HeaderLabel("File Target", symbol: "dot.scope")
             }
             
             Section {
                 HStack {
-                    Button(imprtData.isEmpty ? "导入替换文件" : "重新选择替换文件") {
+                    Button(imprtData.isEmpty ? "Impor file pengganti" : "Pilih ulang file pengganti") {
                         showImporter = true
                     }
                     if !imprtName.isEmpty {
@@ -115,10 +115,10 @@ struct OperationsView: View {
                     }
                 }
                 
-                Button("覆盖目标文件") {
+                Button("Timpa file target") {
                     let targetURL = URL(fileURLWithPath: normalizedDirectory).appendingPathComponent(normalizedFileName).standardizedFileURL
                     if let blockReason = Self.blockedSystemPathReason(for: targetURL) {
-                        Alertinator.shared.alert(title: "已拦截高危系统路径覆盖！", body: blockReason)
+                        Alertinator.shared.alert(title: "Penimpaan path sistem berisiko tinggi diblokir!", body: blockReason)
                         return
                     }
                     do {
@@ -135,15 +135,15 @@ struct OperationsView: View {
                         Haptic.shared.play(.soft)
                     } catch {
                         print("(ov) failed to overwrite: \(error.localizedDescription)")
-                        Alertinator.shared.alert(title: "覆盖文件失败！", body: "\(error.localizedDescription)")
+                        Alertinator.shared.alert(title: "Gagal menimpa file!", body: "\(error.localizedDescription)")
                     }
                 }
                 .disabled(!isAcc || imprtData.isEmpty || normalizedFileName.isEmpty)
                 
-                Button("写入到目标目录") {
+                Button("Tulis ke direktori target") {
                     let targetURL = URL(fileURLWithPath: normalizedDirectory).appendingPathComponent(imprtName).standardizedFileURL
                     if let blockReason = Self.blockedSystemPathReason(for: targetURL) {
-                        Alertinator.shared.alert(title: "已拦截高危系统路径写入！", body: blockReason)
+                        Alertinator.shared.alert(title: "Penulisan ke path sistem berisiko tinggi diblokir!", body: blockReason)
                         return
                     }
                     do {
@@ -160,21 +160,21 @@ struct OperationsView: View {
                         Haptic.shared.play(.soft)
                     } catch {
                         print("(ov) failed to move: \(error.localizedDescription)")
-                        Alertinator.shared.alert(title: "写入文件失败！", body: "\(error.localizedDescription)")
+                        Alertinator.shared.alert(title: "Gagal menulis file!", body: "\(error.localizedDescription)")
                     }
                 }
                 .disabled(!isAcc || imprtData.isEmpty)
                 
-                Button("删除目标文件", role: .destructive) {
+                Button("Hapus file target", role: .destructive) {
                     let targetURL = URL(fileURLWithPath: normalizedDirectory).appendingPathComponent(normalizedFileName).standardizedFileURL
                     if let blockReason = Self.blockedSystemPathReason(for: targetURL) {
-                        Alertinator.shared.alert(title: "已拦截高危系统文件删除！", body: blockReason)
+                        Alertinator.shared.alert(title: "Penghapusan file sistem berisiko tinggi diblokir!", body: blockReason)
                         return
                     }
                     Alertinator.shared.alert(
-                        title: "确认删除目标文件？",
-                        body: "删除前将自动在应用文档目录保存时间戳备份：\n\(targetURL.path)",
-                        actionLabel: "确认删除",
+                        title: "Konfirmasi hapus file target?",
+                        body: "Sebelum dihapus, cadangan bertanda waktu akan disimpan otomatis di direktori dokumen aplikasi:\n\(targetURL.path)",
+                        actionLabel: "Konfirmasi Hapus",
                         action: {
                             do {
                                 Self.backupBeforeMutation(targetURL)
@@ -183,17 +183,17 @@ struct OperationsView: View {
                                 Haptic.shared.play(.heavy)
                             } catch {
                                 print("(ov) failed to delete: \(error.localizedDescription)")
-                                Alertinator.shared.alert(title: "删除文件失败！", body: "\(error.localizedDescription)")
+                                Alertinator.shared.alert(title: "Gagal menghapus file!", body: "\(error.localizedDescription)")
                             }
                         }
                     )
                 }
                 .disabled(!isAcc || normalizedFileName.isEmpty)
             } header: {
-                HeaderLabel("文件操作", symbol: "wrench.and.screwdriver")
+                HeaderLabel("Operasi File", symbol: "wrench.and.screwdriver")
             }
         }
-        .navigationTitle("任意文件替换")
+        .navigationTitle("Penggantian File Bebas")
         .fileImporter(isPresented: $showImporter, allowedContentTypes: [.item]) { result in
             handleImport(result)
         }
@@ -214,11 +214,11 @@ struct OperationsView: View {
                 imprtName = recURL.lastPathComponent
             } catch {
                 print("(ov) failed to import file: \(error.localizedDescription)")
-                Alertinator.shared.alert(title: "导入文件失败！", body: "该文件可能无效、已损坏或无法访问，请更换其他替换文件重试。")
+                Alertinator.shared.alert(title: "Gagal mengimpor file!", body: "File ini mungkin tidak valid, rusak, atau tidak dapat diakses. Coba gunakan file pengganti lain.")
             }
         case .failure(let error):
             print("(ov) failed to import file: \(error.localizedDescription)")
-            Alertinator.shared.alert(title: "导入文件失败！", body: "该文件可能无效、已损坏或无法访问，请更换其他替换文件重试。")
+            Alertinator.shared.alert(title: "Gagal mengimpor file!", body: "File ini mungkin tidak valid, rusak, atau tidak dapat diakses. Coba gunakan file pengganti lain.")
         }
     }
 
@@ -232,14 +232,14 @@ struct OperationsView: View {
             "truststore.sqlite3"
         ]
         if exactNames.contains(url.lastPathComponent.lowercased()) {
-            return "文件 \(url.lastPathComponent) 属于核心系统安全/引导配置，严禁在“任意文件替换”中裸写或删除（请使用专用模块或安全菜单操作）。"
+            return "File \(url.lastPathComponent) termasuk konfigurasi keamanan/boot inti sistem. Dilarang keras menulis atau menghapusnya secara langsung lewat “Penggantian File Bebas” (gunakan modul khusus atau menu aman)."
         }
         let forbiddenPrefixes = [
             "/system", "/private/preboot", "/usr", "/bin", "/sbin", "/dev",
             "/var/keychains", "/private/var/keychains", "/var/db", "/private/var/db"
         ]
         for pre in forbiddenPrefixes where lower == pre || lower.hasPrefix(pre + "/") {
-            return "路径 \(p) 位于系统核心保护区，防白苹果安全护栏已禁止直接覆写或删除。"
+            return "Path \(p) berada di zona perlindungan inti sistem. Pengaman anti-white-Apple melarang penimpaan atau penghapusan langsung."
         }
         return nil
     }
