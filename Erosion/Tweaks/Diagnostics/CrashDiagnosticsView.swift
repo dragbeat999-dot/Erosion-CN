@@ -2,17 +2,17 @@
 //  CrashDiagnosticsView.swift
 //  Erosion
 //
-//  [Experimental / 测试特性] System Crash, Kernel Watchdog & Jetsam OOM Kill Analyzer
+//  [Experimental / Fitur Uji] System Crash, Kernel Watchdog & Jetsam OOM Kill Analyzer
 //  and safe diagnostic log cleaner backed by systemgroup.com.apple.osanalytics.
 //
 
 import SwiftUI
 
 enum DiagnosticEventKind: String, CaseIterable {
-    case all = "全部"
-    case jetsam = "Jetsam 杀后台"
-    case crash = "进程崩溃"
-    case system = "系统/看门狗"
+    case all = "Semua"
+    case jetsam = "Jetsam Bunuh Latar"
+    case crash = "Crash Proses"
+    case system = "Sistem/Watchdog"
 }
 
 struct DiagnosticReportItem: Identifiable {
@@ -31,7 +31,7 @@ struct CrashDiagnosticsView: View {
     @State private var isScanning = false
     @State private var canRead = false
     @State private var canWrite = false
-    @State private var statusMessage = "正在扫描系统诊断报告容器..."
+    @State private var statusMessage = "Sedang memindai container laporan diagnostik sistem..."
     @State private var reports: [DiagnosticReportItem] = []
     @State private var filterKind: DiagnosticEventKind = .all
     @State private var searchText = ""
@@ -63,9 +63,9 @@ struct CrashDiagnosticsView: View {
                         .foregroundStyle(Color.orange)
                         .padding(.top, 2)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("测试特性 · 崩溃与 Jetsam 内存强杀分析器")
+                        Text("Fitur Uji · Penganalisis Crash dan OOM Kill Memori Jetsam")
                             .font(.subheadline.weight(.semibold))
-                        Text("解析 systemgroup.com.apple.osanalytics 中的 .ips 诊断报告，直观定位近期被内核 Jetsam 内存保护机制查杀的应用、吃满运存的最大进程（如开启端侧 AI 后的内存压力）以及后台守护进程崩溃原因。")
+                        Text("Mengurai laporan diagnostik .ips di systemgroup.com.apple.osanalytics untuk secara intuitif menemukan aplikasi yang baru-baru ini dibunuh oleh mekanisme perlindungan memori Jetsam kernel, proses dengan konsumsi RAM terbesar (seperti tekanan memori setelah mengaktifkan AI on-device), serta penyebab crash daemon latar belakang.")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -74,7 +74,7 @@ struct CrashDiagnosticsView: View {
             }
 
             Section {
-                Picker("类型筛选", selection: $filterKind) {
+                Picker("Filter Jenis", selection: $filterKind) {
                     ForEach(DiagnosticEventKind.allCases, id: \.self) { k in
                         Text(k.rawValue).tag(k)
                     }
@@ -83,9 +83,9 @@ struct CrashDiagnosticsView: View {
 
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("共扫描到 \(reports.count) 份诊断日志")
+                        Text("Total \(reports.count) log diagnostik terpindai")
                             .font(.subheadline.weight(.medium))
-                        Text("总占用空间：\(AppContainerDirectoryHelper.formatBytes(totalSizeBytes)) · \(statusMessage)")
+                        Text("Total ruang terpakai: \(AppContainerDirectoryHelper.formatBytes(totalSizeBytes)) · \(statusMessage)")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -98,22 +98,22 @@ struct CrashDiagnosticsView: View {
                 if canWrite && !reports.isEmpty {
                     Button(role: .destructive) {
                         Alertinator.shared.alert(
-                            title: "清理历史诊断报告？",
-                            body: "将安全删除 DiagnosticReports 下已归档的 \(reports.count) 份崩溃与 Jetsam 日志文件（约 \(AppContainerDirectoryHelper.formatBytes(totalSizeBytes))），完整保留系统目录结构。",
-                            actionLabel: "确认清理",
+                            title: "Bersihkan laporan diagnostik historis?",
+                            body: "Akan dengan aman menghapus \(reports.count) file log crash dan Jetsam yang telah diarsipkan di bawah DiagnosticReports (sekitar \(AppContainerDirectoryHelper.formatBytes(totalSizeBytes))), dengan tetap mempertahankan struktur direktori sistem secara utuh.",
+                            actionLabel: "Konfirmasi Pembersihan",
                             action: { cleanAllReports() }
                         )
                     } label: {
-                        Label("一键安全清理历史诊断日志", systemImage: "trash")
+                        Label("Bersihkan Log Diagnostik Historis dengan Aman Sekali Klik", systemImage: "trash")
                     }
                 }
             } header: {
-                HeaderLabel("概览与空间清理 [测试]", symbol: "stethoscope")
+                HeaderLabel("Ringkasan dan Pembersihan Ruang [Uji]", symbol: "stethoscope")
             }
 
             Section {
                 if filteredReports.isEmpty && !isScanning {
-                    Text(canRead ? "暂无符合筛选条件的崩溃或 Jetsam 报告" : "当前系统版本未授权访问 osanalytics 容器")
+                    Text(canRead ? "Tidak ada laporan crash atau Jetsam yang sesuai filter" : "Versi sistem saat ini tidak mengizinkan akses ke container osanalytics")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 } else {
@@ -153,11 +153,11 @@ struct CrashDiagnosticsView: View {
                     }
                 }
             } header: {
-                HeaderLabel("诊断事件列表 (\(filteredReports.count))", symbol: "list.bullet.rectangle")
+                HeaderLabel("Daftar Peristiwa Diagnostik (\(filteredReports.count))", symbol: "list.bullet.rectangle")
             }
         }
-        .searchable(text: $searchText, prompt: "搜索进程名、异常信号或文件名")
-        .navigationTitle("崩溃与杀后台分析 [测试]")
+        .searchable(text: $searchText, prompt: "Cari nama proses, sinyal abnormal, atau nama file")
+        .navigationTitle("Analisis Crash dan Bunuh Latar [Uji]")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -217,7 +217,7 @@ struct CrashDiagnosticsView: View {
                     self.isScanning = false
                     self.canRead = false
                     self.canWrite = false
-                    self.statusMessage = "访问受限（\(granted.2)）"
+                    self.statusMessage = "Akses terbatas (\(granted.2))"
                 }
                 return
             }
@@ -254,7 +254,7 @@ struct CrashDiagnosticsView: View {
                 self.canRead = true
                 self.canWrite = writable
                 self.reports = parsedItems
-                self.statusMessage = writable ? "支持读取与清理" : "纯只读模式"
+                self.statusMessage = writable ? "Mendukung baca dan bersihkan" : "Mode read-only murni"
             }
         }
     }
@@ -279,8 +279,8 @@ struct CrashDiagnosticsView: View {
                 self.isScanning = false
                 Haptic.shared.play(.soft)
                 Alertinator.shared.alert(
-                    title: "清理完成！",
-                    body: "已安全清除 \(deletedCount) 份历史崩溃与 Jetsam 报告，释放 \(AppContainerDirectoryHelper.formatBytes(freedBytes)) 存储空间。"
+                    title: "Pembersihan selesai!",
+                    body: "Telah dengan aman menghapus \(deletedCount) laporan crash dan Jetsam historis, membebaskan \(AppContainerDirectoryHelper.formatBytes(freedBytes)) ruang penyimpanan."
                 )
                 self.scanReports()
             }
@@ -300,7 +300,7 @@ struct CrashDiagnosticsView: View {
         let headData = (try? fh.read(upToCount: 262_144)) ?? Data()
         let text = String(decoding: headData, as: UTF8.self)
 
-        var bugType = "未知"
+        var bugType = "Tidak diketahui"
         var appName = fileName
         var summary = fileName
         var kind: DiagnosticEventKind = .system
@@ -321,10 +321,10 @@ struct CrashDiagnosticsView: View {
 
             if bugType == "298" || fileName.localizedCaseInsensitiveContains("JetsamEvent") {
                 kind = .jetsam
-                appName = "Jetsam 内存保护事件"
+                appName = "Peristiwa Perlindungan Memori Jetsam"
                 if let bodyData = bodyPart.data(using: .utf8),
                    let bodyJSON = try? JSONSerialization.jsonObject(with: bodyData) as? [String: Any] {
-                    let largest = (bodyJSON["largestProcess"] as? String) ?? "未知进程"
+                    let largest = (bodyJSON["largestProcess"] as? String) ?? "Proses tidak diketahui"
                     var killedNames: [String] = []
                     if let procs = bodyJSON["processes"] as? [[String: Any]] {
                         for p in procs {
@@ -335,12 +335,12 @@ struct CrashDiagnosticsView: View {
                         }
                     }
                     if killedNames.isEmpty {
-                        summary = "最高内存占用进程：\(largest)"
+                        summary = "Proses dengan konsumsi memori tertinggi: \(largest)"
                     } else {
-                        summary = "最高占用：\(largest) · 被强杀：\(killedNames.prefix(3).joined(separator: ", "))"
+                        summary = "Konsumsi tertinggi: \(largest) · Dibunuh paksa: \(killedNames.prefix(3).joined(separator: ", "))"
                     }
                 } else {
-                    summary = "系统物理内存耗尽触发内核 Jetsam 后台清理"
+                    summary = "Memori fisik sistem habis memicu pembersihan latar Jetsam kernel"
                 }
             } else if bugType == "309" || bugType == "109" {
                 kind = .crash
@@ -350,22 +350,22 @@ struct CrashDiagnosticsView: View {
                         appName = proc
                     }
                     let exc = bodyJSON["exception"] as? [String: Any]
-                    let excType = (exc?["type"] as? String) ?? "异常退出"
+                    let excType = (exc?["type"] as? String) ?? "Keluar abnormal"
                     let excSig = (exc?["signal"] as? String) ?? ""
                     let term = bodyJSON["termination"] as? [String: Any]
                     let indicator = (term?["indicator"] as? String) ?? ""
                     let parts = [excType, excSig, indicator].filter { !$0.isEmpty }
-                    summary = parts.isEmpty ? "应用或守护进程异常崩溃" : parts.joined(separator: " · ")
+                    summary = parts.isEmpty ? "Aplikasi atau daemon crash abnormal" : parts.joined(separator: " · ")
                 } else {
-                    summary = "进程崩溃报告 (\(fileName))"
+                    summary = "Laporan crash proses (\(fileName))"
                 }
             } else if bugType == "210" || fileName.localizedCaseInsensitiveContains("panic") {
                 kind = .system
-                appName = "内核 Panic / 看门狗重启"
-                summary = "检测到系统级重启记录 (\(fileName))"
+                appName = "Kernel Panic / Restart Watchdog"
+                summary = "Terdeteksi catatan restart tingkat sistem (\(fileName))"
             } else {
                 kind = .system
-                summary = "系统诊断事件 (\(fileName))"
+                summary = "Peristiwa diagnostik sistem (\(fileName))"
             }
         }
 
@@ -390,7 +390,7 @@ struct CrashDiagnosticsView: View {
 private struct DiagnosticDetailSheet: View {
     let item: DiagnosticReportItem
     @Environment(\.dismiss) private var dismiss
-    @State private var rawPreview: String = "正在读取报告内容..."
+    @State private var rawPreview: String = "Sedang membaca konten laporan..."
 
     var body: some View {
         NavigationStack {
@@ -402,7 +402,7 @@ private struct DiagnosticDetailSheet: View {
                         Text(item.subtitle)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                        Text("文件名：\(item.fileName) · bug_type：\(item.bugType)")
+                        Text("Nama file: \(item.fileName) · bug_type: \(item.bugType)")
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
                     }
@@ -419,11 +419,11 @@ private struct DiagnosticDetailSheet: View {
                 }
                 .padding()
             }
-            .navigationTitle("报告详情")
+            .navigationTitle("Detail Laporan")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("关闭") { dismiss() }
+                    Button("Tutup") { dismiss() }
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -437,13 +437,13 @@ private struct DiagnosticDetailSheet: View {
             }
             .onAppear {
                 DispatchQueue.global(qos: .userInitiated).async {
-                    var content = "无法读取原文件"
+                    var content = "Tidak dapat membaca file asli"
                     if let fh = try? FileHandle(forReadingFrom: item.fileURL) {
                         let d = (try? fh.read(upToCount: 128 * 1024)) ?? Data()
                         try? fh.close()
                         content = String(decoding: d, as: UTF8.self)
                         if Int64(d.count) < item.fileSize {
-                            content += "\n\n... [预览已截断前 128 KB，点击右上角可导出完整原文件]"
+                            content += "\n\n... [Pratinjau dipotong hingga 128 KB pertama, tekan tombol di kanan atas untuk mengekspor file asli lengkap]"
                         }
                     }
                     DispatchQueue.main.async {
