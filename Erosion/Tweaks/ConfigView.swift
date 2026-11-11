@@ -15,9 +15,9 @@ enum CNURL {
 }
 
 enum CNMsg {
-    static var supWarning = "在个人零售版 iOS 设备上强行写入 IsSupervised=true 极易触发 Setup.app 远程管理向导无限循环锁死（Setup Assistant Loop / 403 死锁）甚至无法进入桌面！防白苹果护栏已永久禁用开启监管模式；如曾通过旧版或其他工具误开启过，可在下方“伪监管残留死锁体检”中一键单独清理。"
-    static var resetInfo = "点击“确认”后，将安全清除锁屏底部文字与设备资产铭牌，并恢复或清理残留的监管配置文件。"
-    static var assetTagInfo = "[测试特性] AssetTagInformation 是系统配置描述文件中的原生资产铭牌字段，可在锁屏界面底部或关于本机中展示防丢联系方式或设备编号，不修改任何系统二进制或监管标记。"
+    static var supWarning = "Memaksa penulisan IsSupervised=true pada perangkat iOS ritel pribadi sangat mudah memicu loop tak terbatas wizard manajemen jarak jauh Setup.app (Setup Assistant Loop / deadlock 403) bahkan hingga tidak bisa masuk ke layar utama! Pagar pengaman anti-bootloop telah menonaktifkan secara permanen opsi pengaktifan mode supervisi; jika sebelumnya pernah tidak sengaja diaktifkan melalui versi lama atau alat lain, Anda dapat membersihkannya secara terpisah melalui \"Pemeriksaan Deadlock Sisa Pseudo-Supervisi\" di bawah."
+    static var resetInfo = "Setelah menekan \"Konfirmasi\", teks bagian bawah layar kunci dan plat nama aset perangkat akan dihapus dengan aman, serta profil konfigurasi supervisi sisa akan dipulihkan atau dibersihkan."
+    static var assetTagInfo = "[Fitur Uji] AssetTagInformation adalah field plat nama aset bawaan dalam profil konfigurasi sistem, dapat menampilkan kontak anti-kehilangan atau nomor perangkat di bagian bawah layar kunci atau di Tentang Perangkat, tanpa memodifikasi biner sistem atau penanda supervisi apa pun."
 }
 
 private enum CloudConfigAuditState {
@@ -85,40 +85,40 @@ struct ConfigView: View {
                         }
                     )
                     
-                    TextField("自定义锁屏底部文字 (LockScreenFootnote)", text: $footnoteText)
+                    TextField("Teks kustom bagian bawah layar kunci (LockScreenFootnote)", text: $footnoteText)
                 }
 
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            Text("[测试特性] 锁屏设备资产铭牌")
+                            Text("[Fitur Uji] Plat Nama Aset Perangkat Layar Kunci")
                                 .font(.subheadline.weight(.medium))
                             Spacer()
                             Button {
-                                Alertinator.shared.alert(title: "锁屏设备资产铭牌 [测试特性]", body: CNMsg.assetTagInfo)
+                                Alertinator.shared.alert(title: "Plat Nama Aset Perangkat Layar Kunci [Fitur Uji]", body: CNMsg.assetTagInfo)
                             } label: {
                                 Image(systemName: "info.circle")
                                     .foregroundStyle(.secondary)
                             }
                             .buttonStyle(.borderless)
                         }
-                        TextField("输入防丢电话/邮箱或资产编号 (AssetTagInformation)", text: $assetTagText)
+                        TextField("Masukkan telepon/email anti-kehilangan atau nomor aset (AssetTagInformation)", text: $assetTagText)
                             .font(.subheadline)
                         HStack(spacing: 8) {
-                            Button("填入防丢模板") {
-                                assetTagText = "拾获请致电机主 · 感谢归还"
+                            Button("Isi Template Anti-Kehilangan") {
+                                assetTagText = "Jika ditemukan harap hubungi pemilik · Terima kasih telah mengembalikan"
                             }
                             .font(.caption)
                             .buttonStyle(.bordered)
 
-                            Button("填入设备标识") {
+                            Button("Isi Identitas Perangkat") {
                                 assetTagText = "\(UIDevice.current.name) · iOS \(UIDevice.current.systemVersion)"
                             }
                             .font(.caption)
                             .buttonStyle(.bordered)
 
                             if !assetTagText.isEmpty {
-                                Button("清空", role: .destructive) {
+                                Button("Kosongkan", role: .destructive) {
                                     assetTagText = ""
                                 }
                                 .font(.caption)
@@ -128,20 +128,20 @@ struct ConfigView: View {
                     }
                     .padding(.vertical, 2)
                 } header: {
-                    HeaderLabel("防丢铭牌扩展（测试特性）", symbol: "tag")
+                    HeaderLabel("Ekstensi Plat Nama Anti-Kehilangan (Fitur Uji)", symbol: "tag")
                 } footer: {
-                    Text("写入 SharedDeviceConfiguration.plist 的 AssetTagInformation 字段，留空并点击右上角“应用”即可移除。")
+                    Text("Menulis field AssetTagInformation ke SharedDeviceConfiguration.plist, biarkan kosong lalu tekan \"Terapkan\" di kanan atas untuk menghapusnya.")
                 }
                 
                 Section {
-                    PlainToggle("开启监管模式（防设置向导死循环护栏已锁定）", infoType: .warning, infoTitle: "监管模式保护说明", infoMessage: CNMsg.supWarning, isOn: $supervised)
+                    PlainToggle("Aktifkan Mode Supervisi (Pagar anti-loop wizard pengaturan telah dikunci)", infoType: .warning, infoTitle: "Penjelasan Perlindungan Mode Supervisi", infoMessage: CNMsg.supWarning, isOn: $supervised)
                         .disabled(true)
 
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
                             Image(systemName: auditIconName)
                                 .foregroundStyle(auditAccentColor)
-                            Text("[测试特性] 伪监管残留死锁体检")
+                            Text("[Fitur Uji] Pemeriksaan Deadlock Sisa Pseudo-Supervisi")
                                 .font(.subheadline.weight(.semibold))
                             Spacer()
                             Text(auditBadgeText)
@@ -159,7 +159,7 @@ struct ConfigView: View {
                             Button(role: .destructive) {
                                 cleanFakeSupervisionOnly()
                             } label: {
-                                Label("一键安全清除伪监管残留 (保留锁屏文字)", systemImage: "shield.lefthalf.filled.badge.checkmark")
+                                Label("Bersihkan Sisa Pseudo-Supervisi dengan Aman Sekali Klik (Pertahankan Teks Layar Kunci)", systemImage: "shield.lefthalf.filled.badge.checkmark")
                                     .font(.footnote.weight(.medium))
                             }
                             .buttonStyle(.borderedProminent)
@@ -169,24 +169,24 @@ struct ConfigView: View {
                     }
                     .padding(.vertical, 3)
                 } header: {
-                    HeaderLabel("监管设置与安全体检（测试特性）", symbol: "eye")
+                    HeaderLabel("Pengaturan Supervisi dan Pemeriksaan Keamanan (Fitur Uji)", symbol: "eye")
                 }
             }
-            .navigationTitle("系统配置与监管")
+            .navigationTitle("Konfigurasi Sistem dan Supervisi")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        Alertinator.shared.alert(title: "确定要重置配置修改吗？", body: CNMsg.resetInfo, actionLabel: "确认", action: {
+                        Alertinator.shared.alert(title: "Yakin ingin mengatur ulang modifikasi konfigurasi?", body: CNMsg.resetInfo, actionLabel: "Konfirmasi", action: {
                             reset()
                         })
                     } label: {
-                        Label("恢复默认", systemImage: "gobackward")
+                        Label("Pulihkan Default", systemImage: "gobackward")
                             .labelStyle(.iconOnly)
                     }
                     .disabled(!hasAccess)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("应用", role: .adaptiveConfirm) {
+                    Button("Terapkan", role: .adaptiveConfirm) {
                         apply()
                     }
                     .disabled(!hasAccess)
@@ -222,7 +222,7 @@ struct ConfigView: View {
             let res = wq.grantAccess(path: FSURL.configProfiles.path)
             hasAccess = res.0
             if !res.0 {
-                Alertinator.shared.alert(title: "获取写入权限失败！", body: AppMsg.opFailed)
+                Alertinator.shared.alert(title: "Gagal mendapatkan izin tulis!", body: AppMsg.opFailed)
                 return
             }
         }
@@ -260,22 +260,22 @@ struct ConfigView: View {
 
     private var auditBadgeText: String {
         switch auditState {
-        case .clean: return "安全无残留"
-        case .genuineMDM: return "合法企业 MDM"
-        case .fakeSupervisionResidue: return "高危伪监管残留"
+        case .clean: return "Aman Tanpa Sisa"
+        case .genuineMDM: return "MDM Perusahaan Sah"
+        case .fakeSupervisionResidue: return "Sisa Pseudo-Supervisi Berisiko Tinggi"
         }
     }
 
     private var auditDetailText: String {
         switch auditState {
         case .clean:
-            return "未检测到伪造的 CloudConfigurationDetails.plist 文件，系统升级或重启后不会触发 Setup Assistant 403 远程管理向导死循环。"
+            return "Tidak terdeteksi file CloudConfigurationDetails.plist palsu, pembaruan sistem atau restart tidak akan memicu loop tak terbatas wizard manajemen jarak jauh Setup Assistant 403."
         case .genuineMDM(let org):
-            let displayOrg = org.isEmpty ? "企业/教育机构" : org
-            return "检测到包含完整证书锚点的合法 MDM 配置（\(displayOrg)），防白苹果护栏已自动保护该原始文件不被误删。"
+            let displayOrg = org.isEmpty ? "Perusahaan/Institusi Pendidikan" : org
+            return "Terdeteksi konfigurasi MDM sah dengan anchor sertifikat lengkap (\(displayOrg)), pagar anti-bootloop telah otomatis melindungi file asli ini agar tidak terhapus secara tidak sengaja."
         case .fakeSupervisionResidue(let org):
-            let suffix = org.isEmpty ? "" : "（残留组织名：\(org)）"
-            return "检测到仅含 IsSupervised/OrganizationName 而缺失 MDM 证书链的第三方伪监管文件\(suffix)！在 OTA 升级后极易触发激活向导 403 死锁，建议立即点击下方按钮清除。"
+            let suffix = org.isEmpty ? "" : " (nama organisasi sisa: \(org))"
+            return "Terdeteksi file pseudo-supervisi pihak ketiga yang hanya berisi IsSupervised/OrganizationName tanpa rantai sertifikat MDM\(suffix)! Sangat mudah memicu deadlock 403 wizard aktivasi setelah pembaruan OTA, disarankan segera tekan tombol di bawah untuk membersihkannya."
         }
     }
 
@@ -322,13 +322,13 @@ struct ConfigView: View {
             Haptic.shared.play(.soft)
             loadData()
             Alertinator.shared.alert(
-                title: "已清除伪监管残留！",
-                body: "已安全移除伪造的 CloudConfigurationDetails.plist 并保留你的锁屏底部文字与资产铭牌配置。\n\(AppMsg.applied)",
-                actionLabel: "立即注销",
+                title: "Sisa pseudo-supervisi berhasil dibersihkan!",
+                body: "Telah dengan aman menghapus CloudConfigurationDetails.plist palsu dan mempertahankan konfigurasi teks bagian bawah layar kunci serta plat nama aset Anda.\n\(AppMsg.applied)",
+                actionLabel: "Muat Ulang Sekarang",
                 action: { mgr.shouldRespring = true }
             )
         } catch {
-            Alertinator.shared.alert(title: "清理伪监管残留失败！", body: error.localizedDescription)
+            Alertinator.shared.alert(title: "Gagal membersihkan sisa pseudo-supervisi!", body: error.localizedDescription)
         }
     }
     
@@ -367,16 +367,16 @@ struct ConfigView: View {
                 }
             }
             ftCurrentDict = ftDict
-            print("(cn) successfully applied footnote & asset tag tweak safely!")
+            print("(cn) berhasil menerapkan tweak footnote & asset tag dengan aman!")
             Haptic.shared.play(.soft)
             if autoRespring {
                 mgr.shouldRespring = true
             } else {
-                Alertinator.shared.alert(title: "系统配置修改已成功应用！", body: AppMsg.applied, actionLabel: "立即注销", action: { mgr.shouldRespring = true })
+                Alertinator.shared.alert(title: "Modifikasi konfigurasi sistem berhasil diterapkan!", body: AppMsg.applied, actionLabel: "Muat Ulang Sekarang", action: { mgr.shouldRespring = true })
             }
         } catch {
-            print("(cn) failed to write config files: \(error.localizedDescription)")
-            Alertinator.shared.alert(title: "应用修改失败！", body: "\(error.localizedDescription)")
+            print("(cn) gagal menulis file konfigurasi: \(error.localizedDescription)")
+            Alertinator.shared.alert(title: "Gagal menerapkan modifikasi!", body: "\(error.localizedDescription)")
         }
     }
     
@@ -415,15 +415,15 @@ struct ConfigView: View {
     private func reset() {
         do {
             try Self.resetSystemConfigSafely()
-            print("(cn) successfully reset config tweaks!")
+            print("(cn) berhasil mengatur ulang tweak konfigurasi!")
             Haptic.shared.play(.soft)
             loadData()
             footnoteText = ""
             assetTagText = ""
-            Alertinator.shared.alert(title: "系统配置修改已成功重置！", body: AppMsg.applied, actionLabel: "立即注销", action: { mgr.shouldRespring = true })
+            Alertinator.shared.alert(title: "Modifikasi konfigurasi sistem berhasil diatur ulang!", body: AppMsg.applied, actionLabel: "Muat Ulang Sekarang", action: { mgr.shouldRespring = true })
         } catch {
-            print("(cn) failed to reset config files: \(error.localizedDescription)")
-            Alertinator.shared.alert(title: "重置修改失败！", body: "\(error.localizedDescription)")
+            print("(cn) gagal mengatur ulang file konfigurasi: \(error.localizedDescription)")
+            Alertinator.shared.alert(title: "Gagal mengatur ulang modifikasi!", body: "\(error.localizedDescription)")
         }
     }
 }
