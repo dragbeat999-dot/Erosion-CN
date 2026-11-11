@@ -16,63 +16,63 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 Section {
-                    Toggle("应用修改后自动注销", isOn: $autoRespring)
+                    Toggle("Muat ulang otomatis setelah menerapkan modifikasi", isOn: $autoRespring)
                     PlainToggle(
-                        "[测试特性] CSStore2 极速容器映射引擎",
-                        subtitle: "通过 LaunchServices 二进制库毫秒级解析全机应用与共享组，替代慢速 Inode 遍历",
+                        "[Fitur Uji] Mesin Pemetaan Container Kilat CSStore2",
+                        subtitle: "Mengurai aplikasi dan grup bersama seluruh perangkat dalam hitungan milidetik melalui pustaka biner LaunchServices, menggantikan penelusuran Inode yang lambat",
                         infoType: .info,
-                        infoTitle: "CSStore2 极速容器引擎（测试特性）",
-                        infoMessage: "从 InternalDaemon 只读解析 com.apple.LaunchServices-*.csstore 二进制库（魔数 bdsl），可在数十毫秒内完成全机应用容器、扩展插件与 AppGroup 映射并显示应用名称；若读取失败会自动无缝回退至传统 pathleak 遍历。",
+                        infoTitle: "Mesin Container Kilat CSStore2 (Fitur Uji)",
+                        infoMessage: "Mengurai pustaka biner com.apple.LaunchServices-*.csstore (magic number bdsl) secara read-only dari InternalDaemon, mampu memetakan container seluruh aplikasi, plugin ekstensi, dan AppGroup dalam hitungan puluhan milidetik beserta nama aplikasi; jika pembacaan gagal akan otomatis mundur mulus ke penelusuran pathleak tradisional.",
                         isOn: $useCSStoreFastScan
                     )
                     if useCSStoreFastScan {
-                        Button("刷新 CSStore2 容器图谱缓存") {
+                        Button("Segarkan Cache Peta Container CSStore2") {
                             CSStoreEngine.shared.invalidate()
                             let summary = CSStoreEngine.shared.summaryText()
-                            Alertinator.shared.alert(title: "CSStore2 图谱状态", body: summary)
+                            Alertinator.shared.alert(title: "Status Peta CSStore2", body: summary)
                         }
                     }
                 } header: {
-                    HeaderLabel("应用设置", symbol: "gearshape")
+                    HeaderLabel("Pengaturan Aplikasi", symbol: "gearshape")
                 } footer: {
-                    Text("在成功应用功能修改后自动触发设备注销 (Respring)。标记为 [测试特性] 的功能若遇系统兼容异常可随时在此关闭并回退。")
+                    Text("Memicu muat ulang perangkat (Respring) secara otomatis setelah modifikasi fitur berhasil diterapkan. Fitur yang ditandai [Fitur Uji] dapat dinonaktifkan dan dikembalikan di sini kapan saja jika terjadi anomali kompatibilitas sistem.")
                 }
                 
                 Section {
                     AppInfoCell(build: build)
                 } header: {
-                    HeaderLabel("关于", symbol: "info.circle")
+                    HeaderLabel("Tentang", symbol: "info.circle")
                 } footer: {
-                    Text("由 [jailbreak.party](https://jailbreak.party) 团队倾情打造 · 简体中文汉化与国行适配修复版")
+                    Text("Dibuat dengan penuh dedikasi oleh tim [jailbreak.party](https://jailbreak.party) · Versi lokalisasi Bahasa Indonesia")
                 }
                 
                 Section {
-                    LinkCreditCell(image: Image("lunginspector"), name: "lunginspector", description: "主要开发者与项目维护者", url: "https://github.com/lunginspector")
-                    LinkCreditCell(image: Image("forcequit"), name: "forcequit", description: "worse_query 沙盒逃逸漏洞作者", url: "https://github.com/forcequitOS")
-                    LinkCreditCell(image: Image("0xjohnny"), name: "0xjohnny", description: "worse_query 沙盒逃逸漏洞作者", url: "https://github.com/0xjohnnydev")
-                    LinkCreditCell(image: Image("skadz108"), name: "Skadz", description: "漏洞集成、后端核心功能与项目维护", url: "https://github.com/skadz108")
-                    LinkCreditCell(image: Image("rooootdev"), name: "rooootdev", description: "多项后端组件支持", url: "https://github.com/rooootdev")
-                    LinkCreditCell(image: Image("neonmodder123"), name: "neonmodder123", description: "WebView 免越狱注销方案作者", url: "https://github.com/neonmodder123")
+                    LinkCreditCell(image: Image("lunginspector"), name: "lunginspector", description: "Pengembang utama dan pemelihara proyek", url: "https://github.com/lunginspector")
+                    LinkCreditCell(image: Image("forcequit"), name: "forcequit", description: "Penulis celah pelarian sandbox worse_query", url: "https://github.com/forcequitOS")
+                    LinkCreditCell(image: Image("0xjohnny"), name: "0xjohnny", description: "Penulis celah pelarian sandbox worse_query", url: "https://github.com/0xjohnnydev")
+                    LinkCreditCell(image: Image("skadz108"), name: "Skadz", description: "Integrasi celah, fungsi inti backend, dan pemeliharaan proyek", url: "https://github.com/skadz108")
+                    LinkCreditCell(image: Image("rooootdev"), name: "rooootdev", description: "Dukungan berbagai komponen backend", url: "https://github.com/rooootdev")
+                    LinkCreditCell(image: Image("neonmodder123"), name: "neonmodder123", description: "Penulis solusi respring tanpa jailbreak via WebView", url: "https://github.com/neonmodder123")
                 } header: {
-                    HeaderLabel("上游项目作者 (jailbreak.party)", symbol: "star")
+                    HeaderLabel("Penulis Proyek Hulu (jailbreak.party)", symbol: "star")
                 }
 
                 Section {
-                    LinkCreditCell(name: "huamidev — GestaltX", description: "本机系统库动态缓存偏移解析、变更对比预览、写后校验与重签 App Group 探测等优秀设计参考", url: "https://github.com/huamidev/GestaltX")
-                    LinkCreditCell(name: "kolbicz — WQFiles", description: "LaunchServices CSStore2 (bdsl) 容器快速映射与跨容器只读遥测架构设计参考", url: "https://github.com/kolbicz/WQFiles")
-                    LinkCreditCell(name: "KirbySD", description: "MobileGestalt CacheData 布尔槽位偏移研究思路分享", url: "https://www.v2ex.com/t/1246550")
-                    LinkCreditCell(name: "PoomSmart — MGKeys", description: "MobileGestalt 混淆键值映射表维护与整理", url: "https://github.com/PoomSmart/MGKeys")
+                    LinkCreditCell(name: "huamidev — GestaltX", description: "Referensi desain unggul: parsing offset cache dinamis pustaka sistem, pratinjau perbandingan perubahan, verifikasi pasca-tulis, dan deteksi App Group yang ditandatangani ulang", url: "https://github.com/huamidev/GestaltX")
+                    LinkCreditCell(name: "kolbicz — WQFiles", description: "Referensi desain arsitektur pemetaan container cepat dan telemetri read-only lintas container LaunchServices CSStore2 (bdsl)", url: "https://github.com/kolbicz/WQFiles")
+                    LinkCreditCell(name: "KirbySD", description: "Berbagi ide penelitian offset slot boolean MobileGestalt CacheData", url: "https://www.v2ex.com/t/1246550")
+                    LinkCreditCell(name: "PoomSmart — MGKeys", description: "Pemeliharaan dan pengorganisasian tabel pemetaan key-value terobfuskasi MobileGestalt", url: "https://github.com/PoomSmart/MGKeys")
                 } header: {
-                    HeaderLabel("特别致谢与特性参考", symbol: "heart")
+                    HeaderLabel("Ucapan Terima Kasih Khusus dan Referensi Fitur", symbol: "heart")
                 }
             }
-            .navigationTitle("设置")
+            .navigationTitle("Pengaturan")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         dismiss()
                     } label: {
-                        ToolbarLabel("关闭", symbol: "xmark")
+                        ToolbarLabel("Tutup", symbol: "xmark")
                     }
                 }
             }
