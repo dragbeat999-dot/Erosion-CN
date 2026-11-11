@@ -27,7 +27,7 @@ struct KeypadView: View {
                 VStack(spacing: 8) {
                     ProgressView()
                         .scaleEffect(1.25)
-                    Text("正在定位系统容器路径...")
+                    Text("Sedang menemukan jalur container sistem...")
                         .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)
@@ -40,21 +40,21 @@ struct KeypadView: View {
                 }
                 .safeAreaInset(edge: .top) {
                     VStack(spacing: 2) {
-                        Text("按键尺寸")
+                        Text("Ukuran Tombol")
                         Picker("", selection: $size) {
                             ForEach(KPSize.allCases, id: \.self) { kpSize in
                                 Text(kpSize.label + (kpSize == .custom ? " (\(custW)x\(custH))" : "")).tag(kpSize)
                             }
                         }
-                        .alert("请输入自定义按键尺寸（像素）", isPresented: $showSizeAlert) {
-                            TextField("宽度", value: $custW, format: .number)
+                        .alert("Masukkan ukuran tombol kustom (piksel)", isPresented: $showSizeAlert) {
+                            TextField("Lebar", value: $custW, format: .number)
                                 .keyboardType(.numberPad)
-                            TextField("高度", value: $custH, format: .number)
+                            TextField("Tinggi", value: $custH, format: .number)
                                 .keyboardType(.numberPad)
-                            Button("取消", role: .cancel) {
+                            Button("Batal", role: .cancel) {
                                 size = .defSize
                             }
-                            Button("设定") {
+                            Button("Terapkan") {
                                 kpMgr.changeSizeOfKeypads(size: size, custW: custW, custH: custH)
                             }
                         }
@@ -73,12 +73,12 @@ struct KeypadView: View {
                     Button {
                         let res = kpMgr.applyKeypadItems()
                         if res {
-                            Alertinator.shared.alert(title: "拨号键盘主题应用成功！", body: KPMsg.applyComp, actionLabel: "打开电话", action: {
+                            Alertinator.shared.alert(title: "Tema keypad dial berhasil diterapkan!", body: KPMsg.applyComp, actionLabel: "Buka Telepon", action: {
                                 openApp(withBID: SysBID.phone)
                             })
                             Haptic.shared.play(.soft)
                         } else {
-                            Alertinator.shared.alert(title: "应用拨号键盘主题失败！", body: AppMsg.opFailed)
+                            Alertinator.shared.alert(title: "Gagal menerapkan tema keypad dial!", body: AppMsg.opFailed)
                         }
                     } label: {
                         Image(systemName: "checkmark")
@@ -90,7 +90,7 @@ struct KeypadView: View {
                 }
             }
         }
-        .navigationTitle(isPad() ? "" : "拨号键盘美化")
+        .navigationTitle(isPad() ? "" : "Kustomisasi Keypad Dial")
         .frame(maxWidth: 325)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -99,56 +99,56 @@ struct KeypadView: View {
                     Button {
                         kpMgr.maskKeysIntoCircle(size: size, custW: custW, custH: custH)
                     } label: {
-                        Label("裁切为圆形按键", systemImage: "circle")
+                        Label("Potong Menjadi Tombol Bulat", systemImage: "circle")
                     }
                     Button {
                         size = .defSize
                         kpMgr.getCurrentKeypads()
                     } label: {
-                        Label("读取当前按键", systemImage: "externaldrive")
+                        Label("Baca Tombol Saat Ini", systemImage: "externaldrive")
                     }
                     .disabled(!hasAccess)
                     Button {
                         setupPhoneContainer(forceRefresh: true)
                     } label: {
-                        Label("重新获取电话容器路径", systemImage: "arrow.clockwise")
+                        Label("Ambil Ulang Jalur Container Telepon", systemImage: "arrow.clockwise")
                     }
                     Button {
                         openApp(withBID: SysBID.phone)
                     } label: {
-                        Label("打开电话应用", systemImage: "arrow.up.right.square")
+                        Label("Buka Aplikasi Telepon", systemImage: "arrow.up.right.square")
                     }
                     Divider()
                     Button {
                         size = .defSize
                         kpMgr.clearKeypads()
                     } label: {
-                        Label("清空当前编辑", systemImage: "xmark")
+                        Label("Kosongkan Editan Saat Ini", systemImage: "xmark")
                     }
                     Button(role: .destructive) {
-                        Alertinator.shared.alert(title: "确定要重置拨号按键吗？", body: KPMsg.resetWarn, actionLabel: "确认", action: {
+                        Alertinator.shared.alert(title: "Yakin ingin mengatur ulang tombol dial?", body: KPMsg.resetWarn, actionLabel: "Konfirmasi", action: {
                             let res = kpMgr.resetKeypadItems()
                             if res {
                                 kpMgr.mpKeypad = emptyKeypadArray
                                 kpMgr.getCurrentKeypads()
-                                Alertinator.shared.alert(title: "拨号键盘已恢复默认！", body: KPMsg.applyComp)
+                                Alertinator.shared.alert(title: "Keypad dial berhasil dipulihkan ke default!", body: KPMsg.applyComp)
                             } else {
-                                Alertinator.shared.alert(title: "重置拨号键盘失败！", body: AppMsg.opFailed)
+                                Alertinator.shared.alert(title: "Gagal mengatur ulang keypad dial!", body: AppMsg.opFailed)
                             }
                         })
                     } label: {
-                        Label("恢复系统默认", systemImage: "trash")
+                        Label("Pulihkan Default Sistem", systemImage: "trash")
                     }
                     .disabled(!hasAccess)
                 } label: {
-                    Label("菜单", systemImage: "ellipsis")
+                    Label("Menu", systemImage: "ellipsis")
                         .labelStyle(.iconOnly)
                 }
                 .disabled(!isReady)
             }
             ToolbarSpacer(placement: .topBarTrailing)
             ToolbarItem(placement: .topBarTrailing) {
-                Button("导入主题") {
+                Button("Impor Tema") {
                     showFileImporter = true
                 }
                 .disabled(!isReady || !hasAccess)
@@ -203,7 +203,7 @@ struct KeypadView: View {
                 if accessOK {
                     kpMgr.getCurrentKeypads(size: size, saveOgData: true)
                 } else {
-                    Alertinator.shared.alert(title: "无法访问电话应用容器！", body: "未能定位或授权 com.apple.mobilephone 容器，请先打开一次系统“电话”应用，或在右上角菜单点击“重新获取电话容器路径”。")
+                    Alertinator.shared.alert(title: "Tidak dapat mengakses container aplikasi Telepon!", body: "Gagal menemukan atau memberi izin pada container com.apple.mobilephone, silakan buka aplikasi \"Telepon\" sistem terlebih dahulu, atau klik \"Ambil Ulang Jalur Container Telepon\" pada menu di kanan atas.")
                 }
                 isReady = true
             }
@@ -274,15 +274,15 @@ struct KeypadView: View {
                 if res {
                     Haptic.shared.play(.soft)
                 } else {
-                    throw "failed to import theme!"
+                    throw "gagal mengimpor tema!"
                 }
             } catch {
-                print("(kp) failed to import theme: \(error.localizedDescription)")
-                Alertinator.shared.alert(title: "导入主题失败！", body: AppMsg.opFailed)
+                print("(kp) gagal mengimpor tema: \(error.localizedDescription)")
+                Alertinator.shared.alert(title: "Gagal mengimpor tema!", body: AppMsg.opFailed)
             }
         case .failure(let error):
-            print("(kp) failed to import file: \(error.localizedDescription)")
-            Alertinator.shared.alert(title: "导入主题失败！", body: "\(error.localizedDescription)")
+            print("(kp) gagal mengimpor file: \(error.localizedDescription)")
+            Alertinator.shared.alert(title: "Gagal mengimpor tema!", body: "\(error.localizedDescription)")
         }
     }
     
