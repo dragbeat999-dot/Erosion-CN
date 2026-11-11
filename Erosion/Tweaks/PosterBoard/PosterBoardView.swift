@@ -12,13 +12,13 @@ import UniformTypeIdentifiers
 let pbHandler = PBHandler()
 
 enum PBMsg {
-    static var noTendies = "点击此处或底部按钮导入 .tendies 壁纸包，即可开始应用自定义锁屏壁纸。"
-    static var tooManyTendies = "单次最多只能同时启用 15 张壁纸，请先取消勾选其他壁纸包后再试！"
-    static var limitWarning = "你当前勾选了超过 5 张壁纸，可能导致部分壁纸无法正常显示。确定仍要继续应用吗？"
-    static var corruption = "请确认所选壁纸包未损坏后重试。"
-    static var finishApply = "点击继续后将自动打开 PosterBoard，请在后台多任务切换器中将其上滑关闭以完成加载。如果壁纸未显示，请在右上角“壁纸设置”中尝试重置“壁纸合集”、“水星壁纸”或“视频壁纸”。"
-    static var applyInfo = "如果打开锁屏编辑后未看到导入的壁纸，请前往右上角菜单的“壁纸设置”中点击“重置壁纸合集 (Collections)”后再试。"
-    static var imprtFailed = "请确认所选文件为有效的 .tendies 壁纸包后重试。"
+    static var noTendies = "Ketuk di sini atau tombol di bawah untuk mengimpor paket wallpaper .tendies, lalu mulai terapkan wallpaper layar kunci kustom."
+    static var tooManyTendies = "Maksimal hanya 15 wallpaper yang dapat diaktifkan sekaligus. Harap hapus centang pada paket wallpaper lain terlebih dahulu sebelum mencoba lagi!"
+    static var limitWarning = "Anda memilih lebih dari 5 wallpaper. Beberapa wallpaper mungkin tidak tampil dengan benar. Yakin ingin tetap melanjutkan penerapan?"
+    static var corruption = "Pastikan paket wallpaper yang dipilih tidak rusak, lalu coba lagi."
+    static var finishApply = "Setelah mengetuk lanjutkan, PosterBoard akan terbuka otomatis. Harap tutup dengan menggeser ke atas di pengalih multitugas latar belakang untuk menyelesaikan pemuatan. Jika wallpaper tidak muncul, coba reset \"Koleksi Wallpaper\", \"Wallpaper Merkurius\", atau \"Wallpaper Video\" di \"Pengaturan Wallpaper\" di pojok kanan atas."
+    static var applyInfo = "Jika setelah membuka editor layar kunci wallpaper yang diimpor tidak terlihat, buka menu pojok kanan atas \"Pengaturan Wallpaper\" dan ketuk \"Reset Koleksi Wallpaper (Collections)\" lalu coba lagi."
+    static var imprtFailed = "Pastikan file yang dipilih adalah paket wallpaper .tendies yang valid, lalu coba lagi."
 }
 
 struct PosterBoardView: View {
@@ -37,7 +37,7 @@ struct PosterBoardView: View {
                 VStack(spacing: 8) {
                     ProgressView()
                         .scaleEffect(1.25)
-                    Text("正在定位系统容器路径...")
+                    Text("Sedang mencari jalur kontainer sistem...")
                         .foregroundStyle(.secondary)
                 }
             } else {
@@ -47,7 +47,7 @@ struct PosterBoardView: View {
                             showImporter = true
                         } label: {
                             VStack(alignment: .leading) {
-                                CompactAlert(title: "尚未导入壁纸包", symbol: "exclamationmark.triangle.fill", text: PBMsg.noTendies)
+                                CompactAlert(title: "Belum ada paket wallpaper yang diimpor", symbol: "exclamationmark.triangle.fill", text: PBMsg.noTendies)
                                     .padding(.horizontal, 15)
                             }
                             .frame(alignment: .leading)
@@ -58,7 +58,7 @@ struct PosterBoardView: View {
                         ForEach($tendiesArray) { $tendies in
                             Button {
                                 if !tendies.isOn && tendiesArray.filter({ $0.isOn }).flatMap({ $0.descrNames }).count > 15 {
-                                    Alertinator.shared.alert(title: "已达壁纸数量上限！", body: PBMsg.tooManyTendies)
+                                    Alertinator.shared.alert(title: "Batas jumlah wallpaper tercapai!", body: PBMsg.tooManyTendies)
                                 } else {
                                     tendies.isOn.toggle()
                                 }
@@ -71,7 +71,7 @@ struct PosterBoardView: View {
                                         Text(tendies.name)
                                             .lineLimit(1)
                                             .fontWeight(.medium)
-                                        Text("共 \(tendies.descrNames.count) 张壁纸")
+                                        Text("Total \(tendies.descrNames.count) wallpaper")
                                             .font(.footnote)
                                             .foregroundStyle(.secondary)
                                     }
@@ -111,7 +111,7 @@ struct PosterBoardView: View {
                                         let url = AppURL.pbFolders.appendingPathComponent(tendies.folderName)
                                         fsHandlers.openInFilesApp(url)
                                     } label: {
-                                        Label("在“文件”中查看目录", systemImage: "folder")
+                                        Label("Lihat folder di \"File\"", systemImage: "folder")
                                     }
                                     
                                     Button(role: .destructive) {
@@ -121,7 +121,7 @@ struct PosterBoardView: View {
                                             tendiesArray.removeAll { $0.id == tendies.id }
                                         }
                                     } label: {
-                                        Label("删除", systemImage: "trash")
+                                        Label("Hapus", systemImage: "trash")
                                     }
                                 }
                             }
@@ -132,7 +132,7 @@ struct PosterBoardView: View {
                 }
             }
         }
-        .navigationTitle("自定义锁屏壁纸")
+        .navigationTitle("Wallpaper Layar Kunci Kustom")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             DispatchQueue.global(qos: .userInitiated).async {
@@ -145,7 +145,7 @@ struct PosterBoardView: View {
                     Button {
                         showImporter = true
                     } label: {
-                        ButtonLabel("导入 .tendies 壁纸包", symbol: "arrow.down.doc")
+                        ButtonLabel("Impor paket wallpaper .tendies", symbol: "arrow.down.doc")
                     }
                 }
                 .buttonStyle(ActionButtonStyle())
@@ -159,14 +159,14 @@ struct PosterBoardView: View {
                     Button {
                         showImporter = true
                     } label: {
-                        Label("导入 .tendies 壁纸包", systemImage: "arrow.down.doc")
+                        Label("Impor paket wallpaper .tendies", systemImage: "arrow.down.doc")
                     }
                     .disabled(!isReady)
                     
                     Button {
                         openApp(withBID: SysBID.poster)
                     } label: {
-                        Label("打开 PosterBoard", systemImage: "arrow.up.right.square")
+                        Label("Buka PosterBoard", systemImage: "arrow.up.right.square")
                     }
                     
                     Divider()
@@ -174,12 +174,12 @@ struct PosterBoardView: View {
                     NavigationLink {
                         List {
                             Section {
-                                TextField("PosterBoard 容器路径", text: $pbContainerPath, axis: .vertical)
+                                TextField("Jalur kontainer PosterBoard", text: $pbContainerPath, axis: .vertical)
                                     .onChange(of: pbContainerPath) { _, newPath in
                                         let trimmed = newPath.trimmingCharacters(in: .whitespacesAndNewlines)
                                         hasContainerAccess = !trimmed.isEmpty && wq.grantAccess(path: trimmed).0 && fm.fileExists(atPath: trimmed)
                                     }
-                                Button("重新获取路径") {
+                                Button("Ambil ulang jalur") {
                                     DispatchQueue.global(qos: .userInitiated).async {
                                         let fetched = fsHandlers.getContainerPath(forMatch: "com.apple.PosterBoard")
                                         let access = !fetched.isEmpty && wq.grantAccess(path: fetched).0 && fm.fileExists(atPath: fetched)
@@ -194,28 +194,28 @@ struct PosterBoardView: View {
                             }
                             
                             Section {
-                                Button("清空已导入列表") {
+                                Button("Kosongkan daftar yang diimpor") {
                                     for object in tendiesArray {
                                         let url = AppURL.pbFolders.appendingPathComponent(object.folderName)
                                         try? fm.removeItem(at: url)
                                     }
                                     tendiesArray.removeAll()
                                 }
-                                Button("重置壁纸合集 (Collections)", role: .destructive) {
+                                Button("Reset Koleksi Wallpaper (Collections)", role: .destructive) {
                                     let res = resetWallpapers(for: PBPath.wpKit)
                                     if res {
                                         Haptic.shared.play(.soft)
                                     }
                                 }
                                 .disabled(!hasContainerAccess || pbContainerPath.isEmpty)
-                                Button("重置水星壁纸 (MercuryPoster)", role: .destructive) {
+                                Button("Reset Wallpaper Merkurius (MercuryPoster)", role: .destructive) {
                                     let res = resetWallpapers(for: PBPath.mercury)
                                     if res {
                                         Haptic.shared.play(.soft)
                                     }
                                 }
                                 .disabled(!hasContainerAccess || pbContainerPath.isEmpty)
-                                Button("重置视频壁纸 (Videos)", role: .destructive) {
+                                Button("Reset Wallpaper Video (Videos)", role: .destructive) {
                                     let res = resetWallpapers(for: PBPath.photos)
                                     if res {
                                         Haptic.shared.play(.soft)
@@ -223,14 +223,14 @@ struct PosterBoardView: View {
                                 }
                                 .disabled(!hasContainerAccess || pbContainerPath.isEmpty)
                             } header: {
-                                HeaderLabel("数据管理", symbol: "loupe")
+                                HeaderLabel("Manajemen Data", symbol: "loupe")
                             } footer: {
-                                Text("如果应用自定义壁纸后无法正常显示，可尝试重置上方任意对应类型的壁纸扩展缓存。")
+                                Text("Jika wallpaper kustom tidak tampil dengan benar setelah diterapkan, coba reset cache ekstensi wallpaper dari tipe yang sesuai di atas.")
                             }
                         }
-                        .navigationTitle("壁纸设置")
+                        .navigationTitle("Pengaturan Wallpaper")
                     } label: {
-                        Label("壁纸设置", systemImage: "gearshape")
+                        Label("Pengaturan Wallpaper", systemImage: "gearshape")
                     }
                 } label: {
                     Image(systemName: "ellipsis")
@@ -238,14 +238,14 @@ struct PosterBoardView: View {
             }
             
             ToolbarItem(placement: .topBarTrailing) {
-                Button("应用", role: .adaptiveConfirm) {
+                Button("Terapkan", role: .adaptiveConfirm) {
                     if !hasShownFirstRunMsg {
-                        Alertinator.shared.alert(title: "操作提示", body: PBMsg.applyInfo, actionLabel: "继续", action: {
+                        Alertinator.shared.alert(title: "Petunjuk Penggunaan", body: PBMsg.applyInfo, actionLabel: "Lanjutkan", action: {
                             hasShownFirstRunMsg = true
                             proceed()
                         })
                     } else if tendiesArray.filter({ $0.isOn }).flatMap({ $0.descrNames }).count > 5 {
-                        Alertinator.shared.alert(title: "操作提示", body: PBMsg.limitWarning, actionLabel: "确认", action: {
+                        Alertinator.shared.alert(title: "Petunjuk Penggunaan", body: PBMsg.limitWarning, actionLabel: "Konfirmasi", action: {
                             proceed()
                         })
                     } else {
@@ -257,13 +257,13 @@ struct PosterBoardView: View {
                         let res = applyObjects(tendiesArray.filter { $0.isOn })
                         if !res.0 {
                             if res.1.contains("an item with the same name already exists") || res.1.contains("已经存在") {
-                                Alertinator.shared.alert(title: "应用壁纸失败！", body: "所选的部分壁纸此前已添加过，请勿重复添加。")
+                                Alertinator.shared.alert(title: "Gagal menerapkan wallpaper!", body: "Beberapa wallpaper yang dipilih sudah pernah ditambahkan sebelumnya. Jangan tambahkan dua kali.")
                             } else {
-                                Alertinator.shared.alert(title: "应用壁纸失败！", body: res.1.isEmpty ? PBMsg.corruption : res.1)
+                                Alertinator.shared.alert(title: "Gagal menerapkan wallpaper!", body: res.1.isEmpty ? PBMsg.corruption : res.1)
                             }
                         } else {
                             Haptic.shared.play(.soft)
-                            Alertinator.shared.alert(title: "请重启 PosterBoard 以完成应用！", body: PBMsg.finishApply, showCancel: false, actionLabel: "继续", action: { openApp(withBID: SysBID.poster) })
+                            Alertinator.shared.alert(title: "Harap mulai ulang PosterBoard untuk menyelesaikan penerapan!", body: PBMsg.finishApply, showCancel: false, actionLabel: "Lanjutkan", action: { openApp(withBID: SysBID.poster) })
                         }
                     }
                 }
@@ -274,7 +274,7 @@ struct PosterBoardView: View {
         .fileImporter(isPresented: $showImporter, allowedContentTypes: [.item]) { result in
             let res = handleImport(result)
             if !res {
-                Alertinator.shared.alert(title: "导入 .tendies 壁纸包失败！", body: PBMsg.imprtFailed)
+                Alertinator.shared.alert(title: "Gagal mengimpor paket wallpaper .tendies!", body: PBMsg.imprtFailed)
             }
         }
     }
@@ -304,14 +304,14 @@ struct PosterBoardView: View {
             }
             hasContainerAccess = accessOK
             if !accessOK {
-                Alertinator.shared.alert(title: "无法访问 PosterBoard 容器！", body: "未能定位或授权 com.apple.PosterBoard 容器，请检查权限或在右上角“壁纸设置”中重新获取路径。")
+                Alertinator.shared.alert(title: "Tidak dapat mengakses kontainer PosterBoard!", body: "Gagal menemukan atau mengotorisasi kontainer com.apple.PosterBoard. Periksa izin atau ambil ulang jalur di \"Pengaturan Wallpaper\" di pojok kanan atas.")
             }
             if !fm.fileExists(atPath: AppURL.pb.path) || !fm.fileExists(atPath: AppURL.pbFolders.path) {
                 do {
                     try fm.createDirIfNeeded(at: AppURL.pb)
                     try fm.createDirIfNeeded(at: AppURL.pbFolders)
                 } catch {
-                    Alertinator.shared.alert(title: "初始化壁纸目录失败！", body: AppMsg.opFailed)
+                    Alertinator.shared.alert(title: "Gagal menginisialisasi direktori wallpaper!", body: AppMsg.opFailed)
                 }
             }
             isReady = true
@@ -320,7 +320,7 @@ struct PosterBoardView: View {
     
     private func applyObjects(_ objects: [TendiesObject]) -> (Bool, String) {
         guard !pbContainerPath.isEmpty else {
-            return (false, "未找到 PosterBoard 容器路径。")
+            return (false, "Jalur kontainer PosterBoard tidak ditemukan.")
         }
         let rootGrant = wq.grantAccess(path: pbContainerPath)
         if !rootGrant.0 {
@@ -367,12 +367,12 @@ struct PosterBoardView: View {
     
     private func resetWallpapers(for item: PBPath) -> Bool {
         guard !pbContainerPath.isEmpty else {
-            Alertinator.shared.alert(title: "重置壁纸失败！", body: "未找到 PosterBoard 容器路径。")
+            Alertinator.shared.alert(title: "Gagal mereset wallpaper!", body: "Jalur kontainer PosterBoard tidak ditemukan.")
             return false
         }
         let rootGrant = wq.grantAccess(path: pbContainerPath)
         if !rootGrant.0 {
-            Alertinator.shared.alert(title: "重置壁纸失败！", body: "无法获取 PosterBoard 容器权限：\(rootGrant.2)")
+            Alertinator.shared.alert(title: "Gagal mereset wallpaper!", body: "Tidak dapat memperoleh izin kontainer PosterBoard: \(rootGrant.2)")
             return false
         }
         let relPath = item.resolvedPath(in: pbContainerPath)
@@ -382,7 +382,7 @@ struct PosterBoardView: View {
         }
         let targetGrant = wq.grantAccess(path: target.path)
         if !targetGrant.0 {
-            Alertinator.shared.alert(title: "重置壁纸失败！", body: "无法获取目标壁纸目录权限：\(targetGrant.2)")
+            Alertinator.shared.alert(title: "Gagal mereset wallpaper!", body: "Tidak dapat memperoleh izin direktori wallpaper target: \(targetGrant.2)")
             return false
         }
         do {
@@ -394,7 +394,7 @@ struct PosterBoardView: View {
             return true
         } catch {
             print("(pb) failed to reset \(item.rawValue): \(error.localizedDescription)")
-            Alertinator.shared.alert(title: "重置壁纸失败！", body: error.localizedDescription)
+            Alertinator.shared.alert(title: "Gagal mereset wallpaper!", body: error.localizedDescription)
             return false
         }
     }
@@ -421,4 +421,3 @@ struct PosterBoardView: View {
         }
     }
 }
-
