@@ -2,7 +2,7 @@
 //  PowerTelemetryView.swift
 //  Erosion
 //
-//  [Experimental / 测试特性] Read-only hardware battery health (raw mAh, cycle count,
+//  [Experimental / Fitur Uji] Read-only hardware battery health (raw mAh, cycle count,
 //  voltage/amperage/wattage, cell temperature) & SoC thermal throttling telemetry
 //  via APFS clonefile() snapshot of systemgroup.com.apple.powerlog.
 //
@@ -43,7 +43,7 @@ struct ThermalTelemetryEvent: Identifiable, Codable {
 
 struct PowerTelemetryView: View {
     @State private var isLoading = false
-    @State private var statusBanner: String = "点击右上角刷新按钮读取底层 Powerlog 快照遥测"
+    @State private var statusBanner: String = "Tekan tombol segarkan di kanan atas untuk membaca telemetri snapshot Powerlog tingkat bawah"
     @State private var powerlogAccessible = false
     @State private var latestBattery: BatteryTelemetrySample?
     @State private var recentBatterySamples: [BatteryTelemetrySample] = []
@@ -62,9 +62,9 @@ struct PowerTelemetryView: View {
                         .foregroundStyle(Color.orange)
                         .padding(.top, 2)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("测试特性 · 纯只读硬件遥测快照")
+                        Text("Fitur Uji · Snapshot Telemetri Perangkat Keras Read-Only Murni")
                             .font(.subheadline.weight(.semibold))
-                        Text("通过 APFS clonefile() 写时复制将 CurrentPowerlog.PLSQL 瞬时克隆至本应用临时目录后只读解析，零物理写入、绝不阻塞系统 powerlogHelperd 守护进程（注：部分 iOS 26 固件限制了系统级 Powerlog 沙盒令牌下发，iOS 27 真机支持完整读取）。")
+                        Text("Melalui APFS clonefile() copy-on-write, CurrentPowerlog.PLSQL dikloning secara instan ke direktori sementara aplikasi ini lalu diurai secara read-only, tanpa penulisan fisik apa pun, sama sekali tidak memblokir daemon powerlogHelperd sistem (catatan: sebagian firmware iOS 26 membatasi penerbitan token sandbox Powerlog tingkat sistem, iOS 27 di perangkat asli mendukung pembacaan lengkap).")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -74,19 +74,19 @@ struct PowerTelemetryView: View {
 
             Section {
                 HStack {
-                    Text("当前芯片实时热状态 (ThermalState)")
+                    Text("Status Termal Chip Real-time Saat Ini (ThermalState)")
                     Spacer()
                     Text(thermalStateLabel(liveThermalState))
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(thermalStateColor(liveThermalState))
                 }
                 HStack {
-                    Text("Powerlog 数据库快照状态")
+                    Text("Status Snapshot Basis Data Powerlog")
                     Spacer()
                     if isLoading {
                         ProgressView()
                     } else {
-                        Text(powerlogAccessible ? "✅ 已挂载只读快照" : "未挂载 / 受限")
+                        Text(powerlogAccessible ? "✅ Snapshot read-only ter-mount" : "Tidak ter-mount / terbatas")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(powerlogAccessible ? Color.green : Color.secondary)
                     }
@@ -95,56 +95,56 @@ struct PowerTelemetryView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             } header: {
-                HeaderLabel("实时芯片温控与数据源状态", symbol: "thermometer.medium")
+                HeaderLabel("Kontrol Termal Chip Real-time dan Status Sumber Data", symbol: "thermometer.medium")
             }
 
             if let latest = latestBattery {
                 Section {
                     if let health = latest.trueHealthPercent {
                         metricRow(
-                            title: "物理真实电池健康度",
+                            title: "Kesehatan Baterai Fisik Sesungguhnya",
                             value: String(format: "%.2f%%", health),
                             accent: health >= 85 ? .green : (health >= 78 ? .orange : .red)
                         )
                     }
                     if let raw = latest.rawMaxCapacitymAh {
-                        metricRow(title: "真实物理最大容量 (RawMaxCapacity)", value: "\(raw) mAh")
+                        metricRow(title: "Kapasitas Maksimum Fisik Sesungguhnya (RawMaxCapacity)", value: "\(raw) mAh")
                     }
                     if let nom = latest.nominalCapacitymAh {
-                        metricRow(title: "系统标称满充容量 (NominalCapacity)", value: "\(nom) mAh")
+                        metricRow(title: "Kapasitas Isi Penuh Nominal Sistem (NominalCapacity)", value: "\(nom) mAh")
                     }
                     if let des = latest.designCapacitymAh {
-                        metricRow(title: "原厂设计容量 (DesignCapacity)", value: "\(des) mAh")
+                        metricRow(title: "Kapasitas Desain Pabrik (DesignCapacity)", value: "\(des) mAh")
                     }
                     if let cyc = latest.cycleCount {
-                        metricRow(title: "精确完整循环次数 (CycleCount)", value: "\(cyc) 次")
+                        metricRow(title: "Jumlah Siklus Lengkap Presisi (CycleCount)", value: "\(cyc) kali")
                     }
                     if let temp = latest.temperatureCelsius {
                         metricRow(
-                            title: "电芯物理传感器温度",
+                            title: "Suhu Sensor Fisik Sel Baterai",
                             value: String(format: "%.1f °C", temp),
                             accent: temp >= 40 ? .red : (temp >= 36 ? .orange : .primary)
                         )
                     }
                     if let v = latest.voltagemV {
-                        metricRow(title: "电芯实时电压 (Voltage)", value: "\(v) mV (\(String(format: "%.2f V", Double(v) / 1000.0)))")
+                        metricRow(title: "Tegangan Sel Real-time (Voltage)", value: "\(v) mV (\(String(format: "%.2f V", Double(v) / 1000.0)))")
                     }
                     if let a = latest.amperagemA {
-                        let signHint = a >= 0 ? "充电输入" : "放电消耗"
-                        metricRow(title: "瞬时充放电电流 (\(signHint))", value: "\(a) mA")
+                        let signHint = a >= 0 ? "Input Pengisian" : "Konsumsi Pengosongan"
+                        metricRow(title: "Arus Pengisian/Pengosongan Sesaat (\(signHint))", value: "\(a) mA")
                     }
                     if let watts = latest.computedPowerWatts {
                         metricRow(
-                            title: "整机实时充放电功率",
+                            title: "Daya Pengisian/Pengosongan Real-time Perangkat",
                             value: String(format: "%.2f W", abs(watts)),
                             accent: watts >= 0 ? .green : .blue
                         )
                     }
-                    metricRow(title: "最近快照采样时间", value: formatDate(latest.timestamp))
+                    metricRow(title: "Waktu Pengambilan Sampel Snapshot Terbaru", value: formatDate(latest.timestamp))
                 } header: {
-                    HeaderLabel("物理电芯全维度指标 [测试]", symbol: "battery.100percent.bolt")
+                    HeaderLabel("Metrik Lengkap Sel Baterai Fisik [Uji]", symbol: "battery.100percent.bolt")
                 } footer: {
-                    Text("提示：系统“设置 -> 电池健康”显示的百分比经过平滑校准算法修饰，而 AppleRawMaxCapacity 反映 PMU 电量计芯片测得的真实物理满电容量。")
+                    Text("Petunjuk: Persentase yang ditampilkan di \"Pengaturan -> Kesehatan Baterai\" sistem telah dimodifikasi oleh algoritma kalibrasi penghalusan, sedangkan AppleRawMaxCapacity mencerminkan kapasitas penuh fisik sesungguhnya yang diukur oleh chip pengukur daya PMU.")
                 }
             }
 
@@ -160,13 +160,13 @@ struct PowerTelemetryView: View {
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
-                            Text("等级 \(ev.levelCode)")
+                            Text("Level \(ev.levelCode)")
                                 .font(.system(.caption, design: .monospaced))
                                 .foregroundStyle(ev.levelCode >= 20 ? Color.orange : Color.secondary)
                         }
                     }
                 } header: {
-                    HeaderLabel("近期芯片温控与降频记录 [测试]", symbol: "flame")
+                    HeaderLabel("Catatan Termal Chip dan Throttling Terbaru [Uji]", symbol: "flame")
                 }
             }
 
@@ -177,7 +177,7 @@ struct PowerTelemetryView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 let lvlText = sample.levelPercent.map { String(format: "%.0f%%", $0) } ?? "--%"
                                 let tempText = sample.temperatureCelsius.map { String(format: "%.1f°C", $0) } ?? "--°C"
-                                Text("电量 \(lvlText) · 温度 \(tempText)")
+                                Text("Baterai \(lvlText) · Suhu \(tempText)")
                                     .font(.subheadline)
                                 Text(formatDate(sample.timestamp))
                                     .font(.caption2)
@@ -192,11 +192,11 @@ struct PowerTelemetryView: View {
                         }
                     }
                 } header: {
-                    HeaderLabel("近期电池采样流水（最近 15 条）", symbol: "chart.xyaxis.line")
+                    HeaderLabel("Aliran Pengambilan Sampel Baterai Terbaru (15 Terakhir)", symbol: "chart.xyaxis.line")
                 }
             }
         }
-        .navigationTitle("电池与温控遥测 [测试]")
+        .navigationTitle("Telemetri Baterai dan Termal [Uji]")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -239,11 +239,11 @@ struct PowerTelemetryView: View {
 
     private func thermalStateLabel(_ state: ProcessInfo.ThermalState) -> String {
         switch state {
-        case .nominal: return "正常 (Nominal · 无降频)"
-        case .fair: return "温热 (Fair · 轻度温控)"
-        case .serious: return "发热降频 (Serious · 已锁帧/降频)"
-        case .critical: return "严重过热 (Critical · 强制限频降亮度)"
-        @unknown default: return "未知状态"
+        case .nominal: return "Normal (Nominal · Tanpa Throttling)"
+        case .fair: return "Hangat (Fair · Termal Ringan)"
+        case .serious: return "Panas dan Throttling (Serious · Frame Terkunci/Throttling)"
+        case .critical: return "Overheat Parah (Critical · Batas Frekuensi dan Kecerahan Paksa)"
+        @unknown default: return "Status Tidak Diketahui"
         }
     }
 
@@ -265,7 +265,7 @@ struct PowerTelemetryView: View {
 
     private func refreshTelemetry() {
         isLoading = true
-        statusBanner = "正在挂载 CurrentPowerlog.PLSQL 只读快照..."
+        statusBanner = "Sedang me-mount snapshot read-only CurrentPowerlog.PLSQL..."
         liveThermalState = ProcessInfo.processInfo.thermalState
         Self.telemetryQueue.async {
             let wasActive = wq.hasActiveAccess(path: Self.powerlogDir)
@@ -280,7 +280,7 @@ struct PowerTelemetryView: View {
                 DispatchQueue.main.async {
                     self.isLoading = false
                     self.powerlogAccessible = false
-                    self.statusBanner = "当前固件未放行 systemgroup.com.apple.powerlog 只读扩展令牌（\(grant.2)）。上方芯片实时热状态仍可正常监测。"
+                    self.statusBanner = "Firmware saat ini tidak mengizinkan token ekstensi read-only systemgroup.com.apple.powerlog (\(grant.2)). Status termal chip real-time di atas tetap dapat dipantau dengan normal."
                 }
                 return
             }
@@ -298,16 +298,16 @@ struct PowerTelemetryView: View {
                     self.latestBattery = parsed.0.first
                     self.thermalEvents = parsed.1
                     if parsed.0.isEmpty {
-                        self.statusBanner = "已成功打开 Powerlog 快照，但未查询到近期电池采样表记录。"
+                        self.statusBanner = "Snapshot Powerlog berhasil dibuka, tetapi tidak ada catatan tabel pengambilan sampel baterai terbaru yang ditemukan."
                     } else {
-                        self.statusBanner = "已通过 APFS clonefile 无锁快照解析 \(parsed.0.count) 条近期电池记录与 \(parsed.1.count) 条温控记录。"
+                        self.statusBanner = "Berhasil mengurai \(parsed.0.count) catatan baterai terbaru dan \(parsed.1.count) catatan termal melalui snapshot tanpa lock APFS clonefile."
                     }
                 }
             } catch {
                 DispatchQueue.main.async {
                     self.isLoading = false
                     self.powerlogAccessible = false
-                    self.statusBanner = "解析 Powerlog 快照异常：\(error.localizedDescription)"
+                    self.statusBanner = "Anomali penguraian snapshot Powerlog: \(error.localizedDescription)"
                 }
             }
         }
@@ -411,11 +411,11 @@ struct PowerTelemetryView: View {
                   let lvl = SQLiteSnapshotHelper.intCol(validStmt, 1) else { continue }
             let desc: String
             switch lvl {
-            case ..<1: desc = "散热恢复正常 (Nominal)"
-            case 1...10: desc = "轻度温控介入 (Light / Fair)"
-            case 11...20: desc = "中度降频限帧 (Moderate / Serious)"
-            case 21...30: desc = "重度性能限制与降亮度 (Heavy)"
-            default: desc = "过热保护阈值触发 (Critical)"
+            case ..<1: desc = "Disipasi panas kembali normal (Nominal)"
+            case 1...10: desc = "Kontrol termal ringan aktif (Light / Fair)"
+            case 11...20: desc = "Throttling dan batas frame sedang (Moderate / Serious)"
+            case 21...30: desc = "Pembatasan performa dan penurunan kecerahan berat (Heavy)"
+            default: desc = "Ambang perlindungan overheat terpicu (Critical)"
             }
             out.append(ThermalTelemetryEvent(id: UUID(), timestamp: Date(timeIntervalSince1970: ts), levelCode: lvl, summary: desc))
         }
