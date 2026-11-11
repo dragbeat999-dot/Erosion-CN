@@ -67,15 +67,15 @@ struct AppleIntelligenceCheckupCard: View {
 
         var gateDetail: String
         if intInstallConflict {
-            gateDetail = "⚠️ 检测到已开启 InternalInstall 内部模式（与 AI 互斥）"
+            gateDetail = "⚠️ Terdeteksi InternalInstall mode internal aktif (bertentangan dengan AI)"
         } else if siriHubConflict {
-            gateDetail = "⚠️ 检测到已开启 SiriHub 路由（会卡死“正在添加 Siri 支持内容”，可一键修复）"
+            gateDetail = "⚠️ Terdeteksi routing SiriHub aktif (akan memacetkan \"Sedang menambahkan konten dukungan Siri\", dapat diperbaiki sekali klik)"
         } else if advAIConflict {
-            gateDetail = "⚠️ 检测到已开启进阶 AI 实验槽位（会导致照片“高质量”消除报错，可一键修复）"
+            gateDetail = "⚠️ Terdeteksi slot eksperimental AI lanjutan aktif (akan menyebabkan error hapus \"kualitas tinggi\" foto, dapat diperbaiki sekali klik)"
         } else if !greenTeaCleared {
-            gateDetail = "国行 green-tea 限制槽位未解除（建议开启下方底层解除）"
+            gateDetail = "Slot batasan green-tea versi Tiongkok belum dibuka (disarankan mengaktifkan pembukaan lapisan bawah di bawah)"
         } else {
-            gateDetail = "green-tea=false · 无内部调试、SiriHub 与消除冲突"
+            gateDetail = "green-tea=false · Tidak ada debug internal, SiriHub, dan konflik hapus"
         }
 
         // 4. Hardware AI Eligibility & Sub-capabilities
@@ -87,40 +87,40 @@ struct AppleIntelligenceCheckupCard: View {
 
         let aiDetail: String
         if nativeAdvAI {
-            aiDetail = "本机 (\(originalHardwareProductType())) 原生支持全部 AI 与 iOS 27 进阶能力"
+            aiDetail = "Perangkat ini (\(originalHardwareProductType())) secara native mendukung semua AI dan kemampuan lanjutan iOS 27"
         } else if nativeAI {
-            aiDetail = "本机 (\(originalHardwareProductType())) 硬件原生支持 Apple 智能（含照片消除、通话录音与转写）"
+            aiDetail = "Hardware perangkat ini (\(originalHardwareProductType())) secara native mendukung Apple Intelligence (termasuk hapus foto, rekaman panggilan, dan transkripsi)"
         } else {
             aiDetail = stagedAI
-                ? "已开启旧机型 AI 总开关与消除/手写子能力（需配合机型伪装）"
-                : "旧机型未开启 AI 开关（需开启并配合机型伪装）"
+                ? "Sakelar AI utama dan sub-kemampuan hapus/tulisan tangan untuk model lama sudah diaktifkan (perlu bersama penyamaran model)"
+                : "Sakelar AI untuk model lama belum diaktifkan (perlu diaktifkan dan bersama penyamaran model)"
         }
 
         return [
             FactorItem(
                 id: "region",
-                title: isLLOnlyMode ? "1. 区域代码标识 (仅 LL 兼容模式)" : "1. 销售地区标识 (LL / LL/A)",
-                detail: "配置：\(stagedRegCode.isEmpty ? "未设置" : stagedRegCode) / \(stagedSysconfig.isEmpty ? "未设置" : stagedSysconfig) · 真机实时：\(liveRegion.isEmpty ? "未知" : liveRegion)",
+                title: isLLOnlyMode ? "1. Penanda Kode Wilayah (Hanya Mode Kompatibel LL)" : "1. Penanda Wilayah Penjualan (LL / LL/A)",
+                detail: "Konfigurasi: \(stagedRegCode.isEmpty ? "Belum diatur" : stagedRegCode) / \(stagedSysconfig.isEmpty ? "Belum diatur" : stagedSysconfig) · Real-time perangkat: \(liveRegion.isEmpty ? "Tidak diketahui" : liveRegion)",
                 isReady: regionReady,
                 isLiveActive: regionLiveOK
             ),
             FactorItem(
                 id: "regmodel",
-                title: isLLOnlyMode ? "2. 监管型号（保留原厂 \(stagedRegModel.isEmpty ? "默认" : stagedRegModel)）" : "2. 美版监管型号 (\(usTarget))",
-                detail: "配置：\(stagedRegModel.isEmpty ? "未设置" : stagedRegModel) · 真机实时：\(liveRegModel.isEmpty ? "未知" : liveRegModel)",
+                title: isLLOnlyMode ? "2. Model Regulasi (Pertahankan Pabrik \(stagedRegModel.isEmpty ? "Default" : stagedRegModel))" : "2. Model Regulasi Versi AS (\(usTarget))",
+                detail: "Konfigurasi: \(stagedRegModel.isEmpty ? "Belum diatur" : stagedRegModel) · Real-time perangkat: \(liveRegModel.isEmpty ? "Tidak diketahui" : liveRegModel)",
                 isReady: regModelReady,
                 isLiveActive: regModelLiveOK
             ),
             FactorItem(
                 id: "gate",
-                title: "3. 国行门控与互斥锁检查",
+                title: "3. Pemeriksaan Gerbang Versi Tiongkok dan Kunci Mutual Exclusion",
                 detail: gateDetail,
                 isReady: gateReady,
                 isLiveActive: gateLiveOK
             ),
             FactorItem(
                 id: "ai",
-                title: "4. 端侧 AI 准入与子能力",
+                title: "4. Akses AI On-Device dan Sub-Kemampuan",
                 detail: aiDetail,
                 isReady: aiReady,
                 isLiveActive: liveAI
@@ -139,10 +139,10 @@ struct AppleIntelligenceCheckupCard: View {
                 Image(systemName: allReady ? "sparkles" : "wand.and.stars")
                     .foregroundStyle(allReady ? Color.green : Color.orange)
                     .font(.subheadline.weight(.semibold))
-                Text("Apple 智能激活四要素体检")
+                Text("Pemeriksaan 4 Faktor Aktivasi Apple Intelligence")
                     .font(.subheadline.weight(.semibold))
                 Spacer()
-                Text(allLive ? "真机已生效" : (allReady ? "已配齐 · 待应用重启" : "已配齐 \(readyCount)/\(items.count)"))
+                Text(allLive ? "Perangkat sudah aktif" : (allReady ? "Lengkap · Menunggu terapkan dan restart" : "Lengkap \(readyCount)/\(items.count)"))
                     .font(.caption2.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
@@ -181,7 +181,7 @@ struct AppleIntelligenceCheckupCard: View {
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "bolt.fill")
-                            Text("一键配齐 / 修复")
+                            Text("Lengkapi / Perbaiki Sekali Klik")
                         }
                         .font(.caption.weight(.semibold))
                         .padding(.horizontal, 12)
@@ -198,7 +198,7 @@ struct AppleIntelligenceCheckupCard: View {
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "waveform.path.ecg.rectangle")
-                        Text("真机生效核验探针")
+                        Text("Probe Verifikasi Perangkat Asli")
                     }
                     .font(.caption.weight(.medium))
                     .padding(.horizontal, 10)
@@ -209,11 +209,11 @@ struct AppleIntelligenceCheckupCard: View {
                 .buttonStyle(.plain)
 
                 Button {
-                    Alertinator.shared.alert(title: "普通话来电询问共存指南（测试特性）", body: MGMsg.callScreeningGuide)
+                    Alertinator.shared.alert(title: "Panduan Koeksistensi Penanya Panggilan Mandarin (Fitur Uji)", body: MGMsg.callScreeningGuide)
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "phone.badge.waveform.fill")
-                        Text("来电询问共存指南 [测试]")
+                        Text("Panduan Koeksistensi Penanya Panggilan [Uji]")
                     }
                     .font(.caption.weight(.medium))
                     .padding(.horizontal, 10)
@@ -250,57 +250,57 @@ struct MGInspectorView: View {
 
     private let curatedItems: [CuratedProbeItem] = [
         // Region & Regulatory
-        CuratedProbeItem(title: "销售地区代码 (RegionCode)", key: MGKey.regionCode, category: "国行解锁与地区准入"),
-        CuratedProbeItem(title: "系统销售地区 (RegionInfoFromSysconfig)", key: MGKey.regionSysconfig, category: "国行解锁与地区准入"),
-        CuratedProbeItem(title: "监管型号 (RegulatoryModelNumber)", key: MGKey.regModelNumber, category: "国行解锁与地区准入"),
-        CuratedProbeItem(title: "机型硬件标识 (ProductType)", key: MGKey.prodType, category: "国行解锁与地区准入"),
-        CuratedProbeItem(title: "国行限制标记 (green-tea)", key: MGCacheDataLayout.greenTeaKey, category: "国行解锁与地区准入"),
-        CuratedProbeItem(title: "非国行设备标记 (not-green-tea)", key: MGCacheDataLayout.notGreenTeaKey, category: "国行解锁与地区准入"),
-        CuratedProbeItem(title: "无线局域网显示标记 (wapi)", key: MGCacheDataLayout.wapiKey, category: "国行解锁与地区准入"),
+        CuratedProbeItem(title: "Kode Wilayah Penjualan (RegionCode)", key: MGKey.regionCode, category: "Unlock Versi Tiongkok dan Akses Wilayah"),
+        CuratedProbeItem(title: "Wilayah Penjualan Sistem (RegionInfoFromSysconfig)", key: MGKey.regionSysconfig, category: "Unlock Versi Tiongkok dan Akses Wilayah"),
+        CuratedProbeItem(title: "Model Regulasi (RegulatoryModelNumber)", key: MGKey.regModelNumber, category: "Unlock Versi Tiongkok dan Akses Wilayah"),
+        CuratedProbeItem(title: "Penanda Hardware Model (ProductType)", key: MGKey.prodType, category: "Unlock Versi Tiongkok dan Akses Wilayah"),
+        CuratedProbeItem(title: "Penanda Batasan Versi Tiongkok (green-tea)", key: MGCacheDataLayout.greenTeaKey, category: "Unlock Versi Tiongkok dan Akses Wilayah"),
+        CuratedProbeItem(title: "Penanda Perangkat Non-Tiongkok (not-green-tea)", key: MGCacheDataLayout.notGreenTeaKey, category: "Unlock Versi Tiongkok dan Akses Wilayah"),
+        CuratedProbeItem(title: "Penanda Tampilan WLAN (wapi)", key: MGCacheDataLayout.wapiKey, category: "Unlock Versi Tiongkok dan Akses Wilayah"),
         // Apple Intelligence & iOS 27 AI
-        CuratedProbeItem(title: "Apple 智能总开关 (GenerativeModelSystems)", key: MGKey.appIntell, category: "Apple 智能与 iOS 27 AI"),
-        CuratedProbeItem(title: "相册“消除”功能 (Photos Clean Up)", key: MGKey.photosCleanUp, category: "Apple 智能与 iOS 27 AI"),
-        CuratedProbeItem(title: "备忘录手写体合成 (Handwriting Synthesis)", key: MGKey.handwritingSynth, category: "Apple 智能与 iOS 27 AI"),
-        CuratedProbeItem(title: "个人实时翻译 (Personal Translator)", key: MGKey.personalTranslator, category: "Apple 智能与 iOS 27 AI"),
-        CuratedProbeItem(title: "iOS 27 音频智能 (Audio Intelligence)", key: MGKey.audioIntell, category: "Apple 智能与 iOS 27 AI"),
+        CuratedProbeItem(title: "Sakelar Utama Apple Intelligence (GenerativeModelSystems)", key: MGKey.appIntell, category: "Apple Intelligence dan iOS 27 AI"),
+        CuratedProbeItem(title: "Fitur \"Hapus\" Foto (Photos Clean Up)", key: MGKey.photosCleanUp, category: "Apple Intelligence dan iOS 27 AI"),
+        CuratedProbeItem(title: "Sintesis Tulisan Tangan Catatan (Handwriting Synthesis)", key: MGKey.handwritingSynth, category: "Apple Intelligence dan iOS 27 AI"),
+        CuratedProbeItem(title: "Terjemahan Real-time Pribadi (Personal Translator)", key: MGKey.personalTranslator, category: "Apple Intelligence dan iOS 27 AI"),
+        CuratedProbeItem(title: "Audio Intelligence iOS 27 (Audio Intelligence)", key: MGKey.audioIntell, category: "Apple Intelligence dan iOS 27 AI"),
         // Media, Camera & Health
-        CuratedProbeItem(title: "相册与相机混音 (Audio Mix)", key: MGKey.audioMix, category: "影像与健康进阶能力"),
-        CuratedProbeItem(title: "空间音频录制 (spatial-audio-recording)", key: MGKey.spatialAudioRec, category: "影像与健康进阶能力"),
-        CuratedProbeItem(title: "FaceTime 空间音频 (spatial-facetime-audio)", key: MGKey.spatialFaceTimeAudio, category: "影像与健康进阶能力"),
-        CuratedProbeItem(title: "按下快门瞬间抓拍 (ResponsiveShutter)", key: MGKey.responsiveShutter, category: "影像与健康进阶能力"),
-        CuratedProbeItem(title: "健康高血压趋势评估 (HypertensionNotifications)", key: MGKey.hypertensionNotif, category: "影像与健康进阶能力"),
+        CuratedProbeItem(title: "Audio Mix Galeri dan Kamera", key: MGKey.audioMix, category: "Kemampuan Lanjutan Imaging dan Kesehatan"),
+        CuratedProbeItem(title: "Perekaman Audio Spasial (spatial-audio-recording)", key: MGKey.spatialAudioRec, category: "Kemampuan Lanjutan Imaging dan Kesehatan"),
+        CuratedProbeItem(title: "Audio Spasial FaceTime (spatial-facetime-audio)", key: MGKey.spatialFaceTimeAudio, category: "Kemampuan Lanjutan Imaging dan Kesehatan"),
+        CuratedProbeItem(title: "Jepretan Seketika Saat Rana Ditekan (ResponsiveShutter)", key: MGKey.responsiveShutter, category: "Kemampuan Lanjutan Imaging dan Kesehatan"),
+        CuratedProbeItem(title: "Evaluasi Tren Hipertensi Kesehatan (HypertensionNotifications)", key: MGKey.hypertensionNotif, category: "Kemampuan Lanjutan Imaging dan Kesehatan"),
         // Display & System
-        CuratedProbeItem(title: "液态玻璃低功耗渲染", key: MGKey.liquidGlassLowPower, category: "显示与硬件特征"),
-        CuratedProbeItem(title: "灵动岛特性 (DynamicIsland)", key: MGKey.island, category: "显示与硬件特征"),
-        CuratedProbeItem(title: "全天候显示 (AOD)", key: MGKey.AOD, category: "显示与硬件特征"),
-        CuratedProbeItem(title: "80% 充电上限 (80ChargeLimit)", key: MGKey.chargeLim, category: "显示与硬件特征"),
-        CuratedProbeItem(title: "开关机提示音 (BootChime)", key: MGKey.bootChime, category: "显示与硬件特征"),
-        CuratedProbeItem(title: "操作按钮 (ActionButton)", key: MGKey.actButton, category: "显示与硬件特征"),
-        CuratedProbeItem(title: "Apple 内部安装模式 (InternalInstall)", key: MGKey.intInstall, category: "显示与硬件特征"),
-        // [测试特性] Experimental Slots
-        CuratedProbeItem(title: "[测试] 地区相机快门音豁免", key: MGKey.shutterRelaxation, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] 高低功耗双麦并发拾音", key: MGKey.concurrentHPLPMics, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] 相册局部光影重绘", key: MGKey.photosLocalLight, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] 超取景框空间捕获", key: MGKey.spatialOverCapture, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] 立体声视频拾音", key: MGKey.stereoAudioRec, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] 旧机型显示电池循环与日期", key: MGKey.legacyBatteryInfo, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] 户外高亮全天候显示", key: MGKey.highLuminanceAOD, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] CarPlay Ultra 多屏车载", key: MGKey.carPlay2, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] 120Hz 触控采样投递", key: MGKey.touchDelivery120Hz, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] 临床助听器音频均衡", key: MGKey.hearingAidEQ, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] 睡眠呼吸暂停风险检测", key: MGKey.breathingDisturbances, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] 美版血氧软件限制开关", key: MGKey.usBloodOxygen, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] 户外极限运动模式", key: MGKey.workoutUltra, category: "测试特性 (CacheData 实验项)"),
-        CuratedProbeItem(title: "[测试] 端侧 Siri Hub 意图路由", key: MGKey.siriHub, category: "测试特性 (CacheData 实验项)")
+        CuratedProbeItem(title: "Render Liquid Glass Hemat Daya", key: MGKey.liquidGlassLowPower, category: "Tampilan dan Fitur Hardware"),
+        CuratedProbeItem(title: "Fitur Dynamic Island", key: MGKey.island, category: "Tampilan dan Fitur Hardware"),
+        CuratedProbeItem(title: "Always-On Display (AOD)", key: MGKey.AOD, category: "Tampilan dan Fitur Hardware"),
+        CuratedProbeItem(title: "Batas Pengisian 80% (80ChargeLimit)", key: MGKey.chargeLim, category: "Tampilan dan Fitur Hardware"),
+        CuratedProbeItem(title: "Suara Boot/Shutdown (BootChime)", key: MGKey.bootChime, category: "Tampilan dan Fitur Hardware"),
+        CuratedProbeItem(title: "Tombol Aksi (ActionButton)", key: MGKey.actButton, category: "Tampilan dan Fitur Hardware"),
+        CuratedProbeItem(title: "Mode Instalasi Internal Apple (InternalInstall)", key: MGKey.intInstall, category: "Tampilan dan Fitur Hardware"),
+        // [Fitur Uji] Experimental Slots
+        CuratedProbeItem(title: "[Uji] Pengecualian Suara Rana Kamera Regional", key: MGKey.shutterRelaxation, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] Mikrofon Ganda High-Low Power Bersamaan", key: MGKey.concurrentHPLPMics, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] Redraw Cahaya Lokal Galeri", key: MGKey.photosLocalLight, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] Penangkapan Spasial Ultra-Wide", key: MGKey.spatialOverCapture, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] Penangkapan Audio Video Stereo", key: MGKey.stereoAudioRec, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] Tampilkan Siklus Baterai dan Tanggal Model Lama", key: MGKey.legacyBatteryInfo, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] AOD Kecerahan Tinggi Outdoor", key: MGKey.highLuminanceAOD, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] CarPlay Ultra Multi-Layar Otomotif", key: MGKey.carPlay2, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] Pengiriman Sampling Touch 120Hz", key: MGKey.touchDelivery120Hz, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] Ekualisasi Audio Alat Bantu Dengar Klinis", key: MGKey.hearingAidEQ, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] Deteksi Risiko Sleep Apnea", key: MGKey.breathingDisturbances, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] Sakelar Batasan Software SpO2 Versi AS", key: MGKey.usBloodOxygen, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] Mode Olahraga Ekstrem Outdoor", key: MGKey.workoutUltra, category: "Fitur Uji (Eksperimen CacheData)"),
+        CuratedProbeItem(title: "[Uji] Routing Intent Siri Hub On-Device", key: MGKey.siriHub, category: "Fitur Uji (Eksperimen CacheData)")
     ]
 
     var body: some View {
         List {
             Section {
-                Picker("查看模式", selection: $selectedTab) {
-                    Text("核心核验").tag(0)
-                    Text("全量槽位表").tag(1)
-                    Text("自由探针").tag(2)
+                Picker("Mode Tampilan", selection: $selectedTab) {
+                    Text("Verifikasi Inti").tag(0)
+                    Text("Tabel Slot Lengkap").tag(1)
+                    Text("Probe Bebas").tag(2)
                 }
                 .pickerStyle(.segmented)
             }
@@ -314,8 +314,8 @@ struct MGInspectorView: View {
             }
         }
         .id(refreshToken)
-        .searchable(text: $searchText, prompt: "搜索键名、槽位号或功能名称")
-        .navigationTitle("真机生效核验与槽位探针")
+        .searchable(text: $searchText, prompt: "Cari nama kunci, nomor slot, atau nama fitur")
+        .navigationTitle("Verifikasi Perangkat Asli dan Probe Slot")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -324,7 +324,7 @@ struct MGInspectorView: View {
                     refreshToken = UUID()
                     Haptic.shared.play(.soft)
                 } label: {
-                    Label("刷新实时状态", systemImage: "arrow.clockwise")
+                    Label("Segarkan Status Real-time", systemImage: "arrow.clockwise")
                 }
             }
         }
@@ -343,14 +343,14 @@ struct MGInspectorView: View {
                     HStack {
                         Image(systemName: "cpu.fill")
                             .foregroundStyle(Color.accentColor)
-                        Text("本机 libMobileGestalt.dylib 实时镜像")
+                        Text("Citra real-time libMobileGestalt.dylib perangkat")
                             .font(.subheadline.weight(.semibold))
                         Spacer()
-                        Text("\(layout.slotCount) 槽位 · \(layout.byteCount) B")
+                        Text("\(layout.slotCount) slot · \(layout.byteCount) B")
                             .font(.system(.caption, design: .monospaced).weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
-                    Text("CacheUUID：\(layout.uuid)")
+                    Text("CacheUUID: \(layout.uuid)")
                         .font(.system(.caption2, design: .monospaced))
                         .foregroundStyle(.secondary)
                 }
@@ -358,7 +358,7 @@ struct MGInspectorView: View {
             }
         }
 
-        let categories = ["国行解锁与地区准入", "Apple 智能与 iOS 27 AI", "影像与健康进阶能力", "显示与硬件特征"]
+        let categories = ["Unlock Versi Tiongkok dan Akses Wilayah", "Apple Intelligence dan iOS 27 AI", "Kemampuan Lanjutan Imaging dan Kesehatan", "Tampilan dan Fitur Hardware"]
         ForEach(categories, id: \.self) { cat in
             let filtered = curatedItems.filter { item in
                 guard item.category == cat else { return false }
@@ -415,7 +415,7 @@ struct MGInspectorView: View {
 
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("原机备份")
+                    Text("Cadangan Pabrik")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                     Text(info.originalText)
@@ -424,7 +424,7 @@ struct MGInspectorView: View {
                 }
                 Divider().frame(height: 22)
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("当前配置")
+                    Text("Konfigurasi Saat Ini")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                     Text(info.stagedText)
@@ -433,7 +433,7 @@ struct MGInspectorView: View {
                 }
                 Divider().frame(height: 22)
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("MGCopyAnswer 真机值")
+                    Text("Nilai MGCopyAnswer Perangkat Asli")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                     Text(info.liveText)
@@ -465,14 +465,14 @@ struct MGInspectorView: View {
         let ogData = ogDict?["CacheData"] as? Data
 
         var slotLoc: String? = nil
-        var origValText = "未设置"
-        var stagedValText = "未设置"
+        var origValText = "Belum diatur"
+        var stagedValText = "Belum diatur"
 
         if case .success((let layout, let curData)) = layoutResult,
            let slotIdx = layout.slotIndex(forKey: key),
            layout.validateSingleBooleanSlot(slotIdx, in: curData) {
             let off = slotIdx * 8
-            slotLoc = String(format: "CacheData 槽位 #%d (0x%X)", slotIdx, off)
+            slotLoc = String(format: "Slot CacheData #%d (0x%X)", slotIdx, off)
             let curBit = curData[off] == 1
             stagedValText = curBit ? "true (0x01)" : "false (0x00)"
 
@@ -483,7 +483,7 @@ struct MGInspectorView: View {
                 origValText = recorded ? "true (0x01)" : "false (0x00)"
             }
         } else {
-            slotLoc = "CacheExtra 字典键"
+            slotLoc = "Kunci Dictionary CacheExtra"
             if let ogVal = ogExtra?[key] {
                 origValText = mgFormatValue(ogVal)
             }
@@ -498,19 +498,19 @@ struct MGInspectorView: View {
 
         let badgeText: String
         let badgeColor: Color
-        if stagedNorm != origNorm && stagedValText != "未设置" {
+        if stagedNorm != origNorm && stagedValText != "Belum diatur" {
             if liveNorm == stagedNorm {
-                badgeText = "✅ 已修改并真机生效"
+                badgeText = "✅ Diubah dan aktif di perangkat"
                 badgeColor = .green
             } else {
-                badgeText = "⏳ 待应用并重启生效"
+                badgeText = "⏳ Menunggu terapkan dan restart"
                 badgeColor = .orange
             }
         } else if liveNorm == "true" {
-            badgeText = "本机原生开启"
+            badgeText = "Native perangkat aktif"
             badgeColor = .blue
         } else {
-            badgeText = "原厂默认"
+            badgeText = "Default pabrik"
             badgeColor = .secondary
         }
 
@@ -538,7 +538,7 @@ struct MGInspectorView: View {
         switch layoutResult {
         case .failure(let err):
             Section {
-                Text("当前环境无法解析动态槽位表：\(err.localizedDescription)")
+                Text("Lingkungan saat ini tidak dapat mengurai tabel slot dinamis: \(err.localizedDescription)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -549,7 +549,7 @@ struct MGInspectorView: View {
             let descBySlot: [Int: [MGSlotDescriptorInfo]] = Dictionary(grouping: descriptors.filter { $0.slotIndex >= 0 }, by: \.slotIndex)
 
             Section {
-                Toggle("仅显示与原厂备份不同的槽位", isOn: $filterModifiedOnly)
+                Toggle("Hanya tampilkan slot yang berbeda dari cadangan pabrik", isOn: $filterModifiedOnly)
             }
 
             let matchingSlots = (0..<layout.slotCount).filter { slotIdx in
@@ -587,7 +587,7 @@ struct MGInspectorView: View {
                     )
                 }
             } header: {
-                Text("动态解析共 \(matchingSlots.count) / \(layout.slotCount) 个槽位（点击行可实时调用 MGCopyAnswer）")
+                Text("Resolusi dinamis total \(matchingSlots.count) / \(layout.slotCount) slot (ketuk baris untuk memanggil MGCopyAnswer secara real-time)")
             }
         }
     }
@@ -609,8 +609,8 @@ struct MGInspectorView: View {
             return curData[valOff..<(valOff + 8)] != ogData[valOff..<(valOff + 8)] || curData[validOff] != ogData[validOff]
         }()
         let primaryDesc = descriptors.first
-        let keyStr = primaryDesc?.obfuscatedKey ?? "（保留空洞槽位 / 未绑定描述符）"
-        let displayTitle = primaryDesc.map { mgKeyDisplayName($0.obfuscatedKey) } ?? "保留槽位 #\(slotIdx)"
+        let keyStr = primaryDesc?.obfuscatedKey ?? "(Slot kosong yang dipertahankan / deskriptor tidak terikat)"
+        let displayTitle = primaryDesc.map { mgKeyDisplayName($0.obfuscatedKey) } ?? "Slot dipertahankan #\(slotIdx)"
 
         Button {
             if let key = primaryDesc?.obfuscatedKey {
@@ -620,7 +620,7 @@ struct MGInspectorView: View {
         } label: {
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(String(format: "槽位 #%d (0x%04X)", slotIdx, valOff))
+                    Text(String(format: "Slot #%d (0x%04X)", slotIdx, valOff))
                         .font(.system(.caption, design: .monospaced).weight(.bold))
                         .foregroundStyle(isChanged ? Color.orange : Color.accentColor)
                     if let qType = primaryDesc?.queryType {
@@ -651,7 +651,7 @@ struct MGInspectorView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "bolt.horizontal.circle.fill")
                             .foregroundStyle(Color.green)
-                        Text("MGCopyAnswer 实时返回：\(liveVal)")
+                        Text("Kembalian MGCopyAnswer real-time: \(liveVal)")
                             .font(.system(.caption2, design: .monospaced).weight(.semibold))
                             .foregroundStyle(Color.green)
                     }
@@ -668,7 +668,7 @@ struct MGInspectorView: View {
     @ViewBuilder
     private var customProbeSections: some View {
         Section {
-            TextField("输入 22 位混淆键或明文键（如 RegionCode / ProductType）", text: $customProbeKey)
+            TextField("Masukkan kunci terobfuskasi 22 karakter atau kunci plaintext (mis. RegionCode / ProductType)", text: $customProbeKey)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
             Button {
@@ -676,38 +676,38 @@ struct MGInspectorView: View {
                 guard !trimmed.isEmpty else { return }
                 let live = mgQueryLiveFormatted(forKey: trimmed)
                 var lines: [String] = [
-                    "查询键名：\(trimmed)",
-                    "MGCopyAnswer 实时返回值：\(live)"
+                    "Nama kunci yang dikueri: \(trimmed)",
+                    "Nilai kembalian real-time MGCopyAnswer: \(live)"
                 ]
                 if let extraVal = store.cacheExtra[trimmed] {
-                    lines.append("当前 CacheExtra 值：\(mgFormatValue(extraVal))")
+                    lines.append("Nilai CacheExtra saat ini: \(mgFormatValue(extraVal))")
                 } else {
-                    lines.append("当前 CacheExtra 值：（不存在）")
+                    lines.append("Nilai CacheExtra saat ini: (tidak ada)")
                 }
                 if let ogVal = store.originalCacheExtraValue(forKey: trimmed) {
-                    lines.append("原厂 CacheExtra 备份：\(mgFormatValue(ogVal))")
+                    lines.append("Cadangan CacheExtra pabrik: \(mgFormatValue(ogVal))")
                 }
                 let allDescs = MGCacheDataCoordinator.shared.allDescriptors()
                 if let desc = allDescs.first(where: { $0.obfuscatedKey == trimmed }) {
-                    lines.append("系统库描述符：slot = \(desc.slotIndex)，queryType = \(desc.queryType)")
+                    lines.append("Deskriptor pustaka sistem: slot = \(desc.slotIndex), queryType = \(desc.queryType)")
                     if desc.slotIndex >= 0,
                        case .success((let layout, let data)) = MGCacheDataCoordinator.shared.resolveValidated(for: store.mgCurrentDict),
                        desc.slotIndex < layout.slotCount {
                         let vOff = desc.slotIndex * 8
                         let valOff = layout.validityOffset(for: desc.slotIndex)
-                        lines.append(String(format: "CacheData 偏移：0x%X (值=0x%02X)，有效位偏移：0x%X (validity=%d)",
+                        lines.append(String(format: "Offset CacheData: 0x%X (nilai=0x%02X), offset bit valid: 0x%X (validity=%d)",
                                             vOff, data[vOff], valOff, data[valOff]))
                     }
                 }
                 customProbeResult = lines.joined(separator: "\n")
                 Haptic.shared.play(.soft)
             } label: {
-                Label("立即执行只读探测", systemImage: "magnifyingglass")
+                Label("Jalankan Probe Read-Only Sekarang", systemImage: "magnifyingglass")
             }
         } header: {
-            Text("自由键名实时探针（纯只读 · 零写入）")
+            Text("Probe Real-time Nama Kunci Bebas (Read-Only Murni · Tanpa Penulisan)")
         } footer: {
-            Text("支持直接输入混淆 Base64 键名（如 aVL5GE3tx0LSCI/ErfrJGA）或系统支持的标准明文键名（如 ProductType、RegionCode、BuildVersion），实时对比进程内 MGCopyAnswer 返回值与磁盘缓存状态。")
+            Text("Mendukung input langsung kunci terobfuskasi Base64 (mis. aVL5GE3tx0LSCI/ErfrJGA) atau nama kunci plaintext standar yang didukung sistem (mis. ProductType, RegionCode, BuildVersion), membandingkan secara real-time nilai kembalian MGCopyAnswer dalam proses dengan status cache disk.")
         }
 
         if let customProbeResult {
@@ -717,7 +717,7 @@ struct MGInspectorView: View {
                     .textSelection(.enabled)
                     .padding(.vertical, 4)
             } header: {
-                Text("探测结果")
+                Text("Hasil Probe")
             }
         }
     }
