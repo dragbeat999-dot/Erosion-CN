@@ -2,7 +2,7 @@
 //  SQLiteSnapshotHelper.swift
 //  Erosion
 //
-//  [Experimental / 测试特性] Zero-lock APFS clonefile() CoW snapshot reader for live
+//  [Experimental / Fitur Uji] Zero-lock APFS clonefile() CoW snapshot reader for live
 //  system SQLite databases (Powerlog, Safari Bookmarks, VoiceMemos).
 //
 
@@ -34,7 +34,7 @@ enum SQLiteSnapshotHelper {
     static func withClonedDatabase<T>(at dbPath: String, body: (OpaquePointer) throws -> T) throws -> T {
         let canonical = (dbPath as NSString).standardizingPath
         guard fm.isReadableFile(atPath: canonical) else {
-            throw SQLiteSnapshotError.sourceMissing("目标数据库文件不存在或当前沙盒无读取权限：\(canonical)")
+            throw SQLiteSnapshotError.sourceMissing("File basis data target tidak ada atau sandbox saat ini tidak memiliki izin baca: \(canonical)")
         }
 
         let snapDir = fm.temporaryDirectory.appendingPathComponent("sql_snap_\(UUID().uuidString)")
@@ -80,9 +80,9 @@ enum SQLiteSnapshotHelper {
         }
 
         guard rc == SQLITE_OK, let validDB = db else {
-            let msg = db.flatMap { String(cString: sqlite3_errmsg($0)) } ?? "错误码 \(rc)"
+            let msg = db.flatMap { String(cString: sqlite3_errmsg($0)) } ?? "kode error \(rc)"
             if let existing = db { sqlite3_close(existing) }
-            throw SQLiteSnapshotError.openFailed("打开数据库快照失败：\(msg)")
+            throw SQLiteSnapshotError.openFailed("Gagal membuka snapshot basis data: \(msg)")
         }
         sqlite3_busy_timeout(validDB, 1500)
         defer {
@@ -101,7 +101,7 @@ enum SQLiteSnapshotHelper {
         do {
             try fm.copyItem(atPath: src, toPath: dst)
         } catch {
-            throw SQLiteSnapshotError.snapshotFailed("创建只读快照失败：\(error.localizedDescription)")
+            throw SQLiteSnapshotError.snapshotFailed("Gagal membuat snapshot read-only: \(error.localizedDescription)")
         }
     }
 
