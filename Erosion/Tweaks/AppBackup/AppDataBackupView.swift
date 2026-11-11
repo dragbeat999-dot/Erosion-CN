@@ -11,35 +11,35 @@ import UniformTypeIdentifiers
 
 enum AppContainerDirectoryHelper {
     static let knownAppNames: [String: String] = [
-        "com.tencent.xin": "微信",
+        "com.tencent.xin": "WeChat",
         "com.tencent.mqq": "QQ",
-        "com.ss.iphone.ugc.Aweme": "抖音",
-        "tv.danmaku.bilianime": "哔哩哔哩",
-        "com.xingin.discover": "小红书",
-        "com.taobao.taobao4iphone": "淘宝",
-        "com.alipay.iphoneclient": "支付宝",
-        "com.jingdong.app.mall": "京东",
-        "com.meituan.imeituan": "美团",
-        "com.netease.cloudmusic": "网易云音乐",
-        "com.tencent.QQMusic": "QQ音乐",
-        "com.zhihu.ios": "知乎",
-        "com.sina.weibo": "微博",
-        "com.baidu.BaiduMobile": "百度",
-        "com.autonavi.amap": "高德地图",
-        "com.tencent.smoba": "王者荣耀",
-        "com.tencent.tmgp.pubgmhd": "和平精英",
-        "com.tencent.jkchess": "金铲铲之战",
-        "com.miHoYo.Yuanshen": "原神",
-        "com.miHoYo.GenshinImpact": "原神 (国际服)",
-        "com.miHoYo.hkrpg": "崩坏：星穹铁道",
-        "com.miHoYo.Nap": "绝区零",
-        "com.hypergryph.arknights": "明日方舟",
-        "com.chucklefish.stardewvalley": "星露谷物语",
-        "com.and.games505.TerrariaPaid": "泰拉瑞亚",
-        "com.mojang.minecraftpe": "我的世界 (Minecraft)",
-        "com.popcap.ios.PvZ2": "植物大战僵尸 2",
-        "com.SoulGame.SoulKnight": "元气骑士",
-        "com.locojoy.balatro": "小丑牌 (Balatro)",
+        "com.ss.iphone.ugc.Aweme": "TikTok",
+        "tv.danmaku.bilianime": "Bilibili",
+        "com.xingin.discover": "Xiaohongshu",
+        "com.taobao.taobao4iphone": "Taobao",
+        "com.alipay.iphoneclient": "Alipay",
+        "com.jingdong.app.mall": "JD.com",
+        "com.meituan.imeituan": "Meituan",
+        "com.netease.cloudmusic": "NetEase Cloud Music",
+        "com.tencent.QQMusic": "QQ Music",
+        "com.zhihu.ios": "Zhihu",
+        "com.sina.weibo": "Weibo",
+        "com.baidu.BaiduMobile": "Baidu",
+        "com.autonavi.amap": "Amap",
+        "com.tencent.smoba": "Honor of Kings",
+        "com.tencent.tmgp.pubgmhd": "PUBG Mobile (China)",
+        "com.tencent.jkchess": "Teamfight Tactics (China)",
+        "com.miHoYo.Yuanshen": "Genshin Impact",
+        "com.miHoYo.GenshinImpact": "Genshin Impact (Global)",
+        "com.miHoYo.hkrpg": "Honkai: Star Rail",
+        "com.miHoYo.Nap": "Zenless Zone Zero",
+        "com.hypergryph.arknights": "Arknights",
+        "com.chucklefish.stardewvalley": "Stardew Valley",
+        "com.and.games505.TerrariaPaid": "Terraria",
+        "com.mojang.minecraftpe": "Minecraft",
+        "com.popcap.ios.PvZ2": "Plants vs. Zombies 2",
+        "com.SoulGame.SoulKnight": "Soul Knight",
+        "com.locojoy.balatro": "Balatro",
         "com.NSSurge.inc.surge-ios": "Surge",
         "com.luo.quantumult-x": "Quantumult X",
         "com.liguangming.Shadowrocket": "Shadowrocket",
@@ -48,9 +48,9 @@ enum AppContainerDirectoryHelper {
         "com.atebits.Tweetie2": "X (Twitter)",
         "com.google.ios.youtube": "YouTube",
         "com.openai.chat": "ChatGPT",
-        "com.apple.mobilesafari": "Safari 浏览器",
-        "com.apple.Music": "Apple 音乐",
-        "com.apple.DocumentsApp": "文件"
+        "com.apple.mobilesafari": "Safari",
+        "com.apple.Music": "Apple Music",
+        "com.apple.DocumentsApp": "File"
     ]
 
     static func displayName(for bundleID: String) -> String {
@@ -109,7 +109,7 @@ struct LocalSaveBackupItem: Identifiable {
 
 struct AppDataBackupView: View {
     @State private var isScanning = false
-    @State private var scanProgressText = "正在扫描本机应用数据容器..."
+    @State private var scanProgressText = "Sedang memindai container data aplikasi di perangkat..."
     @State private var containers: [AppSaveContainerItem] = []
     @State private var backups: [LocalSaveBackupItem] = []
     @State private var searchText = ""
@@ -137,23 +137,23 @@ struct AppDataBackupView: View {
                     Button {
                         showBackupImporter = true
                     } label: {
-                        Label("导入外部备份包 (.zip)", systemImage: "square.and.arrow.down")
+                        Label("Impor Paket Cadangan Eksternal (.zip)", systemImage: "square.and.arrow.down")
                     }
                     Spacer()
                     Button {
                         scanAllContainers()
                     } label: {
-                        Label("刷新列表", systemImage: "arrow.clockwise")
+                        Label("Segarkan Daftar", systemImage: "arrow.clockwise")
                     }
                     .disabled(isScanning)
                 }
                 PlainToggle(
-                    "显示系统内置应用容器 (com.apple.*)",
-                    subtitle: "默认仅展示第三方应用与游戏容器",
+                    "Tampilkan Container Aplikasi Sistem Bawaan (com.apple.*)",
+                    subtitle: "Secara default hanya menampilkan container aplikasi dan game pihak ketiga",
                     isOn: $includeSystemApps
                 )
             } header: {
-                HeaderLabel("备份与筛选控制", symbol: "slider.horizontal.3")
+                HeaderLabel("Kontrol Pencadangan dan Penyaringan", symbol: "slider.horizontal.3")
             }
 
             if !backups.isEmpty {
@@ -177,15 +177,15 @@ struct AppDataBackupView: View {
                             HStack(spacing: 14) {
                                 Button {
                                     Alertinator.shared.alert(
-                                        title: "确定还原此存档备份吗？",
-                                        body: "将把 \(backup.fileURL.lastPathComponent) 中的 Documents 与 Preferences 存档还原至「\(backup.bundleID)」当前容器（自动匹配重装后的最新容器 UUID）。还原前请先在后台关闭目标应用！",
-                                        actionLabel: "确认还原",
+                                        title: "Yakin ingin memulihkan cadangan penyimpanan ini?",
+                                        body: "Akan memulihkan penyimpanan Documents dan Preferences dari \(backup.fileURL.lastPathComponent) ke container «\(backup.bundleID)» saat ini (otomatis mencocokkan UUID container terbaru setelah instalasi ulang). Harap tutup aplikasi target di latar belakang sebelum memulihkan!",
+                                        actionLabel: "Konfirmasi Pemulihan",
                                         action: {
                                             restoreBackup(backup)
                                         }
                                     )
                                 } label: {
-                                    Label("一键还原", systemImage: "arrow.uturn.backward.circle.fill")
+                                    Label("Pulihkan Sekali Klik", systemImage: "arrow.uturn.backward.circle.fill")
                                         .font(.caption)
                                 }
                                 .buttonStyle(.borderless)
@@ -193,7 +193,7 @@ struct AppDataBackupView: View {
                                 Button {
                                     presentShareSheet(with: backup.fileURL)
                                 } label: {
-                                    Label("导出分享", systemImage: "square.and.arrow.up")
+                                    Label("Ekspor & Bagikan", systemImage: "square.and.arrow.up")
                                         .font(.caption)
                                 }
                                 .buttonStyle(.borderless)
@@ -203,7 +203,7 @@ struct AppDataBackupView: View {
                                 Button(role: .destructive) {
                                     deleteBackup(backup)
                                 } label: {
-                                    Label("删除", systemImage: "trash")
+                                    Label("Hapus", systemImage: "trash")
                                         .font(.caption)
                                 }
                                 .buttonStyle(.borderless)
@@ -213,9 +213,9 @@ struct AppDataBackupView: View {
                         .padding(.vertical, 3)
                     }
                 } header: {
-                    HeaderLabel("本地已保存的存档备份 (\(backups.count))", symbol: "archivebox.fill")
+                    HeaderLabel("Cadangan Penyimpanan Tersimpan Lokal (\(backups.count))", symbol: "archivebox.fill")
                 } footer: {
-                    Text("即使卸载重装了游戏或应用导致容器 UUID 改变，点击“一键还原”也会按 Bundle ID 自动定位当前最新容器并原位写回存档。")
+                    Text("Meskipun meng-uninstal dan menginstal ulang game atau aplikasi menyebabkan UUID container berubah, menekan \"Pulihkan Sekali Klik\" akan otomatis menemukan container terbaru berdasarkan Bundle ID dan menulis kembali penyimpanan secara in-place.")
                 }
             }
 
@@ -228,7 +228,7 @@ struct AppDataBackupView: View {
                     }
                     .padding(.vertical, 6)
                 } else if filteredContainers.isEmpty {
-                    Text("未找到匹配的应用数据容器")
+                    Text("Tidak ditemukan container data aplikasi yang cocok")
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(filteredContainers) { item in
@@ -242,7 +242,7 @@ struct AppDataBackupView: View {
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
-                            Text("容器 UUID: \(item.containerURL.lastPathComponent)")
+                            Text("UUID Container: \(item.containerURL.lastPathComponent)")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
 
@@ -250,7 +250,7 @@ struct AppDataBackupView: View {
                                 Button {
                                     backupContainer(item)
                                 } label: {
-                                    Label("备份存档", systemImage: "externaldrive.badge.plus")
+                                    Label("Cadangkan Penyimpanan", systemImage: "externaldrive.badge.plus")
                                         .font(.caption)
                                 }
                                 .buttonStyle(.borderless)
@@ -258,7 +258,7 @@ struct AppDataBackupView: View {
                                 NavigationLink {
                                     ContainerSubdirBrowserView(containerURL: item.containerURL, relativeSubpath: "Documents")
                                 } label: {
-                                    Label("修改 Documents", systemImage: "folder.badge.gearshape")
+                                    Label("Ubah Documents", systemImage: "folder.badge.gearshape")
                                         .font(.caption)
                                 }
                                 .buttonStyle(.borderless)
@@ -266,7 +266,7 @@ struct AppDataBackupView: View {
                                 NavigationLink {
                                     ContainerSubdirBrowserView(containerURL: item.containerURL, relativeSubpath: "Library/Preferences")
                                 } label: {
-                                    Label("修改配置 Plist", systemImage: "doc.text.magnifyingglass")
+                                    Label("Ubah Plist Konfigurasi", systemImage: "doc.text.magnifyingglass")
                                         .font(.caption)
                                 }
                                 .buttonStyle(.borderless)
@@ -274,7 +274,7 @@ struct AppDataBackupView: View {
                                 NavigationLink {
                                     ContainerSubdirBrowserView(containerURL: item.containerURL, relativeSubpath: nil)
                                 } label: {
-                                    Label("完整目录", systemImage: "folder")
+                                    Label("Direktori Lengkap", systemImage: "folder")
                                         .font(.caption)
                                 }
                                 .buttonStyle(.borderless)
@@ -285,14 +285,14 @@ struct AppDataBackupView: View {
                     }
                 }
             } header: {
-                HeaderLabel("应用与游戏存档列表 (\(filteredContainers.count))", symbol: "gamecontroller.fill")
+                HeaderLabel("Daftar Penyimpanan Aplikasi dan Game (\(filteredContainers.count))", symbol: "gamecontroller.fill")
             } footer: {
-                Text("点击“备份存档”会将该应用的 Documents 与 Library/Preferences 打包为 ZIP；点击“修改 Documents”或“修改配置 Plist”可直接调用内置无损 Plist/文本编辑器修改游戏数值或配置。")
+                Text("Menekan \"Cadangkan Penyimpanan\" akan mengemas Documents dan Library/Preferences aplikasi tersebut menjadi ZIP; menekan \"Ubah Documents\" atau \"Ubah Plist Konfigurasi\" akan langsung membuka editor Plist/teks lossless bawaan untuk mengubah nilai atau konfigurasi game.")
             }
         }
-        .navigationTitle("应用与游戏存档管理")
+        .navigationTitle("Manajemen Penyimpanan Aplikasi dan Game")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, prompt: "搜索应用名称或 Bundle ID")
+        .searchable(text: $searchText, prompt: "Cari nama aplikasi atau Bundle ID")
         .fileImporter(isPresented: $showBackupImporter, allowedContentTypes: [.zip, .item]) { result in
             handleImportBackup(result)
         }
@@ -356,7 +356,7 @@ struct AppDataBackupView: View {
     private func scanAllContainers() {
         let wantSystem = includeSystemApps
         isScanning = true
-        scanProgressText = "正在扫描本机应用数据容器..."
+        scanProgressText = "Sedang memindai container data aplikasi di perangkat..."
         DispatchQueue.global(qos: .utility).async {
             let rawPaths = fsHandlers.getDirPaths(FSURL.appContainers.path)
             var discovered: [AppSaveContainerItem] = []
@@ -419,7 +419,7 @@ struct AppDataBackupView: View {
                 try fm.createDirectory(at: stagingDir, withIntermediateDirectories: true)
                 let wasActive = wq.hasActiveAccess(path: item.containerURL.path)
                 guard wq.grantAccess(path: item.containerURL.path, requireWrite: false).0 else {
-                    throw "无法获取该应用容器的读取权限"
+                    throw "Tidak dapat memperoleh izin baca container aplikasi ini"
                 }
                 defer {
                     if !wasActive {
@@ -445,7 +445,7 @@ struct AppDataBackupView: View {
                 }
 
                 guard copiedAny else {
-                    throw "未在该应用容器中找到可备份的 Documents 或 Preferences 目录数据。"
+                    throw "Tidak ditemukan data direktori Documents atau Preferences yang dapat dicadangkan dalam container aplikasi ini."
                 }
 
                 let meta: [String: String] = [
@@ -470,13 +470,13 @@ struct AppDataBackupView: View {
                     loadLocalBackups()
                     Haptic.shared.play(.soft)
                     Alertinator.shared.alert(
-                        title: "存档备份成功！",
-                        body: "已生成备份文件：\(zipName)\n你可在上方“本地已保存的存档备份”中随时一键还原或导出分享。"
+                        title: "Pencadangan penyimpanan berhasil!",
+                        body: "File cadangan telah dibuat: \(zipName)\nAnda dapat memulihkan atau mengekspor berbagi kapan saja melalui \"Cadangan Penyimpanan Tersimpan Lokal\" di atas."
                     )
                 }
             } catch {
                 DispatchQueue.main.async {
-                    Alertinator.shared.alert(title: "备份存档失败！", body: error.localizedDescription)
+                    Alertinator.shared.alert(title: "Gagal mencadangkan penyimpanan!", body: error.localizedDescription)
                 }
             }
         }
@@ -489,18 +489,18 @@ struct AppDataBackupView: View {
 
             do {
                 guard let archive = try? Archive(url: backup.fileURL, accessMode: .read) else {
-                    throw "无法读取备份压缩包，文件可能已损坏！"
+                    throw "Tidak dapat membaca arsip cadangan, file mungkin rusak!"
                 }
                 let destStd = extractDir.standardizedFileURL
                 let destPrefix = destStd.path.hasSuffix("/") ? destStd.path : destStd.path + "/"
                 for entry in archive {
                     let entryPath = entry.path
                     if entryPath.hasPrefix("/") || entryPath.split(separator: "/").contains("..") || entryPath.split(separator: "\\").contains("..") {
-                        throw "检测到备份包包含非法路径穿越条目 (\(entryPath))，已拒绝还原！"
+                        throw "Terdeteksi arsip cadangan berisi entri path traversal ilegal (\(entryPath)), pemulihan ditolak!"
                     }
                     let resolvedPath = destStd.appendingPathComponent(entryPath).standardizedFileURL.path
                     if resolvedPath != destStd.path && !resolvedPath.hasPrefix(destPrefix) {
-                        throw "检测到备份包条目越界 (\(entryPath))，已拒绝还原！"
+                        throw "Terdeteksi entri arsip cadangan melewati batas (\(entryPath)), pemulihan ditolak!"
                     }
                 }
 
@@ -517,7 +517,7 @@ struct AppDataBackupView: View {
 
                 guard !Self.protectedSystemBundleIDs.contains(resolvedBundleID) else {
                     DispatchQueue.main.async {
-                        Alertinator.shared.alert(title: "安全护栏拦截！", body: "禁止向受保护的核心系统容器还原外部备份包。")
+                        Alertinator.shared.alert(title: "Pagar pengaman memblokir!", body: "Dilarang memulihkan arsip cadangan eksternal ke container sistem inti yang dilindungi.")
                     }
                     return
                 }
@@ -541,8 +541,8 @@ struct AppDataBackupView: View {
                 guard !targetContainerPath.isEmpty else {
                     DispatchQueue.main.async {
                         Alertinator.shared.alert(
-                            title: "未找到目标应用容器！",
-                            body: "本机当前未检测到「\(resolvedBundleID)」的数据容器，请先安装并至少打开一次该应用后再试。"
+                            title: "Container aplikasi target tidak ditemukan!",
+                            body: "Saat ini tidak terdeteksi container data «\(resolvedBundleID)» di perangkat ini, silakan instal dan buka aplikasi tersebut setidaknya satu kali terlebih dahulu lalu coba lagi."
                         )
                     }
                     return
@@ -551,7 +551,7 @@ struct AppDataBackupView: View {
                 let containerURL = URL(fileURLWithPath: targetContainerPath)
                 let wasActive = preGrantedCached ? false : wq.hasActiveAccess(path: containerURL.path)
                 guard wq.grantAccess(path: containerURL.path).0 else {
-                    throw "无法获取目标容器的写入权限"
+                    throw "Tidak dapat memperoleh izin tulis container target"
                 }
                 defer {
                     if !wasActive {
@@ -581,17 +581,17 @@ struct AppDataBackupView: View {
                     restoredFiles += pCount
                 }
 
-                let cfprefsHint = restoredPrefs ? "\n\n提示：本次还原包含 Preferences 偏好设置，建议在后台多任务中彻底关闭目标应用或注销设备（Respring），以便系统 cfprefsd 重新加载配置。" : ""
+                let cfprefsHint = restoredPrefs ? "\n\nPetunjuk: Pemulihan ini mencakup preferensi Preferences, disarankan menutup sepenuhnya aplikasi target di multitasking latar belakang atau memuat ulang perangkat (Respring) agar cfprefsd sistem memuat ulang konfigurasi." : ""
                 DispatchQueue.main.async {
                     Haptic.shared.play(.soft)
                     Alertinator.shared.alert(
-                        title: "存档还原完成！",
-                        body: "已成功将 \(restoredFiles) 个存档/配置文件原位还原至「\(resolvedBundleID)」容器。" + cfprefsHint
+                        title: "Pemulihan penyimpanan selesai!",
+                        body: "Berhasil memulihkan \(restoredFiles) file penyimpanan/konfigurasi secara in-place ke container «\(resolvedBundleID)»." + cfprefsHint
                     )
                 }
             } catch {
                 DispatchQueue.main.async {
-                    Alertinator.shared.alert(title: "还原存档失败！", body: error.localizedDescription)
+                    Alertinator.shared.alert(title: "Gagal memulihkan penyimpanan!", body: error.localizedDescription)
                 }
             }
         }
@@ -655,10 +655,10 @@ struct AppDataBackupView: View {
                 loadLocalBackups()
                 Haptic.shared.play(.soft)
             } catch {
-                Alertinator.shared.alert(title: "导入备份包失败！", body: error.localizedDescription)
+                Alertinator.shared.alert(title: "Gagal mengimpor paket cadangan!", body: error.localizedDescription)
             }
         case .failure(let error):
-            Alertinator.shared.alert(title: "导入备份包失败！", body: error.localizedDescription)
+            Alertinator.shared.alert(title: "Gagal mengimpor paket cadangan!", body: error.localizedDescription)
         }
     }
 }
@@ -675,14 +675,14 @@ struct ContainerSubdirBrowserView: View {
                 FileBrowserView(path: targetURL, shouldGrant: true)
             } else if let errorMsg {
                 List {
-                    CompactAlert(title: "无法打开容器目录！", symbol: "folder.badge.questionmark", text: errorMsg)
+                    CompactAlert(title: "Tidak dapat membuka direktori container!", symbol: "folder.badge.questionmark", text: errorMsg)
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                 }
             } else {
                 VStack(spacing: 8) {
                     ProgressView()
-                    Text("正在授权并打开容器目录...")
+                    Text("Sedang memberi izin dan membuka direktori container...")
                         .foregroundStyle(.secondary)
                 }
             }
@@ -691,7 +691,7 @@ struct ContainerSubdirBrowserView: View {
             guard targetURL == nil && errorMsg == nil else { return }
             let rootGrant = wq.grantAccess(path: containerURL.path)
             guard rootGrant.0 else {
-                errorMsg = "无法获取应用容器根目录权限：\(rootGrant.2)"
+                errorMsg = "Tidak dapat memperoleh izin direktori root container aplikasi: \(rootGrant.2)"
                 return
             }
             if let relativeSubpath, !relativeSubpath.isEmpty {
