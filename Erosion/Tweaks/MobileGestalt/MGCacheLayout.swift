@@ -57,7 +57,7 @@ struct MGCacheDataLayout: Codable, Equatable, Sendable {
     static let tapToWakeKey = "yZf3GTRMGTuwSV/lD7Cagw"           // DeviceSupportsTapToWake
     static let stageMgrKey = "qeaj75wk3HF4DwQ8qbIi7g"            // DeviceSupportsEnhancedMultitasking
 
-    // [测试特性] Newly Mined Experimental Boolean Slot Keys (100% verified slot >= 0, qtype = 11)
+    // [Fitur Uji] Newly Mined Experimental Boolean Slot Keys (100% verified slot >= 0, qtype = 11)
     static let shutterRelaxationKey = "P4ZJVy/zYuLy4ejRKP+0DA"          // DeviceSupportsRegionalCameraShutterRelaxation
     static let shutterKeyboardMutePreserveKey = "bGUN8lS6sYzy3xhePubp8A"// KeyboardMutePreservesRegionalShutterClickBehavior
     static let shutterLegacyMutePreserveKey = "Bim3FC83Te8QX1kfSpqYKQ"  // KeyboardMutePreservesRegionalShutterClickBehaviorForLegacyDevices
@@ -197,11 +197,11 @@ struct MGCacheDataLayout: Codable, Equatable, Sendable {
     static func resolveFromLoadedLibrary() -> Result<MGCacheDataLayout, MGCacheResolutionError> {
         #if os(iOS) && !targetEnvironment(simulator)
         guard let image = MGCopyLoadedMobileGestaltImage() else {
-            return .failure(.libraryUnavailable("无法从内存只读加载 /usr/lib/libMobileGestalt.dylib 段数据。"))
+            return .failure(.libraryUnavailable("Tidak dapat memuat data segmen /usr/lib/libMobileGestalt.dylib dari memori secara read-only."))
         }
         return scan(image: image)
         #else
-        return .failure(.libraryUnavailable("当前运行环境不是 iOS 实机，已禁用二进制 CacheData 修改。"))
+        return .failure(.libraryUnavailable("Lingkungan runtime saat ini bukan perangkat iOS asli, modifikasi CacheData biner dinonaktifkan."))
         #endif
     }
 
@@ -209,7 +209,7 @@ struct MGCacheDataLayout: Codable, Equatable, Sendable {
         guard let strings = image["strings"] as? Data,
               let addressNum = image["stringAddress"] as? NSNumber,
               let constants = image["constants"] as? [Data] else {
-            return .failure(.malformedImage("系统库镜像缺少必要的 __cstring 或 __const 段数据。"))
+            return .failure(.malformedImage("Citra pustaka sistem tidak memiliki data segmen __cstring atau __const yang diperlukan."))
         }
         let extraUUIDs = (image["cfUUIDs"] as? [String]) ?? []
         return scan(
@@ -237,7 +237,7 @@ struct MGCacheDataLayout: Codable, Equatable, Sendable {
               !constants.isEmpty,
               constants.count <= 8,
               constants.allSatisfy({ $0.count <= 32 * 1024 * 1024 }) else {
-            return .failure(.malformedImage("系统库段大小或地址范围异常，已拒绝解析。"))
+            return .failure(.malformedImage("Ukuran atau rentang alamat segmen pustaka sistem tidak normal, penguraian ditolak."))
         }
 
         var hashByAddress: [UInt64: String] = [:]
@@ -280,10 +280,10 @@ struct MGCacheDataLayout: Codable, Equatable, Sendable {
         }
 
         guard !discoveredUUIDs.isEmpty else {
-            return .failure(.uuidNotFound("未能在系统库中找到唯一的 CacheUUID 标识，已拒绝修改。"))
+            return .failure(.uuidNotFound("Tidak dapat menemukan penanda CacheUUID yang unik di pustaka sistem, modifikasi ditolak."))
         }
         guard discoveredUUIDs.count == 1, let resolvedUUID = discoveredUUIDs.first else {
-            return .failure(.ambiguousUUID("系统库中发现多个 UUID 候选（\(discoveredUUIDs.count) 个），拒绝猜测偏移！"))
+            return .failure(.ambiguousUUID("Ditemukan beberapa kandidat UUID di pustaka sistem (\(discoveredUUIDs.count) buah), menolak menebak offset!"))
         }
 
         var positiveIndices = Set<Int>()
@@ -309,7 +309,7 @@ struct MGCacheDataLayout: Codable, Equatable, Sendable {
 
                     if requiredKeys.contains(key) {
                         guard queryType == 11, slotIdx >= 0 else {
-                            return .invalidTargetDescriptor("目标键 \(key) 的描述符类型 (\(queryType)) 或槽位 (\(slotIdx)) 非有效布尔缓存项。")
+                            return .invalidTargetDescriptor("Tipe deskriptor (\(queryType)) atau slot (\(slotIdx)) untuk kunci target \(key) bukan item cache boolean yang valid.")
                         }
                         targetIndices[key, default: []].insert(slotIdx)
                         targetAlignments[key, default: []].insert("\(secID):\(off % 64)")
@@ -326,11 +326,11 @@ struct MGCacheDataLayout: Codable, Equatable, Sendable {
         }
 
         guard let maxSlotIndex = positiveIndices.max(), maxSlotIndex >= 1 else {
-            return .failure(.descriptorTableNotFound("未能在系统库中定位有效的 MobileGestalt 查询描述符表。"))
+            return .failure(.descriptorTableNotFound("Tidak dapat menemukan tabel deskriptor kueri MobileGestalt yang valid di pustaka sistem."))
         }
         let slotCount = maxSlotIndex + 1
         guard positiveIndices.count > slotCount / 2 else {
-            return .failure(.sparseDescriptorTable("描述符表槽位覆盖率异常（\(positiveIndices.count)/\(slotCount)），已拒绝解析。"))
+            return .failure(.sparseDescriptorTable("Cakupan slot tabel deskriptor tidak normal (\(positiveIndices.count)/\(slotCount)), penguraian ditolak."))
         }
 
         guard let gtSet = targetIndices[greenTeaKey], gtSet.count == 1, let gtIdx = gtSet.first,
@@ -340,7 +340,7 @@ struct MGCacheDataLayout: Codable, Equatable, Sendable {
               (0..<slotCount).contains(ngtIdx),
               let gtAlign = targetAlignments[greenTeaKey], gtAlign.count == 1,
               gtAlign == targetAlignments[notGreenTeaKey] else {
-            return .failure(.invalidTargetDescriptor("无法唯一确定 green-tea / not-green-tea 的缓存槽位或表对齐不一致，已拒绝修改。"))
+            return .failure(.invalidTargetDescriptor("Tidak dapat menentukan secara unik slot cache green-tea / not-green-tea atau keselarasan tabel tidak konsisten, modifikasi ditolak."))
         }
 
         var resolvedWapiIdx: Int? = nil
@@ -351,7 +351,7 @@ struct MGCacheDataLayout: Codable, Equatable, Sendable {
                   wIdx != gtIdx,
                   wIdx != ngtIdx,
                   targetAlignments[wapiKey] == gtAlign else {
-                return .failure(.invalidTargetDescriptor("wapi 描述符存在歧义或对齐不一致，已拒绝解析。"))
+                return .failure(.invalidTargetDescriptor("Deskriptor wapi ambigu atau keselarasan tidak konsisten, penguraian ditolak."))
             }
             resolvedWapiIdx = wIdx
         }
@@ -471,21 +471,21 @@ struct MGCacheDataLayout: Codable, Equatable, Sendable {
               (0..<slotCount).contains(greenTeaIndex),
               (0..<slotCount).contains(notGreenTeaIndex),
               greenTeaIndex != notGreenTeaIndex else {
-            return .failure(.invalidTargetDescriptor("缓存槽位索引超出合法范围。"))
+            return .failure(.invalidTargetDescriptor("Indeks slot cache melebihi rentang yang sah."))
         }
 
         guard let plistUUID = dict["CacheUUID"] as? String, !plistUUID.isEmpty else {
-            return .failure(.plistMismatch("MobileGestalt 文件缺少 CacheUUID 字段，拒绝修改。"))
+            return .failure(.plistMismatch("File MobileGestalt tidak memiliki field CacheUUID, modifikasi ditolak."))
         }
         guard plistUUID.caseInsensitiveCompare(uuid) == .orderedSame else {
-            return .failure(.plistMismatch("缓存文件 CacheUUID (\(plistUUID)) 与本机系统库 (\(uuid)) 不一致，拒绝修改！"))
+            return .failure(.plistMismatch("CacheUUID file cache (\(plistUUID)) tidak konsisten dengan pustaka sistem perangkat (\(uuid)), modifikasi ditolak!"))
         }
 
         guard let cacheData = dict["CacheData"] as? Data else {
-            return .failure(.plistMismatch("MobileGestalt 文件缺少二进制 CacheData 字段，拒绝修改。"))
+            return .failure(.plistMismatch("File MobileGestalt tidak memiliki field CacheData biner, modifikasi ditolak."))
         }
         guard cacheData.count == byteCount else {
-            return .failure(.plistMismatch("CacheData 长度 (\(cacheData.count) 字节) 与系统库计算的精确长度 (\(byteCount) 字节，\(slotCount) 槽位) 不一致，拒绝修改！"))
+            return .failure(.plistMismatch("Panjang CacheData (\(cacheData.count) byte) tidak konsisten dengan panjang tepat yang dihitung pustaka sistem (\(byteCount) byte, \(slotCount) slot), modifikasi ditolak!"))
         }
 
         var slotsToVerify = [greenTeaIndex, notGreenTeaIndex]
@@ -494,24 +494,24 @@ struct MGCacheDataLayout: Codable, Equatable, Sendable {
                 slotsToVerify.append(wIdx)
             }
         } else if checkWapiSlot {
-            return .failure(.invalidTargetDescriptor("当前系统库未解析出有效的 wapi 槽位，拒绝修改该项。"))
+            return .failure(.invalidTargetDescriptor("Pustaka sistem saat ini tidak mengurai slot wapi yang valid, modifikasi item ini ditolak."))
         }
 
         for slotIdx in slotsToVerify {
             let valOff = slotIdx * 8
             let validOff = validityOffset(for: slotIdx)
             guard validOff < cacheData.count, valOff + 8 <= cacheData.count else {
-                return .failure(.plistMismatch("槽位 \(slotIdx) 偏移越界，拒绝修改。"))
+                return .failure(.plistMismatch("Offset slot \(slotIdx) di luar batas, modifikasi ditolak."))
             }
             guard cacheData[validOff] == 1 else {
-                return .failure(.slotInvalid("槽位 \(slotIdx)（有效位偏移 0x\(String(format: "%X", validOff))）未被系统标记为有效 (validity != 1)，拒绝修改！"))
+                return .failure(.slotInvalid("Slot \(slotIdx) (offset bit valid 0x\(String(format: "%X", validOff))) tidak ditandai valid oleh sistem (validity != 1), modifikasi ditolak!"))
             }
             guard cacheData[valOff] <= 1 else {
-                return .failure(.slotInvalid("槽位 \(slotIdx)（偏移 0x\(String(format: "%X", valOff))）当前字节值 (\(cacheData[valOff])) 不是合法布尔值 (0/1)，拒绝修改！"))
+                return .failure(.slotInvalid("Slot \(slotIdx) (offset 0x\(String(format: "%X", valOff))) memiliki nilai byte saat ini (\(cacheData[valOff])) bukan boolean yang sah (0/1), modifikasi ditolak!"))
             }
             for pad in (valOff + 1)..<(valOff + 8) {
                 guard cacheData[pad] == 0 else {
-                    return .failure(.slotInvalid("槽位 \(slotIdx) 填充字节非零（偏移 0x\(String(format: "%X", pad)) = \(cacheData[pad])），拒绝修改！"))
+                    return .failure(.slotInvalid("Byte padding slot \(slotIdx) tidak nol (offset 0x\(String(format: "%X", pad)) = \(cacheData[pad])), modifikasi ditolak!"))
                 }
             }
         }
@@ -522,7 +522,7 @@ struct MGCacheDataLayout: Codable, Equatable, Sendable {
                 forbiddenKeys.append(contentsOf: [Self.wapiKey, "wapi"])
             }
             for k in forbiddenKeys where extra[k] != nil {
-                return .failure(.conflictingCacheExtra("检测到 CacheExtra 中已存在覆盖键 \(k)，为确保安全已拒绝修改 CacheData。"))
+                return .failure(.conflictingCacheExtra("Terdeteksi kunci override \(k) sudah ada di CacheExtra, untuk memastikan keamanan modifikasi CacheData ditolak."))
             }
         }
 
@@ -793,7 +793,7 @@ final class MGCacheDataCoordinator {
                 if case .failure(let err2) = layout.validatePlist(beforeDict) {
                     return .failure(err2)
                 }
-                return .failure(.plistMismatch("修改前后 CacheData 校验未通过，已拒绝写入。"))
+                return .failure(.plistMismatch("Validasi CacheData sebelum dan sesudah modifikasi tidak lolos, penulisan ditolak."))
             }
         }
 
@@ -809,14 +809,14 @@ final class MGCacheDataCoordinator {
             if validBefore[fOff] != validAfter[fOff] {
                 guard layout.validateSingleBooleanSlot(fSlot, in: validBefore),
                       layout.validateSingleBooleanSlot(fSlot, in: validAfter) else {
-                    return .failure(.slotInvalid("功能槽位 \(fSlot) (\(fKey)) 未通过 8 字节布尔有效性校验，已拒绝修改！"))
+                    return .failure(.slotInvalid("Slot fitur \(fSlot) (\(fKey)) tidak lolos verifikasi validitas boolean 8-byte, modifikasi ditolak!"))
                 }
             }
         }
 
         for idx in validBefore.indices where validBefore[idx] != validAfter[idx] {
             guard allowedOffsets.contains(idx) else {
-                return .failure(.unauthorizedByteMutation(String(format: "检测到未授权的无关缓存字节变动（偏移 0x%X：0x%02X -> 0x%02X），已强制中止写入！", idx, validBefore[idx], validAfter[idx])))
+                return .failure(.unauthorizedByteMutation(String(format: "Terdeteksi perubahan byte cache tidak terkait yang tidak diotorisasi (offset 0x%X: 0x%02X -> 0x%02X), penulisan dihentikan paksa!", idx, validBefore[idx], validAfter[idx])))
             }
         }
 
@@ -826,113 +826,113 @@ final class MGCacheDataCoordinator {
     static func featureSlotMeta(forKey key: String) -> (id: String, label: String, trueHint: String, falseHint: String) {
         switch key {
         case MGCacheDataLayout.audioMixKey:
-            return ("audio-mix", "相册与相机混音 (Audio Mix)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("audio-mix", "Audio Mix Galeri dan Kamera", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.spatialAudioRecKey:
-            return ("spatial-audio-rec", "空间音频录制 (spatial-audio-recording)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("spatial-audio-rec", "Perekaman Audio Spasial (spatial-audio-recording)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.spatialFaceTimeAudioKey:
-            return ("spatial-facetime-audio", "FaceTime 空间音频 (spatial-facetime-audio)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("spatial-facetime-audio", "Audio Spasial FaceTime (spatial-facetime-audio)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.responsiveShutterKey:
-            return ("responsive-shutter", "按下快门瞬间抓拍 (ResponsiveShutter)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("responsive-shutter", "Jepretan Seketika Saat Tombol Rana Ditekan (ResponsiveShutter)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.hypertensionNotifKey:
-            return ("hypertension-notif", "健康高血压趋势评估 (HypertensionNotifications)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("hypertension-notif", "Evaluasi Tren Hipertensi Kesehatan (HypertensionNotifications)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.appIntellKey:
-            return ("ai-core-slot", "Apple 智能底层槽位 (GenerativeModelSystems)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("ai-core-slot", "Slot Lapisan Bawah Apple Intelligence (GenerativeModelSystems)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.photosCleanUpKey:
-            return ("photos-cleanup-slot", "相册消除底层槽位 (Photos Clean Up)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("photos-cleanup-slot", "Slot Lapisan Bawah Hapus Foto (Photos Clean Up)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.handwritingSynthKey:
-            return ("handwriting-slot", "手写体合成底层槽位 (Handwriting Synthesis)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("handwriting-slot", "Slot Lapisan Bawah Sintesis Tulisan Tangan (Handwriting Synthesis)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.audioIntellKey:
-            return ("audio-intell-slot", "iOS 27 音频智能底层槽位 (Audio Intelligence)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("audio-intell-slot", "Slot Lapisan Bawah Audio Intelligence iOS 27 (Audio Intelligence)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.personalTranslatorKey:
-            return ("personal-translator-slot", "个人实时翻译底层槽位 (Personal Translator)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("personal-translator-slot", "Slot Lapisan Bawah Terjemahan Real-time Pribadi (Personal Translator)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.islandKey:
-            return ("dynamic-island-slot", "灵动岛底层槽位 (DynamicIsland)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("dynamic-island-slot", "Slot Lapisan Bawah Dynamic Island (DynamicIsland)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.aodKey:
-            return ("aod-slot", "全天候显示底层槽位 (AOD)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("aod-slot", "Slot Lapisan Bawah Always-On Display (AOD)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.aoTimeKey:
-            return ("aotime-slot", "全天候显示时间槽位 (AlwaysOnTime)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("aotime-slot", "Slot Waktu Always-On Display (AlwaysOnTime)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.aodVibrancyKey:
-            return ("aod-vibrancy-slot", "全天候显示鲜艳度槽位 (AODVibrancy)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("aod-vibrancy-slot", "Slot Saturasi Always-On Display (AODVibrancy)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.liquidGlassLowPowerKey:
-            return ("liquid-glass-lp-slot", "液态玻璃低功耗槽位 (LiquidGlassLowPower)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("liquid-glass-lp-slot", "Slot Liquid Glass Hemat Daya (LiquidGlassLowPower)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.chargeLimKey:
-            return ("charge-limit-slot", "80% 充电上限底层槽位 (80ChargeLimit)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("charge-limit-slot", "Slot Lapisan Bawah Batas Pengisian 80% (80ChargeLimit)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.bootChimeKey:
-            return ("boot-chime-slot", "开关机提示音底层槽位 (BootChime)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("boot-chime-slot", "Slot Lapisan Bawah Suara Boot/Shutdown (BootChime)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.crashDetKey:
-            return ("crash-det-slot", "车祸检测底层槽位 (CollisionSOS)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("crash-det-slot", "Slot Lapisan Bawah Deteksi Kecelakaan (CollisionSOS)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.pwmKey:
-            return ("pwm-slot", "PWM 调光底层槽位 (PulseWidthMaximization)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("pwm-slot", "Slot Lapisan Bawah Dimming PWM (PulseWidthMaximization)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.appPencilKey:
-            return ("apple-pencil-slot", "Apple Pencil 底层槽位", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("apple-pencil-slot", "Slot Lapisan Bawah Apple Pencil", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.camButtonKey:
-            return ("cam-button-slot", "相机控制按键底层槽位 (CameraButton)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("cam-button-slot", "Slot Lapisan Bawah Tombol Kontrol Kamera (CameraButton)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.actButtonKey:
-            return ("action-button-slot", "操作按钮底层槽位 (RingerButton)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("action-button-slot", "Slot Lapisan Bawah Tombol Aksi (RingerButton)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.tapToWakeKey:
-            return ("tap-to-wake-slot", "轻点唤醒底层槽位 (TapToWake)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("tap-to-wake-slot", "Slot Lapisan Bawah Ketuk untuk Bangunkan (TapToWake)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.stageMgrKey:
-            return ("stage-mgr-slot", "台前调度底层槽位 (EnhancedMultitasking)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("stage-mgr-slot", "Slot Lapisan Bawah Stage Manager (EnhancedMultitasking)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.shutterRelaxationKey:
-            return ("shutter-relax-slot", "[测试] 地区快门音豁免槽位 (RegionalCameraShutterRelaxation)", "true (0x01 · 允许静音)", "false (0x00 · 强制快门音)")
+            return ("shutter-relax-slot", "[Uji] Slot Pengecualian Suara Rana Regional (RegionalCameraShutterRelaxation)", "true (0x01 · Diizinkan mute)", "false (0x00 · Suara rana wajib)")
         case MGCacheDataLayout.shutterKeyboardMutePreserveKey:
-            return ("shutter-kb-mute-slot", "[测试] 保留地区强制快门音 (KeyboardMutePreservesShutter)", "true (0x01 · 保留强制音)", "false (0x00 · 已解除强制音)")
+            return ("shutter-kb-mute-slot", "[Uji] Pertahankan Suara Rana Wajib Regional (KeyboardMutePreservesShutter)", "true (0x01 · Suara wajib dipertahankan)", "false (0x00 · Suara wajib dibuka)")
         case MGCacheDataLayout.shutterLegacyMutePreserveKey:
-            return ("shutter-legacy-mute-slot", "[测试] 旧机型保留强制快门音 (LegacyShutterPreserve)", "true (0x01 · 保留强制音)", "false (0x00 · 已解除强制音)")
+            return ("shutter-legacy-mute-slot", "[Uji] Model Lama Pertahankan Suara Rana Wajib (LegacyShutterPreserve)", "true (0x01 · Suara wajib dipertahankan)", "false (0x00 · Suara wajib dibuka)")
         case MGCacheDataLayout.concurrentHPLPMicsKey:
-            return ("concurrent-mics-slot", "[测试] 高低功耗双麦并发槽位 (ConcurrentHPLPMics)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("concurrent-mics-slot", "[Uji] Slot Mikrofon Ganda High-Low Power Bersamaan (ConcurrentHPLPMics)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.photosLocalLightKey:
-            return ("photos-local-light-slot", "[测试] 相册局部光效重绘槽位 (PhotosLocalLight)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("photos-local-light-slot", "[Uji] Slot Redraw Cahaya Lokal Galeri (PhotosLocalLight)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.toneMappingKey:
-            return ("tone-mapping-slot", "[测试] 动态色调映射槽位 (ToneMapping)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("tone-mapping-slot", "[Uji] Slot Pemetaan Nada Dinamis (ToneMapping)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.hdrDeferredProcessingKey:
-            return ("hdr-deferred-slot", "[测试] HDR 深度延迟渲染槽位 (HDRDeferredProcessing)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("hdr-deferred-slot", "[Uji] Slot Render Delay HDR Mendalam (HDRDeferredProcessing)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.spatialOverCaptureKey:
-            return ("spatial-overcapture-slot", "[测试] 超取景框空间捕获槽位 (SpatialOverCapture)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("spatial-overcapture-slot", "[Uji] Slot Penangkapan Spasial Ultra-Wide (SpatialOverCapture)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.stereoAudioRecKey:
-            return ("stereo-audio-rec-slot", "[测试] 立体声视频拾音槽位 (StereoAudioRecording)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("stereo-audio-rec-slot", "[Uji] Slot Penangkapan Audio Video Stereo (StereoAudioRecording)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.p3VideoRecKey:
-            return ("p3-video-rec-slot", "[测试] P3 广色域视频录制槽位 (P3ColorspaceVideo)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("p3-video-rec-slot", "[Uji] Slot Perekaman Video Wide Color Gamut P3 (P3ColorspaceVideo)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.touchSensitiveCamControlKey:
-            return ("touch-cam-control-slot", "[测试] 电容触敏相机控制槽位 (TouchSensitiveCameraControl)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("touch-cam-control-slot", "[Uji] Slot Kontrol Kamera Sensitif Sentuh Kapasitif (TouchSensitiveCameraControl)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.hardwareDetentsKey:
-            return ("hw-detents-slot", "[测试] 物理触感档位阻尼槽位 (HardwareDetents)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("hw-detents-slot", "[Uji] Slot Damping Detent Taktil Fisik (HardwareDetents)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.cameraHapticsKey:
-            return ("camera-haptics-slot", "[测试] 相机微幅触觉反馈槽位 (CameraHaptics)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("camera-haptics-slot", "[Uji] Slot Umpan Balik Haptik Halus Kamera (CameraHaptics)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.legacyBatteryInfoKey:
-            return ("legacy-battery-info-slot", "[测试] 旧机型电池健康详情槽位 (BatteryModelInfoLegacyHW)", "true (0x01 · 显示循环/日期)", "false (0x00 · 默认隐藏)")
+            return ("legacy-battery-info-slot", "[Uji] Slot Detail Kesehatan Baterai Model Lama (BatteryModelInfoLegacyHW)", "true (0x01 · Tampilkan siklus/tanggal)", "false (0x00 · Default Tersembunyi)")
         case MGCacheDataLayout.legacyDynamicEndOfChargeKey:
-            return ("legacy-dyn-eoc-slot", "[测试] 旧机型智能充电截止槽位 (DynamicEndOfChargeLegacyHW)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("legacy-dyn-eoc-slot", "[Uji] Slot Pemutusan Pengisian Cerdas Model Lama (DynamicEndOfChargeLegacyHW)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.highLuminanceAODKey:
-            return ("high-lum-aod-slot", "[测试] 户外高亮息屏显示槽位 (HighLuminanceAOD)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("high-lum-aod-slot", "[Uji] Slot AOD Kecerahan Tinggi Outdoor (HighLuminanceAOD)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.aodFlipbookKey:
-            return ("aod-flipbook-slot", "[测试] AOD 低功耗翻页帧缓冲槽位 (AODFlipbook)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("aod-flipbook-slot", "[Uji] Slot Frame Buffer Flipbook AOD Hemat Daya (AODFlipbook)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.carPlay2Key:
-            return ("carplay2-slot", "[测试] CarPlay Ultra 多屏车载槽位 (CarPlay2)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("carplay2-slot", "[Uji] Slot CarPlay Ultra Multi-Layar Otomotif (CarPlay2)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.touchDelivery120HzKey:
-            return ("touch-120hz-slot", "[测试] 120Hz 触控投递槽位 (TouchDelivery120Hz)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("touch-120hz-slot", "[Uji] Slot Pengiriman Touch 120Hz (TouchDelivery120Hz)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.hearingAidEQKey:
-            return ("hearingaid-eq-slot", "[测试] 临床助听均衡器槽位 (hearingaid-audio-equalization)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("hearingaid-eq-slot", "[Uji] Slot Ekualizer Alat Bantu Dengar Klinis (hearingaid-audio-equalization)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.hearingAidLEKey:
-            return ("hearingaid-le-slot", "[测试] 助听低功耗音频槽位 (hearingaid-low-energy-audio)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("hearingaid-le-slot", "[Uji] Slot Audio Low-Power Alat Bantu Dengar (hearingaid-low-energy-audio)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.hearingAidPowerRedKey:
-            return ("hearingaid-pwr-slot", "[测试] 助听降功耗模式槽位 (hearingaid-power-reduction)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("hearingaid-pwr-slot", "[Uji] Slot Mode Pengurangan Daya Alat Bantu Dengar (hearingaid-power-reduction)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.breathingDisturbancesKey:
-            return ("sleep-apnea-slot", "[测试] 睡眠呼吸紊乱检测槽位 (BreathingDisturbances)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("sleep-apnea-slot", "[Uji] Slot Deteksi Gangguan Pernapasan Tidur (BreathingDisturbances)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.usBloodOxygenKey:
-            return ("us-blood-oxygen-slot", "[测试] 美版血氧软件限制槽位 (USLegallyCompliantBloodOxygen)", "true (0x01 · 受专利限制)", "false (0x00 · 已解除血氧限制)")
+            return ("us-blood-oxygen-slot", "[Uji] Slot Batasan Software SpO2 Versi AS (USLegallyCompliantBloodOxygen)", "true (0x01 · Dibatasi paten)", "false (0x00 · Batasan SpO2 dibuka)")
         case MGCacheDataLayout.workoutUltraKey:
-            return ("workout-ultra-slot", "[测试] 户外极限运动模式槽位 (WorkoutUltraMode)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("workout-ultra-slot", "[Uji] Slot Mode Olahraga Ekstrem Outdoor (WorkoutUltraMode)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.timeInDaylightKey:
-            return ("daylight-time-slot", "[测试] 日光照射时长监测槽位 (TimeInDaylight)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("daylight-time-slot", "[Uji] Slot Pemantauan Durasi Paparan Sinar Matahari (TimeInDaylight)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.siriHubKey:
-            return ("siri-hub-slot", "[测试] 端侧 Siri Hub 路由槽位 (DeviceSupportsSiriHub)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("siri-hub-slot", "[Uji] Slot Routing Siri Hub On-Device (DeviceSupportsSiriHub)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.onDeviceSiriKey:
-            return ("ondevice-siri-slot", "[测试] 离线端侧 Siri 能力槽位 (OnDeviceSiriCapability)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("ondevice-siri-slot", "[Uji] Slot Kemampuan Siri Offline On-Device (OnDeviceSiriCapability)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         case MGCacheDataLayout.modelPruningKey:
-            return ("model-pruning-slot", "[测试] 端侧指令模型剪枝槽位 (InstructionFollowingPruningModels)", "true (0x01 · 已启用)", "false (0x00 · 默认关闭)")
+            return ("model-pruning-slot", "[Uji] Slot Pruning Model Perintah On-Device (InstructionFollowingPruningModels)", "true (0x01 · Aktif)", "false (0x00 · Default Nonaktif)")
         default:
-            return (key, "硬件特性槽位 (\(key))", "true (0x01)", "false (0x00)")
+            return (key, "Slot Fitur Hardware (\(key))", "true (0x01)", "false (0x00)")
         }
     }
 
@@ -960,11 +960,11 @@ final class MGCacheDataCoordinator {
 
         let slots: [(id: String, label: String, key: String, slot: Int, trueHint: String, falseHint: String)] = {
             var arr: [(String, String, String, Int, String, String)] = [
-                ("green-tea", "国行限制标记 (green-tea)", MGCacheDataLayout.greenTeaKey, layout.greenTeaIndex, "true (0x01 · 受限)", "false (0x00 · 已解除)"),
-                ("not-green-tea", "非国行设备标记 (not-green-tea)", MGCacheDataLayout.notGreenTeaKey, layout.notGreenTeaIndex, "true (0x01 · 非国行)", "false (0x00 · 国行默认)")
+                ("green-tea", "Penanda Batasan Versi Tiongkok (green-tea)", MGCacheDataLayout.greenTeaKey, layout.greenTeaIndex, "true (0x01 · Dibatasi)", "false (0x00 · Dibuka)"),
+                ("not-green-tea", "Penanda Perangkat Non-Tiongkok (not-green-tea)", MGCacheDataLayout.notGreenTeaKey, layout.notGreenTeaIndex, "true (0x01 · Non-Tiongkok)", "false (0x00 · Default Tiongkok)")
             ]
             if let wIdx = layout.wapiIndex, layout.validateSingleBooleanSlot(wIdx, in: beforeData) && layout.validateSingleBooleanSlot(wIdx, in: afterData) {
-                arr.append(("wapi", "无线局域网显示标记 (wapi)", MGCacheDataLayout.wapiKey, wIdx, "true (0x01 · 无线局域网)", "false (0x00 · Wi-Fi)"))
+                arr.append(("wapi", "Penanda Tampilan WLAN (wapi)", MGCacheDataLayout.wapiKey, wIdx, "true (0x01 · WLAN)", "false (0x00 · Wi-Fi)"))
             }
             for fKey in layout.featureSlotIndices.keys.sorted() {
                 if let fSlot = layout.featureSlotIndices[fKey],
@@ -985,7 +985,7 @@ final class MGCacheDataCoordinator {
                     MGCacheDataDiffDetail(
                         id: "CacheData.\(entry.id)",
                         label: entry.label,
-                        keyPath: String(format: "CacheData[0x%X] · 槽位 %d (%@)", off, entry.slot, entry.key),
+                        keyPath: String(format: "CacheData[0x%X] · slot %d (%@)", off, entry.slot, entry.key),
                         beforeText: beforeData[off] != 0 ? entry.trueHint : entry.falseHint,
                         afterText: afterData[off] != 0 ? entry.trueHint : entry.falseHint
                     )
@@ -998,10 +998,10 @@ final class MGCacheDataCoordinator {
             details.append(
                 MGCacheDataDiffDetail(
                     id: "CacheData.other",
-                    label: "底层二进制缓存其他偏移 (CacheData)",
+                    label: "Offset Lain Cache Biner Lapisan Bawah (CacheData)",
                     keyPath: "CacheData",
-                    beforeText: "<Data: \(beforeData.count) 字节>",
-                    afterText: "<已变更 \(otherChangedCount) 个字节>"
+                    beforeText: "<Data: \(beforeData.count) byte>",
+                    afterText: "<Telah diubah \(otherChangedCount) byte>"
                 )
             )
         }
@@ -1012,32 +1012,32 @@ final class MGCacheDataCoordinator {
     func diagnosticReport(for dict: NSDictionary) -> String {
         switch resolveValidated(for: dict) {
         case .failure(let err):
-            return "状态：❌ 动态解析未通过（已拒绝并锁定修改）\n原因：\(err.localizedDescription)"
+            return "Status: ❌ Resolusi dinamis gagal (modifikasi ditolak dan dikunci)\nAlasan: \(err.localizedDescription)"
         case .success((let layout, let data)):
             let gtVal = data[layout.greenTeaOffset] == 1
             let ngtVal = data[layout.notGreenTeaOffset] == 1
             var lines: [String] = [
-                "状态：✅ 已精确匹配本机系统库与缓存文件",
-                "CacheUUID：\(layout.uuid)",
-                "总槽位数：\(layout.slotCount) 个（共 \(layout.byteCount) 字节）",
-                String(format: "green-tea：槽位 %d，偏移 0x%X（有效位 0x%X），当前值 = %@",
+                "Status: ✅ Cocok secara presisi dengan pustaka sistem dan file cache perangkat",
+                "CacheUUID: \(layout.uuid)",
+                "Total slot: \(layout.slotCount) buah (total \(layout.byteCount) byte)",
+                String(format: "green-tea: slot %d, offset 0x%X (bit valid 0x%X), nilai saat ini = %@",
                        layout.greenTeaIndex, layout.greenTeaOffset, layout.validityOffset(for: layout.greenTeaIndex), gtVal ? "true" : "false"),
-                String(format: "not-green-tea：槽位 %d，偏移 0x%X（有效位 0x%X），当前值 = %@",
+                String(format: "not-green-tea: slot %d, offset 0x%X (bit valid 0x%X), nilai saat ini = %@",
                        layout.notGreenTeaIndex, layout.notGreenTeaOffset, layout.validityOffset(for: layout.notGreenTeaIndex), ngtVal ? "true" : "false")
             ]
             if let wIdx = layout.wapiIndex, layout.validateSingleBooleanSlot(wIdx, in: data) {
                 let wOff = wIdx * 8
                 let wVal = data[wOff] == 1
-                lines.append(String(format: "wapi (WLAN/Wi-Fi)：槽位 %d，偏移 0x%X（有效位 0x%X），当前值 = %@",
-                                    wIdx, wOff, layout.validityOffset(for: wIdx), wVal ? "true (无线局域网)" : "false (Wi-Fi)"))
+                lines.append(String(format: "wapi (WLAN/Wi-Fi): slot %d, offset 0x%X (bit valid 0x%X), nilai saat ini = %@",
+                                    wIdx, wOff, layout.validityOffset(for: wIdx), wVal ? "true (WLAN)" : "false (Wi-Fi)"))
             } else {
-                lines.append("wapi (WLAN/Wi-Fi)：当前系统未解析出有效槽位（已单独禁用）")
+                lines.append("wapi (WLAN/Wi-Fi): sistem saat ini tidak mengurai slot valid (dinonaktifkan secara terpisah)")
             }
             for fKey in MGCacheDataLayout.mediaHealthSlotKeys.sorted() {
                 if let fSlot = layout.featureSlotIndices[fKey], layout.validateSingleBooleanSlot(fSlot, in: data) {
                     let meta = Self.featureSlotMeta(forKey: fKey)
                     let fVal = data[fSlot * 8] == 1
-                    lines.append(String(format: "%@：槽位 %d，偏移 0x%X，当前值 = %@",
+                    lines.append(String(format: "%@: slot %d, offset 0x%X, nilai saat ini = %@",
                                         meta.label, fSlot, fSlot * 8, fVal ? "true" : "false"))
                 }
             }
