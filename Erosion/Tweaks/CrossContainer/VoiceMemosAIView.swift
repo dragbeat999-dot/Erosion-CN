@@ -2,7 +2,7 @@
 //  VoiceMemosAIView.swift
 //  Erosion
 //
-//  [Experimental / 测试特性]
+//  [Experimental / Fitur Uji]
 //  1. Lossless Voice Memos & Call Recording audio extractor (CloudRecordings.db APFS snapshot + batch ZIP).
 //  2. On-device AI / Offline Translation & Speech Model cache readiness inspector.
 //
@@ -34,7 +34,7 @@ struct AIModelCacheProbeItem: Identifiable {
 struct VoiceMemosAIView: View {
     @State private var isScanning = false
     @State private var isZipping = false
-    @State private var statusText = "点击右上角刷新扫描录音库与端侧 AI 模型缓存"
+    @State private var statusText = "Tekan segarkan di kanan atas untuk memindai pustaka rekaman dan cache model AI on-device"
     @State private var recordings: [VoiceMemoRecordingItem] = []
     @State private var modelProbes: [AIModelCacheProbeItem] = []
 
@@ -50,9 +50,9 @@ struct VoiceMemosAIView: View {
                         .foregroundStyle(Color.orange)
                         .padding(.top, 2)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("测试特性 · 语音备忘录提取与端侧模型体检")
+                        Text("Fitur Uji · Ekstraksi Voice Memos dan Pemeriksaan Model On-Device")
                             .font(.subheadline.weight(.semibold))
-                        Text("全程以纯只读快照方式解析语音备忘录与通话录音（保留自定义标题与无损 .m4a 音轨），并探测本机离线翻译、语音转写与端侧 AI 模型资产缓存体积。")
+                        Text("Sepenuhnya menggunakan cara snapshot read-only murni untuk mengurai Voice Memos dan rekaman panggilan (mempertahankan judul kustom dan trek audio .m4a lossless), serta memeriksa ukuran cache aset model terjemahan offline, transkripsi suara, dan AI on-device di perangkat.")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -63,9 +63,9 @@ struct VoiceMemosAIView: View {
             Section {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("已发现 \(recordings.count) 段无损录音音频")
+                        Text("Ditemukan \(recordings.count) trek audio rekaman lossless")
                             .font(.subheadline.weight(.medium))
-                        Text("总音频体积：\(AppContainerDirectoryHelper.formatBytes(totalRecordingBytes)) · \(statusText)")
+                        Text("Total ukuran audio: \(AppContainerDirectoryHelper.formatBytes(totalRecordingBytes)) · \(statusText)")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -79,12 +79,12 @@ struct VoiceMemosAIView: View {
                     Button {
                         exportAllRecordingsAsZip()
                     } label: {
-                        Label("一键无损打包全部录音导出 (.zip)", systemImage: "archivebox.fill")
+                        Label("Paketkan Semua Rekaman Lossless Sekali Klik untuk Ekspor (.zip)", systemImage: "archivebox.fill")
                     }
                     .disabled(isZipping)
                 }
             } header: {
-                HeaderLabel("[测试特性] 语音备忘录与通话录音概览", symbol: "waveform")
+                HeaderLabel("[Fitur Uji] Ringkasan Voice Memos dan Rekaman Panggilan", symbol: "waveform")
             }
 
             if !recordings.isEmpty {
@@ -125,17 +125,17 @@ struct VoiceMemosAIView: View {
                         .padding(.vertical, 2)
                     }
                 } header: {
-                    HeaderLabel("无损录音音轨列表 (\(recordings.count)) [测试]", symbol: "mic.fill")
+                    HeaderLabel("Daftar Trek Audio Rekaman Lossless (\(recordings.count)) [Uji]", symbol: "mic.fill")
                 }
             }
 
             Section {
                 liveAIRow(
-                    title: "Apple 智能总准入 (含通话录音与转写)",
+                    title: "Akses Masuk Apple Intelligence Total (termasuk Rekaman Panggilan dan Transkripsi)",
                     active: mgQueryLiveBool(forKey: MGKey.appIntell) ?? false
                 )
                 liveAIRow(
-                    title: "国行 green-tea 底层门禁已解除",
+                    title: "Gerbang lapisan green-tea Tiongkok telah dibuka",
                     active: !(mgQueryLiveBool(forKey: MGCacheDataLayout.greenTeaKey) ?? false)
                 )
                 audioIntellStatusRow()
@@ -146,7 +146,7 @@ struct VoiceMemosAIView: View {
                             Text(probe.title)
                                 .font(.subheadline.weight(.medium))
                             Spacer()
-                            Text(probe.accessible ? AppContainerDirectoryHelper.formatBytes(probe.totalBytes) : "沙盒隔离")
+                            Text(probe.accessible ? AppContainerDirectoryHelper.formatBytes(probe.totalBytes) : "Isolasi Sandbox")
                                 .font(.caption.monospacedDigit().weight(.semibold))
                                 .foregroundStyle(probe.accessible ? (probe.totalBytes > 0 ? Color.green : Color.secondary) : Color.orange)
                         }
@@ -157,19 +157,19 @@ struct VoiceMemosAIView: View {
                     .padding(.vertical, 2)
                 }
             } header: {
-                HeaderLabel("[测试特性] 端侧 AI 与离线语音/视觉模型体检", symbol: "brain.head.profile")
+                HeaderLabel("[Fitur Uji] Pemeriksaan AI On-Device dan Model Suara/Visual Offline", symbol: "brain.head.profile")
             } footer: {
-                Text("注：Apple Intelligence 核心大模型权重由系统受保护守护进程托管于 MobileAsset 只读卷中，此处统计可读的系统翻译、语音备忘录转写与视觉分析容器资产缓存。")
+                Text("Catatan: Bobot model besar inti Apple Intelligence dikelola oleh daemon terproteksi sistem pada volume read-only MobileAsset, di sini yang dihitung adalah cache aset container terjemahan sistem, transkripsi Voice Memos, dan analisis visual yang dapat dibaca.")
             }
         }
-        .navigationTitle("录音提取与模型体检")
+        .navigationTitle("Ekstraksi Rekaman dan Pemeriksaan Model")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     scanAll()
                 } label: {
-                    Label("刷新", systemImage: "arrow.clockwise")
+                    Label("Segarkan", systemImage: "arrow.clockwise")
                 }
                 .disabled(isScanning || isZipping)
             }
@@ -182,12 +182,12 @@ struct VoiceMemosAIView: View {
     }
 
     @ViewBuilder
-    private func liveAIRow(title: String, active: Bool, inactiveLabel: String = "未激活") -> some View {
+    private func liveAIRow(title: String, active: Bool, inactiveLabel: String = "Belum Aktif") -> some View {
         HStack {
             Text(title)
                 .font(.footnote)
             Spacer()
-            Text(active ? "✅ 已就绪" : inactiveLabel)
+            Text(active ? "✅ Siap" : inactiveLabel)
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(active ? Color.green : Color.secondary)
         }
@@ -200,19 +200,19 @@ struct VoiceMemosAIView: View {
         let stagedConflict = GestaltStore.shared.isAdvAppleIntellConflictActive()
 
         if isAdvAppleIntellHD() || (nativeAudio && !stagedConflict && !liveConflict) {
-            liveAIRow(title: "iOS 27 音频智能 (本机硬件原生支持)", active: true)
+            liveAIRow(title: "Audio Intelligence iOS 27 (didukung native oleh perangkat keras)", active: true)
         } else if stagedConflict || liveConflict {
             NavigationLink(destination: GestaltView()) {
                 VStack(alignment: .leading, spacing: 3) {
                     HStack {
-                        Text("iOS 27 进阶 AI 实验槽位")
+                        Text("Slot Eksperimental AI Lanjutan iOS 27")
                             .font(.footnote)
                         Spacer()
-                        Text(stagedConflict ? "⚠️ 已开启 · 去关闭修复" : "⏳ 已关闭 · 待重启生效")
+                        Text(stagedConflict ? "⚠️ Aktif · Buka untuk perbaiki" : "⏳ Nonaktif · Menunggu restart")
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(Color.orange)
                     }
-                    Text("提示：iPhone/iPad 强开此实验槽位会导致照片“高质量”消除报错，建议保持关闭（不影响常规通话录音与转写）")
+                    Text("Petunjuk: Memaksa mengaktifkan slot eksperimental ini pada iPhone/iPad akan menyebabkan error pada fitur \"kualitas tinggi\" penghapus foto, disarankan tetap dinonaktifkan (tidak memengaruhi rekaman panggilan dan transkripsi reguler)")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -221,14 +221,14 @@ struct VoiceMemosAIView: View {
         } else {
             VStack(alignment: .leading, spacing: 3) {
                 HStack {
-                    Text("常规通话录音与语音备忘录转写")
+                    Text("Rekaman Panggilan Reguler dan Transkripsi Voice Memos")
                         .font(.footnote)
                     Spacer()
-                    Text((mgQueryLiveBool(forKey: MGKey.appIntell) ?? false) ? "✅ 已完整就绪" : "待激活主开关")
+                    Text((mgQueryLiveBool(forKey: MGKey.appIntell) ?? false) ? "✅ Siap Sepenuhnya" : "Menunggu aktivasi sakelar utama")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle((mgQueryLiveBool(forKey: MGKey.appIntell) ?? false) ? Color.green : Color.secondary)
                 }
-                Text("已由主 Apple 智能开关原生驱动；实验性 AudioIntelligence 槽位已保持关闭以保障照片“高质量”消除正常")
+                Text("Telah digerakkan native oleh sakelar utama Apple Intelligence; slot AudioIntelligence eksperimental tetap dinonaktifkan untuk menjaga fitur \"kualitas tinggi\" penghapus foto tetap normal")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
@@ -270,7 +270,7 @@ struct VoiceMemosAIView: View {
             Haptic.shared.play(.soft)
             presentShareSheet(with: outURL)
         } catch {
-            Alertinator.shared.alert(title: "导出录音失败！", body: error.localizedDescription)
+            Alertinator.shared.alert(title: "Gagal mengekspor rekaman!", body: error.localizedDescription)
         }
     }
 
@@ -304,7 +304,7 @@ struct VoiceMemosAIView: View {
                 }
 
                 guard copiedCount > 0 else {
-                    throw "未能读取任何录音音频文件。"
+                    throw "Tidak dapat membaca file audio rekaman apa pun."
                 }
 
                 let stamp = DateFormatter()
@@ -321,7 +321,7 @@ struct VoiceMemosAIView: View {
             } catch {
                 DispatchQueue.main.async {
                     self.isZipping = false
-                    Alertinator.shared.alert(title: "打包录音失败！", body: error.localizedDescription)
+                    Alertinator.shared.alert(title: "Gagal mengemas rekaman!", body: error.localizedDescription)
                 }
             }
         }
@@ -329,13 +329,13 @@ struct VoiceMemosAIView: View {
 
     private func scanAll() {
         isScanning = true
-        statusText = "正在秒级探测模型缓存与语音备忘录容器..."
+        statusText = "Sedang memeriksa cache model dan container Voice Memos dalam hitungan detik..."
         DispatchQueue.global(qos: .utility).async {
             // 1. Instant probe of AI/Translation containers via CSStore2 + fixed SystemGroup paths (<50ms)
             let probes = Self.probeAIModelCaches()
             DispatchQueue.main.async {
                 self.modelProbes = probes
-                self.statusText = "正在扫描语音备忘录录音库..."
+                self.statusText = "Sedang memindai pustaka rekaman Voice Memos..."
             }
 
             // 2. Discover Voice Memos (App Container first, then AppGroup with progress)
@@ -348,8 +348,8 @@ struct VoiceMemosAIView: View {
             DispatchQueue.main.async {
                 self.recordings = foundRecordings
                 self.statusText = foundRecordings.isEmpty
-                    ? "未发现本地语音备忘录音频（或尚未录制音频）"
-                    : "已完成 CloudRecordings 元数据映射"
+                    ? "Tidak ditemukan audio voice memo lokal (atau belum ada audio yang direkam)"
+                    : "Pemetaan metadata CloudRecordings selesai"
                 self.isScanning = false
             }
         }
@@ -375,7 +375,7 @@ struct VoiceMemosAIView: View {
         let groupPaths = fsHandlers.getDirPaths(FSURL.appGroup.path)
         for (idx, p) in groupPaths.enumerated() {
             if idx % 30 == 0 {
-                onProgress("正在检索录音共享组 (\(idx) / \(groupPaths.count))...")
+                onProgress("Sedang mencari grup bersama rekaman (\(idx) / \(groupPaths.count))...")
             }
             let url = URL(fileURLWithPath: p)
             if let gid = getBIDFromXattr(url),
@@ -479,7 +479,7 @@ struct VoiceMemosAIView: View {
 
         if let first = candidates.first,
            let parsedDate = isoFormatter.date(from: first) ?? isoFracFormatter.date(from: first) {
-            return "录音 \(dateFormatter.string(from: parsedDate))"
+            return "Rekaman \(dateFormatter.string(from: parsedDate))"
         }
 
         return candidates.first ?? ""
@@ -532,9 +532,9 @@ struct VoiceMemosAIView: View {
 
         // 1. App containers relevant to offline AI / translation / voice memos
         let appTargets: [(title: String, bid: String)] = [
-            ("系统翻译离线语言包容器", "com.apple.Translate"),
-            ("语音备忘录与转写缓存容器", "com.apple.VoiceMemos"),
-            ("快捷指令与智能自动化容器", "com.apple.shortcuts")
+            ("Container Paket Bahasa Terjemahan Offline Sistem", "com.apple.Translate"),
+            ("Container Cache Voice Memos dan Transkripsi", "com.apple.VoiceMemos"),
+            ("Container Shortcuts dan Otomasi Cerdas", "com.apple.shortcuts")
         ]
 
         for target in appTargets {
@@ -547,7 +547,7 @@ struct VoiceMemosAIView: View {
                     accessible: false,
                     fileCount: 0,
                     totalBytes: 0,
-                    statusNote: "未找到容器（应用可能未安装或首次未启动）"
+                    statusNote: "Container tidak ditemukan (aplikasi mungkin belum terpasang atau belum pernah dijalankan)"
                 ))
             } else {
                 let grant = wq.grantAccess(path: path, requireWrite: false)
@@ -560,7 +560,7 @@ struct VoiceMemosAIView: View {
                         accessible: true,
                         fileCount: count,
                         totalBytes: bytes,
-                        statusNote: "只读探测正常 · 共 \(count) 个缓存/数据文件"
+                        statusNote: "Pemeriksaan read-only normal · \(count) file cache/data"
                     ))
                 } else {
                     results.append(AIModelCacheProbeItem(
@@ -570,7 +570,7 @@ struct VoiceMemosAIView: View {
                         accessible: false,
                         fileCount: 0,
                         totalBytes: 0,
-                        statusNote: "当前系统限制沙盒读取"
+                        statusNote: "Dibatasi sandbox sistem saat ini"
                     ))
                 }
             }
@@ -578,8 +578,8 @@ struct VoiceMemosAIView: View {
 
         // 2. SystemGroup / MobileAsset read-only probes
         let sysTargets: [(title: String, id: String, path: String)] = [
-            ("离线翻译引擎共享组", "systemgroup.com.apple.translationd", "/private/var/containers/Shared/SystemGroup/systemgroup.com.apple.translationd"),
-            ("视觉图像智能分析组", "systemgroup.com.apple.mediaanalysisd", "/private/var/containers/Shared/SystemGroup/systemgroup.com.apple.mediaanalysisd")
+            ("Grup Bersama Mesin Terjemahan Offline", "systemgroup.com.apple.translationd", "/private/var/containers/Shared/SystemGroup/systemgroup.com.apple.translationd"),
+            ("Grup Analisis Visual dan Gambar Cerdas", "systemgroup.com.apple.mediaanalysisd", "/private/var/containers/Shared/SystemGroup/systemgroup.com.apple.mediaanalysisd")
         ]
 
         for sys in sysTargets {
@@ -597,7 +597,7 @@ struct VoiceMemosAIView: View {
                     accessible: true,
                     fileCount: count,
                     totalBytes: bytes,
-                    statusNote: "只读探测成功 · \(count) 个模型/索引文件"
+                    statusNote: "Pemeriksaan read-only berhasil · \(count) file model/indeks"
                 ))
             } else {
                 results.append(AIModelCacheProbeItem(
@@ -607,7 +607,7 @@ struct VoiceMemosAIView: View {
                     accessible: false,
                     fileCount: 0,
                     totalBytes: 0,
-                    statusNote: "受系统沙盒扩展保护（仅守护进程可读）"
+                    statusNote: "Dilindungi ekstensi sandbox sistem (hanya daemon yang dapat membaca)"
                 ))
             }
         }
