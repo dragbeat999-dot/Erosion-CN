@@ -12,9 +12,9 @@ enum MGCustomValueType: String, Codable, CaseIterable {
     
     var label: String {
         switch self {
-        case .int: return "整数 (Int)"
-        case .string: return "字符串 (String)"
-        case .bool: return "布尔值 (Bool)"
+        case .int: return "Bilangan Bulat (Int)"
+        case .string: return "String (Teks)"
+        case .bool: return "Boolean (Bool)"
         }
     }
 }
@@ -81,33 +81,33 @@ struct CustomKeyView: View {
     var body: some View {
         List {
             Section {
-                TextField("键名 (如 97JDvERpVwO+GHtthIh7hA)", text: $cstkKey)
+                TextField("Nama Kunci (mis. 97JDvERpVwO+GHtthIh7hA)", text: $cstkKey)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
-                Picker("键值类型", selection: $cstkType) {
+                Picker("Tipe Nilai Kunci", selection: $cstkType) {
                     ForEach(MGCustomValueType.allCases, id: \.self) { type in
                         Text(type.label).tag(type)
                     }
                 }
                 switch cstkType {
                 case .int:
-                    TextField("整数值 (如 1)", value: $cstkValue, format: .number)
+                    TextField("Nilai Bilangan Bulat (mis. 1)", value: $cstkValue, format: .number)
                         .keyboardType(.numbersAndPunctuation)
                 case .string:
-                    TextField("字符串值 (如 A3473)", text: $cstkStringValue)
+                    TextField("Nilai String (mis. A3473)", text: $cstkStringValue)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 case .bool:
-                    Toggle(cstkBoolValue ? "开启 (True)" : "关闭 (False)", isOn: $cstkBoolValue)
+                    Toggle(cstkBoolValue ? "Aktif (True)" : "Nonaktif (False)", isOn: $cstkBoolValue)
                 }
-                Button("添加自定义键值") {
+                Button("Tambah Kunci Kustom") {
                     let trimmedKey = cstkKey.trimmingCharacters(in: .whitespacesAndNewlines)
                     if trimmedKey.isEmpty || (cstkType == .int && cstkValue == nil) {
-                        Alertinator.shared.alert(title: "键名或键值无效！", body: "请完整填写键名与对应键值后再试。")
+                        Alertinator.shared.alert(title: "Nama atau nilai kunci tidak valid!", body: "Harap isi nama kunci dan nilai yang sesuai secara lengkap sebelum mencoba lagi.")
                     } else if let blockedReason = mgIsDangerousCacheExtraKey(trimmedKey) {
-                        Alertinator.shared.alert(title: "已拦截高危或非缓存键名！", body: "\(blockedReason)\n\n为防止触发系统启动校验失败或射频异常，安全护栏禁止在 CacheExtra 中手动注入此键。")
+                        Alertinator.shared.alert(title: "Nama kunci berisiko tinggi atau bukan cache telah diblokir!", body: "\(blockedReason)\n\nUntuk mencegah kegagalan validasi boot sistem atau anomali RF, pagar pengaman melarang injeksi manual kunci ini ke CacheExtra.")
                     } else if customKeys.contains(where: { $0.key == trimmedKey }) {
-                        Alertinator.shared.alert(title: "该键名已存在！", body: "请在下方列表中点击对应键名进行修改。")
+                        Alertinator.shared.alert(title: "Nama kunci ini sudah ada!", body: "Silakan klik nama kunci yang sesuai di daftar di bawah untuk mengubahnya.")
                     } else {
                         customKeys.append(
                             MGCustomKey(
@@ -124,7 +124,7 @@ struct CustomKeyView: View {
                     }
                 }
             } header: {
-                HeaderLabel("新增自定义键", symbol: "plus")
+                HeaderLabel("Tambah Kunci Kustom", symbol: "plus")
             }
             
             Section {
@@ -150,11 +150,11 @@ struct CustomKeyView: View {
                 }
             } header: {
                 if !customKeys.isEmpty {
-                    HeaderLabel("已添加列表（左滑删除，点击编辑）", symbol: "list.bullet")
+                    HeaderLabel("Daftar yang Ditambahkan (Geser Kiri untuk Hapus, Ketuk untuk Edit)", symbol: "list.bullet")
                 }
             }
         }
-        .navigationTitle("自定义键值")
+        .navigationTitle("Nilai Kunci Kustom")
         .scrollDismissesKeyboard(.interactively)
         .sheet(item: $itemToEdit) { item in
             EditorPane(item: item)
@@ -186,7 +186,7 @@ struct CustomKeyView: View {
                     Text(item.key)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .modifier(TextFieldBackground())
-                    Picker("键值类型", selection: $item.valueType) {
+                    Picker("Tipe Nilai Kunci", selection: $item.valueType) {
                         ForEach(MGCustomValueType.allCases, id: \.self) { type in
                             Text(type.label).tag(type)
                         }
@@ -194,28 +194,28 @@ struct CustomKeyView: View {
                     .pickerStyle(.segmented)
                     switch item.valueType {
                     case .int:
-                        TextField("整数值", value: $item.value, format: .number)
+                        TextField("Nilai Bilangan Bulat", value: $item.value, format: .number)
                             .keyboardType(.numbersAndPunctuation)
                             .modifier(TextFieldBackground())
                     case .string:
-                        TextField("字符串值", text: $item.stringValue)
+                        TextField("Nilai String", text: $item.stringValue)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .modifier(TextFieldBackground())
                     case .bool:
-                        Toggle(item.boolValue ? "开启 (True)" : "关闭 (False)", isOn: $item.boolValue)
+                        Toggle(item.boolValue ? "Aktif (True)" : "Nonaktif (False)", isOn: $item.boolValue)
                             .modifier(TextFieldBackground())
                     }
                 }
                 .padding(.horizontal)
-                .navigationTitle("修改自定义键")
+                .navigationTitle("Ubah Kunci Kustom")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
                             dismiss()
                         } label: {
-                            Label("关闭", systemImage: "xmark")
+                            Label("Tutup", systemImage: "xmark")
                                 .labelStyle(.iconOnly)
                         }
                     }
@@ -227,7 +227,7 @@ struct CustomKeyView: View {
                             }
                             dismiss()
                         } label: {
-                            Label("确认", systemImage: "checkmark")
+                            Label("Konfirmasi", systemImage: "checkmark")
                                 .labelStyle(.iconOnly)
                         }
                     }
