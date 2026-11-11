@@ -58,12 +58,12 @@ final class PBHandler {
         do {
             // Zip Slip path-traversal audit before extraction (SEC-M4-05)
             guard let archive = try? Archive(url: url, accessMode: .read) else {
-                throw "无法读取 .tendies 压缩包！"
+                throw "Tidak dapat membaca arsip .tendies!"
             }
             for entry in archive {
                 let entryPath = entry.path
                 if entryPath.hasPrefix("/") || entryPath.split(separator: "/").contains("..") {
-                    throw "检测到压缩包包含非法路径穿越条目 (\(entryPath))，已拒绝导入！"
+                    throw "Terdeteksi entri path traversal yang tidak valid di dalam arsip (\(entryPath)), impor ditolak!"
                 }
             }
             try fm.unzipItem(at: url, to: rawURL)
