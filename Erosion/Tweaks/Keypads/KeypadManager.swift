@@ -65,11 +65,11 @@ enum KPSize: Int, CaseIterable {
     
     var label: String {
         switch self {
-        case .defSize: return "默认"
-        case .small: return "小"
-        case .medium: return "中"
-        case .large: return "大"
-        case .custom: return "自定义"
+        case .defSize: return "Default"
+        case .small: return "Kecil"
+        case .medium: return "Sedang"
+        case .large: return "Besar"
+        case .custom: return "Kustom"
         }
     }
 }
@@ -91,8 +91,8 @@ let emptyKeypadArray = [
 ]
 
 enum KPMsg {
-    static let resetWarn = "重置后将丢失当前正在编辑的按键图案以及“电话”应用中已生效的拨号主题。"
-    static let applyComp = "若要使拨号按键生效，请打开“电话”应用并切换深浅色外观直至自定义按键显示，或直接重启设备。切勿在后台强行上滑关闭“电话”应用！"
+    static let resetWarn = "Setelah diatur ulang, pola tombol yang sedang diedit serta tema dial yang sudah aktif di aplikasi \"Telepon\" akan hilang."
+    static let applyComp = "Agar tombol dial berlaku, buka aplikasi \"Telepon\" dan ganti mode terang/gelap hingga tombol kustom muncul, atau langsung restart perangkat. Jangan pernah menutup paksa aplikasi \"Telepon\" dengan menggeser ke atas di latar belakang!"
 }
 
 let kp = KeypadManager()
@@ -156,7 +156,7 @@ final class KeypadManager: ObservableObject {
         do {
             try fm.createDirectory(at: tpURL, withIntermediateDirectories: true)
         } catch {
-            print("(kp) failed to create TelephonyUI-10 directory: \(error.localizedDescription)")
+            print("(kp) gagal membuat direktori TelephonyUI-10: \(error.localizedDescription)")
             return false
         }
         _ = wq.grantAccess(path: tpURL.path)
@@ -167,7 +167,7 @@ final class KeypadManager: ObservableObject {
             // Skip untouched/empty keypad buttons instead of writing 0-byte PNGs (SEC-M4-06)
             guard !item.imgData.isEmpty else { continue }
             guard isValidPNGData(item.imgData) else {
-                print("(kp) rejected invalid/corrupted PNG data for keypad \(item.kpID)")
+                print("(kp) menolak data PNG tidak valid/rusak untuk keypad \(item.kpID)")
                 failed += 1
                 continue
             }
@@ -183,7 +183,7 @@ final class KeypadManager: ObservableObject {
                     }
                     appliedAny = true
                 } catch {
-                    print("(kp) failed to write image data: \(error.localizedDescription)")
+                    print("(kp) gagal menulis data gambar: \(error.localizedDescription)")
                     failed += 1
                 }
             }
@@ -218,7 +218,7 @@ final class KeypadManager: ObservableObject {
             clearKeypads()
             return true
         } catch {
-            print("(kp) failed to reset keypad items: \(error.localizedDescription)")
+            print("(kp) gagal mengatur ulang item keypad: \(error.localizedDescription)")
         }
         return false
     }
@@ -306,18 +306,18 @@ final class KeypadManager: ObservableObject {
         defer { try? fm.removeItem(at: tempURL) }
         do {
             guard let archive = try? Archive(url: fileURL, accessMode: .read) else {
-                throw "无法读取拨号主题压缩包！"
+                throw "Tidak dapat membaca arsip tema dial!"
             }
             let destStd = tempURL.standardizedFileURL
             let destPrefix = destStd.path.hasSuffix("/") ? destStd.path : destStd.path + "/"
             for entry in archive {
                 let entryPath = entry.path
                 if entryPath.hasPrefix("/") || entryPath.split(separator: "/").contains("..") || entryPath.split(separator: "\\").contains("..") {
-                    throw "检测到主题包包含非法路径穿越条目 (\(entryPath))，已拒绝导入！"
+                    throw "Terdeteksi paket tema berisi entri path traversal ilegal (\(entryPath)), impor ditolak!"
                 }
                 let resolvedPath = destStd.appendingPathComponent(entryPath).standardizedFileURL.path
                 if resolvedPath != destStd.path && !resolvedPath.hasPrefix(destPrefix) {
-                    throw "检测到主题包条目越界 (\(entryPath))，已拒绝导入！"
+                    throw "Terdeteksi entri paket tema melewati batas (\(entryPath)), impor ditolak!"
                 }
             }
             var filesURL = tempURL
@@ -325,7 +325,7 @@ final class KeypadManager: ObservableObject {
             try fm.unzipItem(at: fileURL, to: filesURL)
             let dirURLs = try fm.contentsOfDirectory(at: filesURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles).filter { $0.lastPathComponent != "__MACOSX" }
             if dirURLs.count < 1 {
-                throw "no files found inside of extracted folder!"
+                throw "Tidak ada file yang ditemukan di dalam folder hasil ekstraksi!"
             } else if dirURLs.count == 1 {
                 var isDir: ObjCBool = false
                 if fm.fileExists(atPath: dirURLs[0].path, isDirectory: &isDir), isDir.boolValue {
@@ -334,7 +334,7 @@ final class KeypadManager: ObservableObject {
             } else if let index = dirURLs.firstIndex(where: { $0.lastPathComponent == "TelephonyUI-8" || $0.lastPathComponent == "TelephonyUI-9" || $0.lastPathComponent == "TelephonyUI-10" }) {
                 filesURL = dirURLs[index]
             } else if !dirURLs.contains(where: { $0.pathExtension.lowercased() == "png" }) {
-                throw "no telephonyui folders found inside of extracted folder!"
+                throw "Tidak ada folder TelephonyUI yang ditemukan di dalam folder hasil ekstraksi!"
             }
             // once extracted check each file for a match with the right image (excluding -hi- highlight images)
             let fileURLs = try fm.contentsOfDirectory(at: filesURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
@@ -379,12 +379,12 @@ final class KeypadManager: ObservableObject {
                 replaceCount = try matchFiles(acceptedAppearances: ["mask", "white"])
             }
             if replaceCount < 1 {
-                throw "the file was unzipped, but no keys were found?"
+                throw "File berhasil diekstrak, tetapi tidak ada tombol yang ditemukan?"
             }
-            print("(kp) successfully imported theme! fileName: \(fileURL.lastPathComponent), imported keys: \(replaceCount)")
+            print("(kp) berhasil mengimpor tema! fileName: \(fileURL.lastPathComponent), tombol diimpor: \(replaceCount)")
             return true
         } catch {
-            print("(kp) failed to import theme: \(error.localizedDescription)")
+            print("(kp) gagal mengimpor tema: \(error.localizedDescription)")
         }
         return false
     }
