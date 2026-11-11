@@ -25,7 +25,7 @@ struct LogView: View {
                         Haptic.shared.play(.soft)
                         UIPasteboard.general.string = mgr.logOutput
                     } label: {
-                        Label("复制日志", systemImage: "doc.on.doc")
+                        Label("Salin Log", systemImage: "doc.on.doc")
                     }
                     
                     Button {
@@ -36,16 +36,16 @@ struct LogView: View {
                             
                             let tempURL = URL.temporaryDirectory.appendingPathComponent("Erosion-Log-\(date)").appendingPathExtension("txt")
                             guard let data = mgr.logOutput.data(using: .utf8) else {
-                                throw "failed to create data from log string"
+                                throw "gagal membuat data dari string log"
                             }
                             
                             try data.write(to: tempURL)
                             presentShareSheet(with: tempURL)
                         } catch {
-                            print("(fm) failed to export logs: \(error.localizedDescription)")
+                            print("(fm) gagal mengekspor log: \(error.localizedDescription)")
                         }
                     } label: {
-                        Label("导出日志", systemImage: "square.and.arrow.up")
+                        Label("Ekspor Log", systemImage: "square.and.arrow.up")
                     }
                 }
             }
