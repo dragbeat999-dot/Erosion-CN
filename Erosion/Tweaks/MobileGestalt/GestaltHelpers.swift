@@ -22,17 +22,17 @@ struct MGDiffItem: Identifiable {
 
 func mgValidatePlistData(_ data: Data) -> (Bool, String) {
     guard data.count > 256 else {
-        return (false, "待写入的 MobileGestalt 数据过小（\(data.count) 字节），已拦截写入。")
+        return (false, "Data MobileGestalt yang akan ditulis terlalu kecil (\(data.count) byte), penulisan diblokir.")
     }
     guard let obj = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil),
           let dict = obj as? NSDictionary else {
-        return (false, "待写入的数据不是合法的 Plist 字典，已拦截写入。")
+        return (false, "Data yang akan ditulis bukan dictionary Plist yang valid, penulisan diblokir.")
     }
     guard let cacheExtra = dict["CacheExtra"] as? NSDictionary, cacheExtra.count > 0 else {
-        return (false, "待写入的 Plist 缺少有效的 CacheExtra 字典，已拦截写入。")
+        return (false, "Plist yang akan ditulis tidak memiliki dictionary CacheExtra yang valid, penulisan diblokir.")
     }
     guard let cacheData = dict["CacheData"] as? Data, !cacheData.isEmpty else {
-        return (false, "待写入的 Plist 缺少有效的 CacheData 二进制段，已拦截写入。")
+        return (false, "Plist yang akan ditulis tidak memiliki segmen biner CacheData yang valid, penulisan diblokir.")
     }
     return (true, "ok")
 }
@@ -77,7 +77,7 @@ func mgPlistValuesEqual(_ lhs: Any?, _ rhs: Any?) -> Bool {
 }
 
 func mgFormatValue(_ val: Any?) -> String {
-    guard let val else { return "（不存在 / 已移除）" }
+    guard let val else { return "(tidak ada / telah dihapus)" }
     if let num = val as? NSNumber {
         if CFGetTypeID(num) == CFBooleanGetTypeID() {
             return num.boolValue ? "true (Bool)" : "false (Bool)"
@@ -88,91 +88,91 @@ func mgFormatValue(_ val: Any?) -> String {
         return num.stringValue
     }
     if let str = val as? String { return str.isEmpty ? "\"\"" : str }
-    if let data = val as? Data { return "<Data: \(data.count) 字节>" }
+    if let data = val as? Data { return "<Data: \(data.count) byte>" }
     if let arr = val as? NSArray {
         let items = arr.map { mgFormatValue($0) }.joined(separator: ", ")
         return "[\(items)]"
     }
-    if let dict = val as? NSDictionary { return "<Dict: \(dict.count) 项>" }
+    if let dict = val as? NSDictionary { return "<Dict: \(dict.count) item>" }
     return String(describing: val)
 }
 
 func mgKeyDisplayName(_ key: String) -> String {
     let names: [String: String] = [
-        MGKey.regionCode: "地区代码 (RegionCode)",
-        MGKey.regionInfo: "销售地区 (RegionInfo)",
-        MGKey.regionSysconfig: "系统销售地区 (RegionInfoFromSysconfig)",
-        MGKey.regModelNumber: "监管型号 (RegulatoryModelNumber)",
-        MGKey.appIntell: "Apple 智能总开关",
-        MGKey.photosCleanUp: "相册“消除”功能 (Photos Clean Up)",
-        MGKey.handwritingSynth: "备忘录手写体合成 (Handwriting Synthesis)",
-        MGKey.audioIntell: "iOS 27 音频智能 (Audio Intelligence)",
-        MGKey.personalTranslator: "个人实时翻译 (Personal Translator)",
-        MGKey.audioMix: "相册与相机混音 (Audio Mix)",
-        MGKey.spatialAudioRec: "空间音频录制 (spatial-audio-recording)",
-        MGKey.spatialFaceTimeAudio: "FaceTime 空间音频 (spatial-facetime-audio)",
-        MGKey.responsiveShutter: "按下快门瞬间抓拍 (ResponsiveShutter)",
-        MGKey.hypertensionNotif: "健康高血压趋势评估 (HypertensionNotifications)",
-        MGCacheDataLayout.greenTeaKey: "国行限制标记 (green-tea)",
-        MGCacheDataLayout.notGreenTeaKey: "非国行设备标记 (not-green-tea)",
-        MGCacheDataLayout.wapiKey: "无线局域网显示标记 (wapi)",
-        MGKey.liquidGlassLowPower: "液态玻璃低功耗渲染",
-        MGKey.island: "灵动岛特性",
-        MGKey.AOD: "全天候显示 (AOD)",
-        MGKey.AOTime: "全天候显示时间",
-        MGKey.AODVibrancy: "AOD 鲜艳度",
-        MGKey.chargeLim: "80% 充电上限",
-        MGKey.bootChime: "开关机提示音",
-        MGKey.intInstall: "Apple 内部安装模式",
-        MGKey.intBuild: "内部版本标识",
-        MGKey.srd: "安全研究设备 (SRD)",
-        MGKey.prodType: "机型标识符 (ProductType)",
-        MGKey.modelNameOuter1: "设备产品名称",
-        MGKey.modelNameOuter2: "设备市场名称",
-        MGKey.crashDet: "车祸检测",
-        MGKey.pwm: "PWM 调光开关",
-        MGKey.appPencil: "Apple Pencil 支持",
-        MGKey.camButton: "相机控制按键",
-        MGKey.grapPefr: "图形性能等级",
-        MGKey.actButton: "操作按钮",
-        MGKey.tapToWake: "轻点唤醒",
-        MGKey.stageMgr: "台前调度",
-        MGKey.shutterRelaxation: "[测试] 地区相机快门音豁免",
-        MGKey.shutterKeyboardMutePreserve: "[测试] 键盘静音保留强制快门音",
-        MGKey.shutterLegacyMutePreserve: "[测试] 旧机型保留强制快门音",
-        MGKey.concurrentHPLPMics: "[测试] 高低功耗双麦并发拾音",
-        MGKey.photosLocalLight: "[测试] 相册局部光效重绘",
-        MGKey.toneMapping: "[测试] 动态色调映射",
-        MGKey.hdrDeferredProcessing: "[测试] HDR 深度延迟渲染",
-        MGKey.spatialOverCapture: "[测试] 超取景框空间捕获",
-        MGKey.stereoAudioRec: "[测试] 立体声视频拾音",
-        MGKey.p3VideoRec: "[测试] P3 广色域视频录制",
-        MGKey.touchSensitiveCamControl: "[测试] 电容触敏相机控制",
-        MGKey.hardwareDetents: "[测试] 物理触感档位阻尼",
-        MGKey.cameraHaptics: "[测试] 相机微幅触觉反馈",
-        MGKey.legacyBatteryInfo: "[测试] 旧机型电池循环与日期显示",
-        MGKey.legacyDynamicEndOfCharge: "[测试] 旧机型智能充电截止",
-        MGKey.highLuminanceAOD: "[测试] 户外高亮全天候显示",
-        MGKey.aodFlipbook: "[测试] AOD 低功耗翻页帧缓冲",
-        MGKey.carPlay2: "[测试] CarPlay Ultra 新一代车载",
-        MGKey.touchDelivery120Hz: "[测试] 120Hz 触控采样投递",
-        MGKey.hearingAidEQ: "[测试] 临床助听器音频均衡",
-        MGKey.hearingAidLE: "[测试] 助听器低功耗音频",
-        MGKey.hearingAidPowerRed: "[测试] 助听器降功耗模式",
-        MGKey.breathingDisturbances: "[测试] 睡眠呼吸暂停风险检测",
-        MGKey.usBloodOxygen: "[测试] 美版血氧软件限制开关",
-        MGKey.workoutUltra: "[测试] 户外极限运动模式",
-        MGKey.timeInDaylight: "[测试] 日光照射时长监测",
-        MGKey.siriHub: "[测试] 端侧 Siri Hub 意图路由",
-        MGKey.onDeviceSiri: "[测试] 离线端侧 Siri 能力",
-        MGKey.modelPruning: "[测试] 端侧指令模型动态剪枝",
-        "uKc7FPnEO++lVhHWHFlGbQ": "iPad 设备模式",
-        "mG0AnH/Vy1veoqoLRAIgTA": "多任务浮动应用",
-        "UCG5MkVahJxG1YULbbd5Bg": "多任务侧拉覆盖",
-        "ZYqko/XM5zD3XBfN5RmaXA": "多任务固定分屏",
-        "nVh/gwNpy7Jv1NOk00CMrw": "多任务画中画",
-        "ArtworkDeviceSubType": "屏幕子类型 (Subtype)",
-        "ArtworkDeviceProductDescription": "自定义机型名称"
+        MGKey.regionCode: "Kode Wilayah (RegionCode)",
+        MGKey.regionInfo: "Wilayah Penjualan (RegionInfo)",
+        MGKey.regionSysconfig: "Wilayah Penjualan Sistem (RegionInfoFromSysconfig)",
+        MGKey.regModelNumber: "Model Regulasi (RegulatoryModelNumber)",
+        MGKey.appIntell: "Sakelar Utama Apple Intelligence",
+        MGKey.photosCleanUp: "Fitur \"Hapus\" Foto (Photos Clean Up)",
+        MGKey.handwritingSynth: "Sintesis Tulisan Tangan Catatan (Handwriting Synthesis)",
+        MGKey.audioIntell: "Kecerdasan Audio iOS 27 (Audio Intelligence)",
+        MGKey.personalTranslator: "Terjemahan Real-time Pribadi (Personal Translator)",
+        MGKey.audioMix: "Audio Mix Foto dan Kamera (Audio Mix)",
+        MGKey.spatialAudioRec: "Perekaman Audio Spasial (spatial-audio-recording)",
+        MGKey.spatialFaceTimeAudio: "Audio Spasial FaceTime (spatial-facetime-audio)",
+        MGKey.responsiveShutter: "Jepretan Seketika Saat Tombol Rana Ditekan (ResponsiveShutter)",
+        MGKey.hypertensionNotif: "Evaluasi Tren Hipertensi Kesehatan (HypertensionNotifications)",
+        MGCacheDataLayout.greenTeaKey: "Penanda Batasan Versi Tiongkok (green-tea)",
+        MGCacheDataLayout.notGreenTeaKey: "Penanda Perangkat Non-Tiongkok (not-green-tea)",
+        MGCacheDataLayout.wapiKey: "Penanda Tampilan WLAN (wapi)",
+        MGKey.liquidGlassLowPower: "Render Liquid Glass Hemat Daya",
+        MGKey.island: "Fitur Dynamic Island",
+        MGKey.AOD: "Always-On Display (AOD)",
+        MGKey.AOTime: "Waktu Always-On Display",
+        MGKey.AODVibrancy: "Saturasi AOD",
+        MGKey.chargeLim: "Batas Pengisian 80%",
+        MGKey.bootChime: "Suara Boot/Shutdown",
+        MGKey.intInstall: "Mode Instalasi Internal Apple",
+        MGKey.intBuild: "Penanda Build Internal",
+        MGKey.srd: "Perangkat Riset Keamanan (SRD)",
+        MGKey.prodType: "Pengenal Tipe Perangkat (ProductType)",
+        MGKey.modelNameOuter1: "Nama Produk Perangkat",
+        MGKey.modelNameOuter2: "Nama Pemasaran Perangkat",
+        MGKey.crashDet: "Deteksi Kecelakaan",
+        MGKey.pwm: "Sakelar Dimming PWM",
+        MGKey.appPencil: "Dukungan Apple Pencil",
+        MGKey.camButton: "Tombol Kontrol Kamera",
+        MGKey.grapPefr: "Tingkat Performa Grafis",
+        MGKey.actButton: "Tombol Aksi",
+        MGKey.tapToWake: "Ketuk untuk Bangunkan",
+        MGKey.stageMgr: "Stage Manager",
+        MGKey.shutterRelaxation: "[Uji] Pengecualian Suara Rana Kamera Regional",
+        MGKey.shutterKeyboardMutePreserve: "[Uji] Pertahankan Suara Rana Wajib Saat Keyboard Senyap",
+        MGKey.shutterLegacyMutePreserve: "[Uji] Pertahankan Suara Rana Wajib untuk Model Lama",
+        MGKey.concurrentHPLPMics: "[Uji] Perekaman Mikrofon Ganda High/Low Power Bersamaan",
+        MGKey.photosLocalLight: "[Uji] Redraw Efek Cahaya Lokal Foto",
+        MGKey.toneMapping: "[Uji] Pemetaan Nada Dinamis",
+        MGKey.hdrDeferredProcessing: "[Uji] Render Delay HDR Depth",
+        MGKey.spatialOverCapture: "[Uji] Penangkapan Spasial Ultra-Wide",
+        MGKey.stereoAudioRec: "[Uji] Perekaman Audio Stereo Video",
+        MGKey.p3VideoRec: "[Uji] Perekaman Video Wide Color P3",
+        MGKey.touchSensitiveCamControl: "[Uji] Kontrol Kamera Sensitif Sentuh Kapasitif",
+        MGKey.hardwareDetents: "[Uji] Damping Taktil Detent Fisik",
+        MGKey.cameraHaptics: "[Uji] Umpan Balik Haptik Halus Kamera",
+        MGKey.legacyBatteryInfo: "[Uji] Tampilan Siklus Baterai dan Tanggal Model Lama",
+        MGKey.legacyDynamicEndOfCharge: "[Uji] Pemutusan Pengisian Cerdas Model Lama",
+        MGKey.highLuminanceAOD: "[Uji] AOD Kecerahan Tinggi Outdoor",
+        MGKey.aodFlipbook: "[Uji] Frame Buffer AOD Low-Power Flipbook",
+        MGKey.carPlay2: "[Uji] CarPlay Ultra Generasi Baru",
+        MGKey.touchDelivery120Hz: "[Uji] Pengiriman Sample Touch 120Hz",
+        MGKey.hearingAidEQ: "[Uji] Equalizer Audio Alat Bantu Dengar Klinis",
+        MGKey.hearingAidLE: "[Uji] Audio Low-Power Alat Bantu Dengar",
+        MGKey.hearingAidPowerRed: "[Uji] Mode Pengurangan Daya Alat Bantu Dengar",
+        MGKey.breathingDisturbances: "[Uji] Deteksi Risiko Sleep Apnea",
+        MGKey.usBloodOxygen: "[Uji] Sakelar Batasan Software SpO2 Versi AS",
+        MGKey.workoutUltra: "[Uji] Mode Olahraga Ekstrem Outdoor",
+        MGKey.timeInDaylight: "[Uji] Pemantauan Durasi Paparan Sinar Matahari",
+        MGKey.siriHub: "[Uji] Routing Intent Siri Hub On-Device",
+        MGKey.onDeviceSiri: "[Uji] Kemampuan Siri On-Device Offline",
+        MGKey.modelPruning: "[Uji] Dynamic Pruning Model Perintah On-Device",
+        "uKc7FPnEO++lVhHWHFlGbQ": "Mode Perangkat iPad",
+        "mG0AnH/Vy1veoqoLRAIgTA": "Aplikasi Floating Multitasking",
+        "UCG5MkVahJxG1YULbbd5Bg": "Slide Over Multitasking",
+        "ZYqko/XM5zD3XBfN5RmaXA": "Split View Multitasking Tetap",
+        "nVh/gwNpy7Jv1NOk00CMrw": "Picture in Picture Multitasking",
+        "ArtworkDeviceSubType": "Subtipe Layar (Subtype)",
+        "ArtworkDeviceProductDescription": "Nama Model Kustom"
     ]
     return names[key] ?? key
 }
@@ -197,7 +197,7 @@ func mgComputeDiff(from beforeDict: NSDictionary, to afterDict: NSDictionary) ->
         } else {
             items.append(MGDiffItem(
                 id: "root.CacheData",
-                label: "底层二进制缓存 (CacheData)",
+                label: "Cache Biner Tingkat Rendah (CacheData)",
                 keyPath: "CacheData",
                 beforeText: mgFormatValue(beforeCacheData),
                 afterText: mgFormatValue(afterCacheData)
@@ -278,7 +278,7 @@ func mgSyncSystemVaultBackup(_ data: Data, hexDigest: String) {
         try Data(hexDigest.utf8).write(to: MGURL.systemVaultSHA256URL, options: .atomic)
         mgExcludeFromCloudBackup(MGURL.systemVaultSHA256URL)
     } catch {
-        print("(mg-vault) sync system vault failed: \(error.localizedDescription)")
+        print("(mg-vault) sinkronisasi vault sistem gagal: \(error.localizedDescription)")
     }
 }
 
@@ -293,11 +293,11 @@ func mgSaveOriginalBackupWithDigest(_ data: Data) throws {
 
 func mgVerifyBackupFileIntegrity(plistURL: URL, sha256URL: URL, requireDigestFile: Bool = false) -> (Bool, String) {
     guard let data = try? Data(contentsOf: plistURL), !data.isEmpty else {
-        return (false, "找不到或无法读取备份文件 \(plistURL.lastPathComponent)！")
+        return (false, "Tidak dapat menemukan atau membaca file cadangan \(plistURL.lastPathComponent)!")
     }
     let check = mgValidatePlistData(data)
     guard check.0 else {
-        return (false, "备份文件结构已损坏：\(check.1)")
+        return (false, "Struktur file cadangan telah rusak: \(check.1)")
     }
     if FileManager.default.fileExists(atPath: sha256URL.path),
        let savedHexData = try? Data(contentsOf: sha256URL),
@@ -305,10 +305,10 @@ func mgVerifyBackupFileIntegrity(plistURL: URL, sha256URL: URL, requireDigestFil
        savedHex.count == 64 {
         let actualHex = mgComputeSHA256Hex(data)
         if actualHex.caseInsensitiveCompare(savedHex) != .orderedSame {
-            return (false, "备份文件 SHA-256 完整性摘要校验未通过（预期 \(savedHex.prefix(12))...，实际 \(actualHex.prefix(12))...），可能已被篡改或损坏！")
+            return (false, "Verifikasi ringkasan integritas SHA-256 file cadangan gagal (diharapkan \(savedHex.prefix(12))..., aktual \(actualHex.prefix(12))...), mungkin telah dimanipulasi atau rusak!")
         }
     } else if requireDigestFile {
-        return (false, "缺少对应的 SHA-256 完整性校验文件！")
+        return (false, "File verifikasi integritas SHA-256 yang sesuai tidak ditemukan!")
     }
     return (true, "ok")
 }
@@ -332,17 +332,17 @@ func mgDetectSuspectedThirdPartyModification(in dict: NSDictionary) -> String? {
        !plistProd.isEmpty,
        !kernelMachine.isEmpty,
        plistProd != kernelMachine {
-        return "检测到机型标识符 (\(plistProd)) 与内核真实硬件型号 (\(kernelMachine)) 不符（可能曾开启机型伪装）"
+        return "Terdeteksi pengenal tipe perangkat (\(plistProd)) tidak cocok dengan model hardware kernel asli (\(kernelMachine)) (mungkin sebelumnya pernah mengaktifkan penyamaran model)"
     }
     if (extra[MGKey.intInstall] as? NSNumber)?.intValue == 1 || (extra[MGKey.intBuild] as? NSNumber)?.intValue == 1 {
-        return "检测到内部安装模式 (InternalInstall / InternalBuild) 处于开启状态（说明安装本应用前设备曾被其他工具修改，与 Apple 智能互斥；现在你可直接关闭对应开关清除该残留）"
+        return "Terdeteksi Mode Instalasi Internal (InternalInstall / InternalBuild) dalam keadaan aktif (menunjukkan perangkat pernah dimodifikasi oleh alat lain sebelum aplikasi ini dipasang, bertentangan dengan Apple Intelligence; sekarang Anda dapat langsung menonaktifkan sakelar yang sesuai untuk menghapus residu ini)"
     }
     let regCode = extra[MGKey.regionCode] as? String ?? ""
     if regCode == "LL",
        case .success((let layout, let data)) = MGCacheDataCoordinator.shared.resolveValidated(for: dict, checkWapiSlot: true),
        let wOff = layout.wapiOffset,
        data[wOff] == 1 {
-        return "检测到销售地区已处于美版 (LL)，但底层仍带有国行硬件独有的 WAPI 标记（说明安装本应用前设备已改过地区）"
+        return "Terdeteksi wilayah penjualan sudah dalam versi AS (LL), tetapi lapisan bawah masih membawa penanda WAPI yang unik untuk hardware versi Tiongkok (menunjukkan perangkat sudah pernah diubah wilayahnya sebelum aplikasi ini dipasang)"
     }
     return nil
 }
@@ -409,7 +409,7 @@ func mgEnsureOriginalBackupWithVault(liveData: Data) throws -> (recoveredFromVau
             mgExcludeFromCloudBackup(MGURL.savedGestaltURL)
             try Data(hex.utf8).write(to: MGURL.savedGestaltSHA256URL, options: .atomic)
             mgExcludeFromCloudBackup(MGURL.savedGestaltSHA256URL)
-            print("[*] (mg-vault) 检测到应用重装，已从系统安全金库无损找回原厂备份 (\(vaultBuild))！")
+            print("[*] (mg-vault) Terdeteksi instalasi ulang aplikasi, telah memulihkan cadangan pabrik secara lossless dari vault keamanan sistem (\(vaultBuild))!")
             return (true, nil)
         }
     }
@@ -437,7 +437,7 @@ func mgImportExternalOriginalBackup(from externalURL: URL) -> Result<String, Err
         let impProd = impExtra?[MGKey.prodType] as? String ?? ""
         let kernelHW = machineName()
         if !impProd.isEmpty && !kernelHW.isEmpty && impProd != kernelHW {
-            throw NSError(domain: "Erosion.MGImport", code: 2, userInfo: [NSLocalizedDescriptionKey: "拒绝导入：该备份机型 (\(impProd)) 与本机真实硬件 (\(kernelHW)) 不一致！"])
+            throw NSError(domain: "Erosion.MGImport", code: 2, userInfo: [NSLocalizedDescriptionKey: "Impor ditolak: model cadangan (\(impProd)) tidak cocok dengan hardware asli perangkat ini (\(kernelHW))!"])
         }
 
         let vaultDir = MGURL.fsGestaltURL.deletingLastPathComponent()
@@ -448,17 +448,17 @@ func mgImportExternalOriginalBackup(from externalURL: URL) -> Result<String, Err
             let impBuild = importedDict["CacheVersion"] as? String ?? ""
             let liveBuild = liveDict["CacheVersion"] as? String ?? ""
             if !impBuild.isEmpty && !liveBuild.isEmpty && impBuild != liveBuild {
-                throw NSError(domain: "Erosion.MGImport", code: 3, userInfo: [NSLocalizedDescriptionKey: "拒绝导入：该备份系统版本 (\(impBuild)) 与当前系统 (\(liveBuild)) 不一致！"])
+                throw NSError(domain: "Erosion.MGImport", code: 3, userInfo: [NSLocalizedDescriptionKey: "Impor ditolak: versi sistem cadangan (\(impBuild)) tidak cocok dengan sistem saat ini (\(liveBuild))!"])
             }
             let impUUID = importedDict["CacheUUID"] as? String ?? ""
             let liveUUID = liveDict["CacheUUID"] as? String ?? ""
             if !impUUID.isEmpty && !liveUUID.isEmpty && impUUID.caseInsensitiveCompare(liveUUID) != .orderedSame {
-                throw NSError(domain: "Erosion.MGImport", code: 4, userInfo: [NSLocalizedDescriptionKey: "拒绝导入：该备份的 CacheUUID 与当前系统不匹配！"])
+                throw NSError(domain: "Erosion.MGImport", code: 4, userInfo: [NSLocalizedDescriptionKey: "Impor ditolak: CacheUUID cadangan tidak cocok dengan sistem saat ini!"])
             }
             let impLen = (importedDict["CacheData"] as? Data)?.count ?? 0
             let liveLen = (liveDict["CacheData"] as? Data)?.count ?? 0
             if impLen > 0 && liveLen > 0 && impLen != liveLen {
-                throw NSError(domain: "Erosion.MGImport", code: 5, userInfo: [NSLocalizedDescriptionKey: "拒绝导入：该备份的 CacheData 字节长度 (\(impLen)) 与当前系统 (\(liveLen)) 不一致！"])
+                throw NSError(domain: "Erosion.MGImport", code: 5, userInfo: [NSLocalizedDescriptionKey: "Impor ditolak: panjang byte CacheData cadangan (\(impLen)) tidak cocok dengan sistem saat ini (\(liveLen))!"])
             }
         }
 
@@ -469,9 +469,9 @@ func mgImportExternalOriginalBackup(from externalURL: URL) -> Result<String, Err
         }
 
         try mgSaveOriginalBackupWithDigest(data)
-        let buildStr = (importedDict["CacheVersion"] as? String) ?? "当前版本"
+        let buildStr = (importedDict["CacheVersion"] as? String) ?? "Versi Saat Ini"
         let shaPrefix = String(mgComputeSHA256Hex(data).prefix(12))
-        return .success("已成功校验并导入原厂备份（版本：\(buildStr)，机型：\(impProd)，SHA-256：\(shaPrefix)...），同时已同步锁定至系统安全金库。")
+        return .success("Berhasil memverifikasi dan mengimpor cadangan pabrik (versi: \(buildStr), model: \(impProd), SHA-256: \(shaPrefix)...), dan sekaligus disinkronkan dan dikunci ke vault keamanan sistem.")
     } catch {
         return .failure(error)
     }
@@ -530,7 +530,7 @@ func mgExecuteFactoryRestore(alsoResetConfigAndKeypad: Bool) -> MGFactoryRestore
     if !fm.isWritableFile(atPath: cacheDir.path) {
         let res = wq.grantAccess(path: cacheDir.path)
         if !res.0 && !fm.isWritableFile(atPath: cacheDir.path) {
-            return .failed(reason: "获取 MobileGestalt 目录写入权限失败，请完全退出并重新打开本应用后再试。")
+            return .failed(reason: "Gagal mendapatkan izin tulis direktori MobileGestalt, harap keluar sepenuhnya dan buka kembali aplikasi ini sebelum mencoba lagi.")
         }
     }
 
@@ -548,15 +548,15 @@ func mgExecuteFactoryRestore(alsoResetConfigAndKeypad: Bool) -> MGFactoryRestore
     let integrityCheck = mgVerifyOriginalBackupIntegrity()
     guard integrityCheck.0 else {
         return .blockedNeedsCleanRebuild(
-            title: "原始备份缺失或校验未通过！",
-            reason: "\(integrityCheck.1)\n\n你可以选择下方的「重建系统纯净原厂缓存」，让 iOS 在重启时直接从主板硬件熔丝重新生成 100% 原厂参数。"
+            title: "Cadangan asli hilang atau verifikasi gagal!",
+            reason: "\(integrityCheck.1)\n\nAnda dapat memilih \"Bangun Ulang Cache Pabrik Bersih Sistem\" di bawah, agar iOS saat restart langsung meregenerasi parameter pabrik 100% dari fuse hardware motherboard."
         )
     }
 
     guard let mgDictToApply = NSMutableDictionary(contentsOf: MGURL.savedGestaltURL) else {
         return .blockedNeedsCleanRebuild(
-            title: "无法读取原始备份！",
-            reason: "未找到有效的 OriginalGestalt.plist。可使用下方「重建系统纯净原厂缓存」在重启时自动重建原厂配置。"
+            title: "Tidak dapat membaca cadangan asli!",
+            reason: "File OriginalGestalt.plist yang valid tidak ditemukan. Anda dapat menggunakan \"Bangun Ulang Cache Pabrik Bersih Sistem\" di bawah untuk otomatis membangun ulang konfigurasi pabrik saat restart."
         )
     }
 
@@ -565,8 +565,8 @@ func mgExecuteFactoryRestore(alsoResetConfigAndKeypad: Bool) -> MGFactoryRestore
         let liveBuild = liveDict["CacheVersion"] as? String ?? ""
         if !ogBuild.isEmpty && !liveBuild.isEmpty && ogBuild != liveBuild {
             return .blockedNeedsCleanRebuild(
-                title: "已安全拦截跨 iOS 版本备份覆盖",
-                reason: "检测到原始备份来自旧版系统 (\(ogBuild))，而当前系统已升级至 \(liveBuild)，二进制槽位布局已变化，直接覆盖存在风险。\n\n点击下方「重建系统纯净原厂缓存」即可安全删除旧缓存，并在重启后由 \(liveBuild) 系统自动重算 100% 原厂参数！"
+                title: "Pemblokiran aman penimpaan cadangan lintas versi iOS",
+                reason: "Terdeteksi cadangan asli berasal dari sistem versi lama (\(ogBuild)), sedangkan sistem saat ini telah diperbarui ke \(liveBuild), layout slot biner telah berubah, penimpaan langsung berisiko.\n\nTekan \"Bangun Ulang Cache Pabrik Bersih Sistem\" di bawah untuk menghapus cache lama dengan aman, dan setelah restart sistem \(liveBuild) akan otomatis menghitung ulang parameter pabrik 100%!"
             )
         }
 
@@ -574,8 +574,8 @@ func mgExecuteFactoryRestore(alsoResetConfigAndKeypad: Bool) -> MGFactoryRestore
         let liveUUID = liveDict["CacheUUID"] as? String ?? ""
         if !ogUUID.isEmpty && !liveUUID.isEmpty && ogUUID.caseInsensitiveCompare(liveUUID) != .orderedSame {
             return .blockedNeedsCleanRebuild(
-                title: "已安全拦截不匹配的 CacheUUID 还原",
-                reason: "原始备份的 CacheUUID (\(ogUUID)) 与当前系统 (\(liveUUID)) 不一致，安全护栏已阻止直接覆盖。\n\n点击「重建系统纯净原厂缓存」并重启即可安全恢复 100% 原厂状态。"
+                title: "Pemblokiran aman pemulihan CacheUUID yang tidak cocok",
+                reason: "CacheUUID cadangan asli (\(ogUUID)) tidak cocok dengan sistem saat ini (\(liveUUID)), pagar pengaman telah memblokir penimpaan langsung.\n\nTekan \"Bangun Ulang Cache Pabrik Bersih Sistem\" dan restart untuk memulihkan status pabrik 100% dengan aman."
             )
         }
 
@@ -583,8 +583,8 @@ func mgExecuteFactoryRestore(alsoResetConfigAndKeypad: Bool) -> MGFactoryRestore
         let liveCacheLen = (liveDict["CacheData"] as? Data)?.count ?? 0
         if ogCacheLen > 0 && liveCacheLen > 0 && ogCacheLen != liveCacheLen {
             return .blockedNeedsCleanRebuild(
-                title: "已安全拦截长度不一致的二进制缓存还原",
-                reason: "原始备份的 CacheData 长度 (\(ogCacheLen) 字节) 与当前系统 (\(liveCacheLen) 字节) 不一致，已阻止直接写入！\n\n点击「重建系统纯净原厂缓存」并重启即可安全恢复 100% 原厂状态。"
+                title: "Pemblokiran aman pemulihan cache biner dengan panjang tidak cocok",
+                reason: "Panjang CacheData cadangan asli (\(ogCacheLen) byte) tidak cocok dengan sistem saat ini (\(liveCacheLen) byte), penulisan langsung diblokir!\n\nTekan \"Bangun Ulang Cache Pabrik Bersih Sistem\" dan restart untuk memulihkan status pabrik 100% dengan aman."
             )
         }
 
@@ -593,8 +593,8 @@ func mgExecuteFactoryRestore(alsoResetConfigAndKeypad: Bool) -> MGFactoryRestore
         let actualHW = machineName()
         if !ogProd.isEmpty && !actualHW.isEmpty && ogProd != actualHW {
             return .blockedNeedsCleanRebuild(
-                title: "已拦截跨机型备份还原！",
-                reason: "该备份来自其他机型 (\(ogProd))，与本机真实硬件 (\(actualHW)) 不符，直接写入会导致白苹果软砖！请点击「重建系统纯净原厂缓存」恢复本机原厂配置。"
+                title: "Pemulihan cadangan lintas model diblokir!",
+                reason: "Cadangan ini berasal dari model lain (\(ogProd)), tidak cocok dengan hardware asli perangkat ini (\(actualHW)), penulisan langsung akan menyebabkan soft-brick bootloop! Silakan tekan \"Bangun Ulang Cache Pabrik Bersih Sistem\" untuk memulihkan konfigurasi pabrik perangkat ini."
             )
         }
     }
@@ -610,10 +610,10 @@ func mgExecuteFactoryRestore(alsoResetConfigAndKeypad: Bool) -> MGFactoryRestore
         var extraResetNotes: [String] = []
         if alsoResetConfigAndKeypad {
             if (try? ConfigView.resetSystemConfigSafely()) != nil {
-                extraResetNotes.append("已清除锁屏文字/资产铭牌与伪监管残留")
+                extraResetNotes.append("Teks layar kunci/plat nama aset dan residu pseudo-supervisi telah dibersihkan")
             }
             if KeypadManager.shared.resetKeypadItems() {
-                extraResetNotes.append("已重置自定义拨号键盘缓存")
+                extraResetNotes.append("Cache keypad dial kustom telah diatur ulang")
             }
         }
 
@@ -624,7 +624,7 @@ func mgExecuteFactoryRestore(alsoResetConfigAndKeypad: Bool) -> MGFactoryRestore
 
         var summary = MGMsg.revertComp
         if !extraResetNotes.isEmpty {
-            summary += "\n\n附加恢复项：" + extraResetNotes.joined(separator: "；") + "。"
+            summary += "\n\nItem pemulihan tambahan: " + extraResetNotes.joined(separator: "; ") + "."
         }
         return .restoredSuccessfully(details: summary)
     } catch {
@@ -634,25 +634,25 @@ func mgExecuteFactoryRestore(alsoResetConfigAndKeypad: Bool) -> MGFactoryRestore
 
 func mgIsDangerousCacheExtraKey(_ key: String) -> String? {
     let blocked: [String: String] = [
-        "zHeENZu+wbg7PUprwNwBWg": "RegionInfo（iOS 27 非缓存键，注入将触发开机缓存重置）",
-        "0L5PkT61qoH1b/B1USWqjQ": "RegionalBehaviorChinaBrick（非缓存硬件键，注入将触发开机重置）",
-        "gD8SNRcHQeIxCAvsp+2vjA": "WSKU（无线电射频校准数据，篡改可致 Wi-Fi/蓝牙瘫痪）",
-        "sFTm4FEVKVfdZ0ChdwQY1g": "WifiAntennaSKUVersion（天线校准参数，禁止篡改）",
-        "91LyMcx4z1w3SGVeqteMnA": "BasebandRegionSKU（基带射频参数，篡改可致基带死锁）",
-        "iyfxmLogGVIaH7aEgqwcIA": "green-tea（属于 CacheData 二进制槽位，禁止注入 CacheExtra）",
-        "4snMZS8LJkSctKypt2m+xA": "not-green-tea（属于 CacheData 二进制槽位，禁止注入 CacheExtra）",
-        "hiHut/WR+B9Lx/vd0WyeNg": "wapi（属于 CacheData 二进制槽位，禁止注入 CacheExtra）",
-        "green-tea": "green-tea（明文冲突键，禁止注入 CacheExtra）",
-        "not-green-tea": "not-green-tea（明文冲突键，禁止注入 CacheExtra）",
-        "wapi": "wapi（明文冲突键，禁止注入 CacheExtra）",
-        "aVL5GE3tx0LSCI/ErfrJGA": "混音 Audio Mix（属于 CacheData 二进制槽位，请直接使用主界面对应开关）",
-        "X6NGcYcvHmbqlR8hLXASJA": "空间音频录制（属于 CacheData 二进制槽位，请直接使用主界面对应开关）",
-        "/EVOCjM/Nmb2roP5ebtEFA": "FaceTime 空间音频（属于 CacheData 二进制槽位，请直接使用主界面对应开关）",
-        "gQDt76Te0SPw7N8oTLrBFw": "按下快门瞬间抓拍（属于 CacheData 二进制槽位，请直接使用主界面对应开关）",
-        "4fh9efw4o1yaFqkXNCXoeA": "高血压趋势评估（属于 CacheData 二进制槽位，请直接使用主界面对应开关）",
-        "CacheData": "顶层系统保留字段",
-        "CacheUUID": "顶层系统保留字段",
-        "CacheVersion": "顶层系统保留字段"
+        "zHeENZu+wbg7PUprwNwBWg": "RegionInfo (kunci bukan cache iOS 27, injeksi akan memicu reset cache boot)",
+        "0L5PkT61qoH1b/B1USWqjQ": "RegionalBehaviorChinaBrick (kunci hardware bukan cache, injeksi akan memicu reset boot)",
+        "gD8SNRcHQeIxCAvsp+2vjA": "WSKU (data kalibrasi RF radio, manipulasi dapat menyebabkan Wi-Fi/Bluetooth lumpuh)",
+        "sFTm4FEVKVfdZ0ChdwQY1g": "WifiAntennaSKUVersion (parameter kalibrasi antena, dilarang dimanipulasi)",
+        "91LyMcx4z1w3SGVeqteMnA": "BasebandRegionSKU (parameter RF baseband, manipulasi dapat menyebabkan deadlock baseband)",
+        "iyfxmLogGVIaH7aEgqwcIA": "green-tea (milik slot biner CacheData, dilarang diinjeksi ke CacheExtra)",
+        "4snMZS8LJkSctKypt2m+xA": "not-green-tea (milik slot biner CacheData, dilarang diinjeksi ke CacheExtra)",
+        "hiHut/WR+B9Lx/vd0WyeNg": "wapi (milik slot biner CacheData, dilarang diinjeksi ke CacheExtra)",
+        "green-tea": "green-tea (kunci konflik plaintext, dilarang diinjeksi ke CacheExtra)",
+        "not-green-tea": "not-green-tea (kunci konflik plaintext, dilarang diinjeksi ke CacheExtra)",
+        "wapi": "wapi (kunci konflik plaintext, dilarang diinjeksi ke CacheExtra)",
+        "aVL5GE3tx0LSCI/ErfrJGA": "Audio Mix (milik slot biner CacheData, silakan langsung gunakan sakelar yang sesuai di antarmuka utama)",
+        "X6NGcYcvHmbqlR8hLXASJA": "Perekaman Audio Spasial (milik slot biner CacheData, silakan langsung gunakan sakelar yang sesuai di antarmuka utama)",
+        "/EVOCjM/Nmb2roP5ebtEFA": "Audio Spasial FaceTime (milik slot biner CacheData, silakan langsung gunakan sakelar yang sesuai di antarmuka utama)",
+        "gQDt76Te0SPw7N8oTLrBFw": "Jepretan Seketika Saat Tombol Rana Ditekan (milik slot biner CacheData, silakan langsung gunakan sakelar yang sesuai di antarmuka utama)",
+        "4fh9efw4o1yaFqkXNCXoeA": "Evaluasi Tren Hipertensi (milik slot biner CacheData, silakan langsung gunakan sakelar yang sesuai di antarmuka utama)",
+        "CacheData": "Field Reserved Sistem Tingkat Atas",
+        "CacheUUID": "Field Reserved Sistem Tingkat Atas",
+        "CacheVersion": "Field Reserved Sistem Tingkat Atas"
     ]
     return blocked[key]
 }
@@ -660,12 +660,12 @@ func mgIsDangerousCacheExtraKey(_ key: String) -> String? {
 func mgWriteDetailed(_ data: Data, allowVerifiedFactoryRestore: Bool = false) -> (Bool, String) {
     let preCheck = mgValidatePlistData(data)
     guard preCheck.0 else {
-        print("(mg) pre-write validation failed: \(preCheck.1)")
+        print("(mg) validasi pra-tulis gagal: \(preCheck.1)")
         return preCheck
     }
 
     guard let originalBytes = try? Data(contentsOf: MGURL.fsGestaltURL), !originalBytes.isEmpty else {
-        let msg = "读取设备当前 MobileGestalt 原始文件失败（文件为空或无权限），已中止写入以保护系统！"
+        let msg = "Gagal membaca file MobileGestalt asli perangkat saat ini (file kosong atau tidak ada izin), penulisan dihentikan untuk melindungi sistem!"
         print("(mg) \(msg)")
         return (false, msg)
     }
@@ -678,12 +678,12 @@ func mgWriteDetailed(_ data: Data, allowVerifiedFactoryRestore: Bool = false) ->
        let targetDict = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? NSDictionary {
         if allowVerifiedFactoryRestore {
             if case .failure(let targetErr) = MGCacheDataCoordinator.shared.resolveValidated(for: targetDict) {
-                print("[!] (mg) Factory restore target CacheData validation failed: \(targetErr.localizedDescription)")
+                print("[!] (mg) Validasi CacheData target pemulihan pabrik gagal: \(targetErr.localizedDescription)")
                 return (false, targetErr.localizedDescription)
             }
         } else {
             if case .failure(let cacheErr) = MGCacheDataCoordinator.shared.validateTransition(from: liveDiskDict, to: targetDict) {
-                print("[!] (mg) CacheData pre-write check rejected write: \(cacheErr.localizedDescription)")
+                print("[!] (mg) Pemeriksaan pra-tulis CacheData menolak penulisan: \(cacheErr.localizedDescription)")
                 return (false, cacheErr.localizedDescription)
             }
         }
@@ -696,8 +696,8 @@ func mgWriteDetailed(_ data: Data, allowVerifiedFactoryRestore: Bool = false) ->
     // Unconditionally enforce safe in-place write (pwrite + tail truncate + F_FULLFSYNC) to preserve Inode & POSIX attributes
     let res = writeFileAtomically(data, to: MGURL.fsGestaltURL)
     if !res.0 {
-        print("(mg) write failed: \(res.1)")
-        return (false, "写入系统文件失败：\(res.1)")
+        print("(mg) penulisan gagal: \(res.1)")
+        return (false, "Gagal menulis file sistem: \(res.1)")
     }
 
     // Full readback & plist structural/type verification
@@ -709,18 +709,18 @@ func mgWriteDetailed(_ data: Data, allowVerifiedFactoryRestore: Bool = false) ->
               let expectedDict = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? NSDictionary,
               let actualDict = try PropertyListSerialization.propertyList(from: readbackBytes, options: [], format: nil) as? NSDictionary,
               mgPlistValuesEqual(expectedDict, actualDict) else {
-            throw NSError(domain: "Erosion.MGVerify", code: -1, userInfo: [NSLocalizedDescriptionKey: "磁盘读回数据与预期键值/类型不一致"])
+            throw NSError(domain: "Erosion.MGVerify", code: -1, userInfo: [NSLocalizedDescriptionKey: "Data baca balik dari disk tidak cocok dengan nilai/tipe kunci yang diharapkan"])
         }
-        print("(mg) readback verified (\(readbackBytes.count) bytes)")
+        print("(mg) baca balik terverifikasi (\(readbackBytes.count) byte)")
         return (true, "succeeded")
     } catch {
-        print("(mg) readback verification failed (\(error.localizedDescription))! Rolling back previous bytes...")
+        print("(mg) verifikasi baca balik gagal (\(error.localizedDescription))! Mengembalikan byte sebelumnya...")
         let rollbackOK = writeFileAtomically(originalBytes, to: MGURL.fsGestaltURL).0
         let verifiedRollback = ((try? Data(contentsOf: MGURL.fsGestaltURL)) == originalBytes)
         if rollbackOK && verifiedRollback {
-            return (false, "写后读回校验未通过（\(error.localizedDescription)），已自动原位安全回滚至修改前状态！")
+            return (false, "Verifikasi baca balik pasca-tulis gagal (\(error.localizedDescription)), telah otomatis rollback aman ke keadaan sebelum modifikasi secara in-place!")
         } else {
-            return (false, "写后读回校验失败且自动回滚异常，请勿重启并前往高级设置检查缓存！")
+            return (false, "Verifikasi baca balik pasca-tulis gagal dan rollback otomatis juga anomali, jangan restart dan pergi ke pengaturan lanjutan untuk memeriksa cache!")
         }
     }
 }
@@ -788,7 +788,7 @@ func mgQueryLiveString(forKey key: String) -> String? {
 
 func mgQueryLiveFormatted(forKey key: String) -> String {
     guard let val = mgQueryLiveRaw(forKey: key) else {
-        return "nil (未返回 / 默认关闭)"
+        return "nil (tidak dikembalikan / default nonaktif)"
     }
     let typeID = CFGetTypeID(val)
     if typeID == CFBooleanGetTypeID() {
@@ -804,13 +804,13 @@ func mgQueryLiveFormatted(forKey key: String) -> String {
         return str.isEmpty ? "\"\"" : str
     }
     if let data = val as? Data {
-        return "<Data: \(data.count) 字节>"
+        return "<Data: \(data.count) byte>"
     }
     if let arr = val as? NSArray {
-        return "<Array: \(arr.count) 项>"
+        return "<Array: \(arr.count) item>"
     }
     if let dict = val as? NSDictionary {
-        return "<Dict: \(dict.count) 项>"
+        return "<Dict: \(dict.count) item>"
     }
     return String(describing: val)
 }
@@ -1016,7 +1016,7 @@ func isAdvAISlotNativeTrue(_ key: String, layout: MGCacheDataLayout, savedOrig: 
     let m = currentOriginalMachineName()
     // Ground-truth verified via MGInspector on live iPhone 18 Pro Max (iPhone19,7) running iOS 27:
     // - rb2tKZxlj0Gm2tBmUQSLqQ (Audio Intelligence, slot #178) is natively FALSE (0x00) on iPhone/iPad,
-    //   and forcing it to 1 breaks Photos High-Quality Clean Up ("消除此照片时出错。请稍后再试。").
+    //   and forcing it to 1 breaks Photos High-Quality Clean Up ("Terjadi kesalahan saat menghapus foto ini. Silakan coba lagi nanti.").
     // - M1n2sAqf33NAOgZRGxQYBA (Personal Translator, slot #266) IS natively TRUE (0x01) on iPhone 18 Pro series (iPhone19,*)
     //   in factory OriginalGestalt.plist, and works natively with Photos High-Quality Clean Up.
     if key == MGKey.audioIntell && (m.hasPrefix("iPhone") || m.hasPrefix("iPad")) {
