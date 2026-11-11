@@ -29,51 +29,51 @@ enum MGRegionUnlockMode: String, CaseIterable, Identifiable {
 
 enum MGMsg {
     // warnings
-    static let region = "开启后默认把销售地区改为完整美版 (LL + LL/A) 并映射对应美版监管型号 (Axxxx)；你也可在下方子选项切换为「仅改区域代码 LL（保留 CH/A 后缀与双卡兼容）」。请遵守当地法律法规并自行承担使用风险。"
-    static let regionModeInfo = "【地区修改模式细化说明】\n\n1. 完整美版 LL + LL/A（默认）：\n同时将区域代码改为 LL、系统销售地区改为 LL/A，并自动填入对应的美版监管型号 (Axxxx)，跨区域受限特性（海外版 Apple 智能、快门静音、健康区域特性等）一致性最完整。\n\n2. 仅改区域代码 LL（保留 CH/A 后缀与双卡兼容）：\n仅将区域代码 (RegionCode) 改为 LL，完整保留原机的销售地区后缀（如 CH/A）与原厂监管型号。既可满足基础 Apple 智能准入、让「设置 -> 关于本机」型号末尾继续显示 CH/A，也能避免国行双实体卡槽 + eSIM 机型（如 18 Pro / Pro Max）因映射无卡槽美版型号引发基带卡槽冲突。"
-    static let ipadOS = "如果你当前设置了字母数字混合锁屏密码，请切勿开启此项！开启后也切勿关闭“在台前调度中显示程序坞”，否则会导致设备软砖（白苹果循环）。启用 iPadOS 界面后可能出现界面错位、部分应用不兼容等问题。"
-    static let support = "请提前备份重要数据！如果某项修改未按预期生效，请勿向官方仓库提交支持请求。许多功能同时受限于设备硬件与 Apple 服务器策略，所有修改均需自行承担风险。"
-    static let mgReset = "重置 MobileGestalt 将删除系统原始缓存文件并让系统在重启时重新生成。这有助于彻底清除无法还原的修改，但存在极低概率引发异常，请谨慎操作。"
+    static let region = "Setelah diaktifkan, secara default wilayah penjualan akan diubah menjadi versi AS lengkap (LL + LL/A) dan memetakan model regulasi AS yang sesuai (Axxxx); Anda juga dapat beralih ke sub-opsi di bawah ke \"Hanya ubah kode wilayah LL (pertahankan akhiran CH/A dan kompatibilitas dual-SIM)\". Patuhi hukum dan peraturan setempat dan tanggung sendiri risikonya."
+    static let regionModeInfo = "【Penjelasan Rinci Mode Modifikasi Wilayah】\n\n1. Versi AS Lengkap LL + LL/A (default):\nSekaligus mengubah kode wilayah menjadi LL, wilayah penjualan sistem menjadi LL/A, dan otomatis mengisi model regulasi AS yang sesuai (Axxxx), konsistensi fitur terbatas lintas wilayah (Apple Intelligence versi luar negeri, mute shutter, fitur wilayah kesehatan, dll) paling lengkap.\n\n2. Hanya Ubah Kode Wilayah LL (pertahankan akhiran CH/A dan kompatibilitas dual-SIM):\nHanya mengubah kode wilayah (RegionCode) menjadi LL, mempertahankan akhiran wilayah penjualan perangkat asli sepenuhnya (seperti CH/A) dan model regulasi pabrik. Tidak hanya memenuhi akses dasar Apple Intelligence, membuat akhir model di \"Pengaturan -> Tentang Perangkat\" tetap menampilkan CH/A, juga dapat menghindari konflik slot baseband pada model Tiongkok dengan dual SIM fisik + eSIM (seperti 18 Pro / Pro Max) akibat pemetaan model AS tanpa slot kartu."
+    static let ipadOS = "Jika Anda saat ini mengatur kata sandi layar kunci alfanumerik campuran, jangan pernah mengaktifkan opsi ini! Setelah diaktifkan, juga jangan pernah mematikan \"Tampilkan Dock di Stage Manager\",否则会导致设备软砖（白苹果循环）。启用 iPadOS 界面后可能出现界面错位、部分应用不兼容等问题。"
+    static let support = "Harap cadangkan data penting terlebih dahulu! Jika ada modifikasi yang tidak berlaku sesuai harapan, jangan ajukan permintaan dukungan ke repositori resmi. Banyak fitur juga dibatasi oleh hardware perangkat dan kebijakan server Apple, semua modifikasi ditanggung risikonya sendiri."
+    static let mgReset = "Reset MobileGestalt akan menghapus file cache asli sistem dan membiarkan sistem meregenerasinya saat restart. Ini membantu sepenuhnya menghapus modifikasi yang tidak dapat dipulihkan, tetapi ada kemungkinan sangat kecil memicu anomali, harap berhati-hati."
     
     // info
-    static let liquidGlass = "开启后将使用 iOS 26/27 液态玻璃 (Liquid Glass) 的低性能开销渲染模式，可降低 GPU 负载、减少机身发热并节省电量（注销或重启后生效）。"
-    static let chinaCacheUnlock = "通过从本机内存加载的系统库 (libMobileGestalt.dylib) 实时动态解析二进制 CacheData 槽位偏移，将国行底层限制标记 green-tea 设为 false、not-green-tea 设为 true。\n\n• 可在所有国行设备上解锁 FaceTime 音频（语音通话）与 AI 底层区域准入；\n• 在自带物理 eSIM 芯片的国行机型（如 iPhone Air 等内置 eUICC 芯片机型）上，可解除系统层针对境外 eSIM 的地理围栏拦截（注：常规双实体卡槽国行主板物理空焊 eUICC 芯片，无法通过纯软件写入虚拟卡）。\n\n安全策略：仅当本机 CacheUUID、总长度、有效位及填充字节 100% 匹配通过时才允许修改；应用后请手动重启手机生效。"
-    static let wapiToWifi = "通过本机系统库实时动态解析 wapi 布尔槽位偏移并设为 false，将系统“设置”与控制中心里的“无线局域网”统一显示为国际版的“Wi-Fi”。\n\n⚠️ 重要提示：开启后将会【丢失国行特有的“不允许联网”功能】（即“使用无线局域网与蜂窝网络的 App”中的“关闭”选项）！国际版逻辑仅允许单独关闭“蜂窝数据”，无法禁止单个应用使用 Wi-Fi 联网（如第三方输入法或离线应用将无法彻底断网），同时“启用 WAPI”开关也会隐藏。\n\n如需保留应用“不允许联网”权限控制，请保持此项关闭；若已开启，关闭此开关重新应用并手动重启手机即可原样恢复。"
-    static let intInstall = "此选项将启用部分遗留在正式版 iOS 中的 Apple 内部调试特性。注意：开启后可能会影响部分正常功能（如无法从 App Store 重新安装自带系统应用），且与 Apple 智能互斥。"
-    static let intBuild = "此开关主要用于在“设置”应用中显示内部存储调试信息。在部分设备（尤其是 iPadOS）上可能引发兼容性问题。"
-    static let appleIntellInfo = "为不支持 Apple 智能的旧机型开启端侧生成式 AI 总开关 (DeviceSupportsGenerativeModelSystems)，并自动同步解锁以下 2 项在旧芯片上默认关闭的子能力标记：\n\n• 相册“消除”功能 (Photos Clean Up)\n• 备忘录“手写体合成” (Handwriting Synthesis)\n\n注：旧机型若需实际下载端侧 AI 模型，通常还需配合下方的“机型伪装”与上方的“解除地区限制”使用（修改后请手动重启手机生效）。"
-    static let advAppleIntell = "【防呆护栏警告】真机（iPhone 18 Pro Max · iPhone19,7）底层探针核验确认：iOS 27 音频智能 (rb2tKZxlj0Gm2tBmUQSLqQ，槽位 #178) 在 iPhone / iPad 原厂设备树中默认均为 false（0x00），而个人实时翻译 (M1n2sAqf33NAOgZRGxQYBA，槽位 #266) 在支持的原生硬件（如 iPhone 18 Pro 系列）上原厂已自动开启为 true（0x01）。\n\n⚠️ 在 iPhone / iPad 上强行开启非原生的 Audio Intelligence 实验槽位会导致系统生成式模型管线校验断路——直接造成照片【“高质量”消除 (ServerDiffusionInpainting)】报错失效（提示“消除此照片时出错。请稍后再试。”）！\n\n常规通话录音、语音备忘录转写与系统翻译均由主 AI 开关完整支持，本机原生自带的 Personal Translator 也会被自动识别保留。安全护栏已默认锁定防误开；若此前在旧版本中曾开启，直接关闭此开关（或点击顶部体检卡片一键修复）并应用即可恢复原厂基线与高质量消除。"
-    static let audioMixInfo = "通过本机系统库实时动态解析 CameracinematicAudioTrackRendering (aVL5GE3tx0LSCI/ErfrJGA) 二进制 CacheData 布尔槽位并设为 true，解锁相册与相机视频编辑中的“混音 (Audio Mix)”功能，支持“标准 / 语音突显 / 录音棚 / 电影效果”四档人声与环境音分离混音（应用后请手动重启手机生效）。"
-    static let spatialAudioInfo = "通过本机系统库实时动态解析 spatial-audio-recording 与 spatial-facetime-audio 二进制 CacheData 布尔槽位并同步设为 true，解锁相机视频录制时的 3D 空间音频拾音及 FaceTime 通话空间声场渲染能力（应用后请手动重启手机生效）。"
-    static let responsiveShutterInfo = "通过本机系统库实时动态解析 ResponsiveShutter (gQDt76Te0SPw7N8oTLrBFw) 二进制 CacheData 布尔槽位并设为 true，降低相机按下快门至成像管线的触发延迟，实现手指按下瞬间零延迟抓拍（应用后请手动重启手机生效）。"
-    static let hypertensionInfo = "通过本机系统库实时动态解析 HypertensionNotifications (4fh9efw4o1yaFqkXNCXoeA) 二进制 CacheData 布尔槽位并设为 true，开启“健康”App 中的血压偏高趋势评估、风险通知与测量记录向导页面（应用后请手动重启手机生效）。"
-    static let callScreeningGuide = "【普通话“询问来电原因”与海外 Apple 智能黄金共存方案（测试特性）】\n\nApple 对来电筛选施加了基于系统“地区 (Locale)”的语音过滤：若系统地区设为“美国”会丢失中文普通话来电询问；若保持“中国大陆”则会阻断 Apple 智能。\n\n唯一实测完美共存四步配置：\n1. MobileGestalt：在本页开启“解除地区限制 (LL / LL/A)”并填写对应美版监管型号；\n2. 系统设置 -> 通用 -> 语言与地区：“地区”改为【台湾】，首选语言第一项保持【简体中文】；\n3. 系统设置 -> Apple 智能与 Siri：Siri 语言设为【中文（普通话 - 中国大陆）】；\n4. 分流规则：guzzoni.apple.com 与 *.siri.apple.com 必须走【DIRECT 直连 + 真实 IP (always-real-ip)】防 Siri 报错，仅将 apple-relay.apple.com、gspe1-ssl.ls.apple.com 与 OpenAI 走美区节点（可在“跨容器应用共享组中心”一键导出 Surge 模块）。"
-    static let expNotice = "【测试特性提示】本分组所有开关均通过运行时从本机 libMobileGestalt.dylib 实时解析真实 CacheData 布尔槽位（QType=11）并在写前校验 CacheUUID、字节总长与槽位有效位。因不同机型的底层 ISP、传感器或地区守护进程（eligibilityd）支持程度存在差异，部分功能在缺乏物理硬件时仅解锁系统 UI 入口。应用后请【手动重启手机】验证效果，随时可关闭或还原备份。"
-    static let expShutterMuteInfo = "【测试特性】传统 RegionalBehaviorShutterClick 为只读动态探针（slot = -1），直接写 CacheExtra 无效。本开关组合修改 3 个真实 CacheData 布尔槽位：\n• DeviceSupportsRegionalCameraShutterRelaxation = true\n• KeyboardMutePreservesRegionalShutterClickBehavior = false\n• ...ForLegacyDevices = false\n可在无需更改整机销售地区的前提下，尝试解除日版 (J/A) 与韩版 (KH/A) 机型的强制相机快门音（应用后请手动重启手机生效）。"
-    static let expStudioMicsInfo = "【测试特性】开启高低功耗双阵列麦克风并发拾音槽位 DeviceSupportsConcurrentHPLPMics (dI30ovtFUIeLioNQKDMbGQ)，为语音备忘录录音棚伴奏叠录与多轨人声分离提供底层硬件能力标记（需麦克风 DSP 支持，重启生效）。"
-    static let expPhotoToneInfo = "【测试特性】同步开启 PhotosLocalLight、ToneMapping 与 HDRDeferredProcessing 三个影像后期管线布尔槽位，增强相册局部光影重绘、新一代色调映射与深度 HDR 延迟渲染能力（重启生效）。"
-    static let expSpatialStereoInfo = "【测试特性】同步开启 SpatialOverCapture、StereoAudioRecording 与 P3ColorspaceVideoRecording 三个视频捕获槽位，解锁超取景框空间视角重构、立体声拾音及 P3 广色域视频编码支持（重启生效）。"
-    static let expCamControlInfo = "【测试特性】同步开启 CameraButtonCapability、TouchSensitiveCameraControl、HardwareDetents 与 CameraHaptics 四个交互槽位，解锁完整的“设置 -> 相机 -> 相机控制”电容轻按/滑动变焦配置面板（无物理按键机型仅展示设置面板，重启生效）。"
-    static let expLegacyBatteryInfo = "【测试特性】开启 DeviceShowsBatteryModelInformationLegacyHW 与 DynamicEndOfChargeLegacyHW 槽位，在旧款 iPhone / iPad 的“设置 -> 电池 / 关于本机”中尝试展示电池生产日期、首次使用时间与精确充电循环次数（重启生效；亦可使用本工具“物理电池与温控遥测”模块直读底层数据）。"
-    static let expHighLumAODInfo = "【测试特性】同步开启 HighLuminanceAlwaysOnDisplay 与 AlwaysOnDisplayFlipbook 槽位，解锁户外高亮全天候显示策略与低功耗翻页帧缓冲渲染（注：非 LTPO 屏幕开启 AOD 会增加待机耗电，重启生效）。"
-    static let expCarPlay2Info = "【测试特性】开启 DeviceSupportsCarPlay2 (PR+xeEtTAiUN0R25+EYGfw) 槽位，启用新一代多屏全液晶仪表接管 CarPlay Ultra 车载协议支持（重启生效）。"
-    static let expTouch120Info = "【测试特性】开启 TouchDelivery120Hz (2OK50OGmkXM1ospsh766WQ) 槽位，向系统启用 120Hz 触控采样事件投递管线（注：60Hz 物理屏幕面板无法突破 60fps 画面刷新率，仅作用于触控采样投递层，重启生效）。"
-    static let expHearingAidInfo = "【测试特性】同步开启 hearingaid-audio-equalization、hearingaid-low-energy-audio 与 hearingaid-power-reduction 三个连续布尔槽位，配合 AirPods Pro 2 / 3 尝试解锁听力健康均衡与临床助听器辅助能力（部分地区仍受 eligibilityd 医疗围栏限制，重启生效）。"
-    static let expSleepApneaInfo = "【测试特性】开启 DeviceSupportsBreathingDisturbancesMeasurements (e0HV2blYUDBk/MsMEQACNA) 槽位，解锁“健康 -> 呼吸 -> 呼吸紊乱”睡眠呼吸暂停风险趋势评估页面（需配合 Apple Watch 睡眠监测数据，重启生效）。"
-    static let expUSBloodOxygenInfo = "【测试特性】将 DeviceSupportsUSLegallyCompliantBloodOxygen (E4vGMChwcVRKD8hMVxnRvg) 槽位设为 false，解除美版 (LL/A) 设备因专利禁令触发的软件层血氧测量屏蔽（国行机型原生已为 false 无需开启，重启生效）。"
-    static let expWorkoutUltraInfo = "【测试特性】同步开启 WorkoutUltraMode 与 DeviceSupportsTimeInDaylight 槽位，解锁极限户外运动辅助模式与健康“日光下时间”环境光监测统计入口（重启生效）。"
-    static let expSiriHubInfo = "【防呆护栏警告】真机实测表明：DeviceSupportsSiriHub (waGD2UTpntjbDXD1r3oALQ) 属于带屏家居中枢硬件 (HomeAccessory / HomePad) 专属路由标记。\n\n⚠️ 在 iPhone / iPad 上开启会导致 assistantd 请求不存在的 SiriHub 模型资产，使 Apple 智能无限卡死在“正在添加 Siri 支持内容，更新完成前，Siri 将无法使用”！\n\n安全护栏已默认锁定禁止在 iPhone / iPad 上新开启此项；如果你在旧版本曾开启过此开关，可直接关闭此项（或使用顶部 Apple 智能体检卡片一键修复）并手动重启手机即可恢复正常。"
-    static let spoofUseless = "伪装设备型号可能会导致面容 ID (Face ID) 等硬件功能失效！你的设备硬件本身已原生支持 Apple 智能，无需修改此项（国行设备只需开启上方“解除地区限制”即可）。"
-    static let spoofAI = "对于不支持 Apple 智能的旧机型，仅开启开关无法下载端侧 AI 模型，还需伪装为支持的机型；但伪装机型可能导致面容 ID 失效。取消机型伪装后，请勿再次进入“设置 -> Apple 智能与 Siri”页面。"
-    static let subtype = "仅在你想调整灵动岛纵向位置或屏幕分辨率特征时才修改设备子类型 (Subtype)。如需在非灵动岛机型开启灵动岛，请配合下方的“启用灵动岛”开关使用！"
-    static let mgResetComp = "已移除当前 MobileGestalt 缓存并将旧备份安全归档。请立即【手动重启你的设备】，系统将在开机时从硬件熔丝重新生成 100% 纯净的原厂参数。"
-    static let revertComp = "已通过 SHA-256 与物理落盘校验恢复本机原厂备份，并已同步清空本地自定义开关残留。建议【手动重启一次手机】以确保所有底层参数彻底复原。"
-    static let revertConfirm = "即将执行本机原厂参数恢复：\n\n1. 严格核对原厂备份的 SHA-256 摘要、系统版本、CacheUUID 与真实硬件型号；\n2. 通过无零字节窗口原位刷盘 (pwrite + F_FULLFSYNC) 恢复 MobileGestalt 并读回验证；\n3. 同步复位本地自定义键值、自定义机型名与越界门禁开关，杜绝残留回写。"
-    static let globalFactoryRestoreConfirm = "即将执行全模块一键恢复原机出厂参数：\n\n1. 恢复并校验本机 MobileGestalt 原厂备份（含 SHA-256 与物理刷盘验证）；\n2. 清除锁屏底部文字、设备资产铭牌及第三方伪监管残留（自动保护真实企业 MDM）；\n3. 清理自定义拨号键盘缓存并复位所有本地偏好状态。"
+    static let liquidGlass = "Setelah diaktifkan, akan menggunakan mode rendering Liquid Glass iOS 26/27 dengan overhead rendah, dapat mengurangi beban GPU, mengurangi panas perangkat, dan menghemat baterai (berlaku setelah muat ulang atau restart)."
+    static let chinaCacheUnlock = "Melalui pustaka sistem yang dimuat dari memori perangkat (libMobileGestalt.dylib), secara real-time menganalisis offset slot biner CacheData secara dinamis, mengatur penanda batasan lapisan bawah versi Tiongkok green-tea menjadi false, dan not-green-tea menjadi true.\n\n• Dapat membuka FaceTime Audio (panggilan suara) dan akses wilayah AI lapisan bawah pada semua perangkat versi Tiongkok;\n• Pada model versi Tiongkok yang memiliki chip eSIM fisik bawaan (seperti iPhone Air dan model chip eUICC internal lainnya), dapat membuka blokir geo-fence sistem terhadap eSIM luar negeri (catatan: motherboard versi Tiongkok dengan dual SIM fisik reguler secara fisik kosong tanpa chip eUICC, tidak dapat menulis kartu virtual melalui perangkat lunak murni).\n\nStrategi keamanan: Hanya diizinkan memodifikasi ketika CacheUUID perangkat, panjang total, bit valid, dan byte padding 100% cocok; harap restart ponsel secara manual setelah diterapkan agar berlaku."
+    static let wapiToWifi = "Melalui pustaka sistem perangkat, secara real-time menganalisis offset slot boolean wapi secara dinamis dan mengatur menjadi false, sehingga \"WLAN\" di \"Pengaturan\" sistem dan Pusat Kontrol ditampilkan secara seragam sebagai \"Wi-Fi\" versi internasional.\n\n⚠️ Penting: Setelah diaktifkan, Anda akan 【kehilangan fitur \"Tidak Mengizinkan Koneksi Internet\" khas versi Tiongkok】 (yaitu opsi \"Nonaktif\" di \"Aplikasi yang Menggunakan WLAN dan Data Seluler\")! Logika versi internasional hanya mengizinkan penonaktifan \"Data Seluler\" secara terpisah, tidak dapat melarang aplikasi individual menggunakan koneksi Wi-Fi (seperti keyboard pihak ketiga atau aplikasi offline tidak akan dapat sepenuhnya memutus internet), sekaligus sakelar \"Aktifkan WAPI\" juga akan tersembunyi.\n\nJika Anda perlu mempertahankan kontrol izin \"Tidak Mengizinkan Koneksi Internet\" aplikasi, biarkan opsi ini nonaktif; jika sudah diaktifkan, matikan sakelar ini, terapkan ulang, dan restart ponsel secara manual untuk memulihkan seperti semula."
+    static let intInstall = "Opsi ini akan mengaktifkan sebagian fitur debug internal Apple yang tertinggal di iOS versi rilis. Catatan: setelah diaktifkan mungkin memengaruhi sebagian fungsi normal (seperti tidak dapat menginstal ulang aplikasi sistem bawaan dari App Store), dan bertentangan dengan Apple Intelligence."
+    static let intBuild = "Sakelar ini terutama digunakan untuk menampilkan info debug penyimpanan internal di aplikasi \"Pengaturan\". Pada sebagian perangkat (terutama iPadOS) mungkin menyebabkan masalah kompatibilitas."
+    static let appleIntellInfo = "Mengaktifkan sakelar utama AI generatif on-device (DeviceSupportsGenerativeModelSystems) untuk model lama yang tidak mendukung Apple Intelligence, dan secara otomatis menyinkronkan pembukaan 2 penanda sub-kemampuan berikut yang dinonaktifkan secara default pada chip lama:\n\n• Fitur \"Hapus\" Foto (Photos Clean Up)\n• \"Sintesis Tulisan Tangan\" Catatan (Handwriting Synthesis)\n\nCatatan: Jika model lama perlu benar-benar mengunduh model AI on-device, biasanya juga perlu menggunakan \"Penyamaran Model\" di bawah dan \"Buka Batasan Wilayah\" di atas (harap restart ponsel secara manual setelah modifikasi agar berlaku)."
+    static let advAppleIntell = "【Peringatan Pagar Pengaman】Verifikasi probe lapisan bawah pada perangkat asli (iPhone 18 Pro Max · iPhone19,7) mengonfirmasi: Audio Intelligence iOS 27 (rb2tKZxlj0Gm2tBmUQSLqQ, slot #178) pada perangkat iPhone / iPad dalam device tree pabrik secara default bernilai false (0x00), sedangkan Personal Translator (M1n2sAqf33NAOgZRGxQYBA, slot #266) pada hardware native yang didukung (seperti seri iPhone 18 Pro) sudah otomatis aktif true (0x01) dari pabrik.\n\n⚠️ Memaksa mengaktifkan slot eksperimental Audio Intelligence non-native pada iPhone / iPad akan menyebabkan jalur validasi pipeline model generatif sistem terputus — langsung menyebabkan fitur 【\"Kualitas Tinggi\" Hapus (ServerDiffusionInpainting)】 pada foto error dan tidak berfungsi (menampilkan \"Terjadi kesalahan saat menghapus foto ini. Silakan coba lagi nanti.\")!\n\nRekaman panggilan reguler, transkripsi Voice Memos, dan terjemahan sistem semuanya didukung penuh oleh sakelar AI utama, Personal Translator native bawaan perangkat juga akan dikenali dan dipertahankan secara otomatis. Pagar pengaman telah mengunci secara default untuk mencegah pengaktifan tidak sengaja; jika sebelumnya pernah diaktifkan di versi lama, cukup matikan sakelar ini (atau ketuk kartu pemeriksaan di atas untuk perbaikan sekali klik) dan terapkan untuk memulihkan baseline pabrik dan fitur hapus kualitas tinggi."
+    static let audioMixInfo = "Melalui pustaka sistem perangkat, secara real-time menganalisis slot boolean biner CacheData CameracinematicAudioTrackRendering (aVL5GE3tx0LSCI/ErfrJGA) secara dinamis dan mengatur menjadi true, membuka fitur \"Audio Mix\" di galeri dan editor video kamera, mendukung empat tingkat mixing pemisahan vokal dan ambient \"Standar / Isolasi Vokal / Studio / Efek Film\" (harap restart ponsel secara manual setelah diterapkan agar berlaku)."
+    static let spatialAudioInfo = "Melalui pustaka sistem perangkat, secara real-time menganalisis slot boolean biner CacheData spatial-audio-recording dan spatial-facetime-audio secara dinamis dan menyinkronkan pengaturan menjadi true, membuka kemampuan penangkapan audio spasial 3D saat perekaman video kamera dan rendering medan suara spasial panggilan FaceTime (harap restart ponsel secara manual setelah diterapkan agar berlaku)."
+    static let responsiveShutterInfo = "Melalui pustaka sistem perangkat, secara real-time menganalisis slot boolean biner CacheData ResponsiveShutter (gQDt76Te0SPw7N8oTLrBFw) secara dinamis dan mengatur menjadi true, mengurangi latency pemicu dari penekanan tombol rana kamera hingga pipeline imaging, mewujudkan jepretan zero-latency saat jari menekan (harap restart ponsel secara manual setelah diterapkan agar berlaku)."
+    static let hypertensionInfo = "Melalui pustaka sistem perangkat, secara real-time menganalisis slot boolean biner CacheData HypertensionNotifications (4fh9efw4o1yaFqkXNCXoeA) secara dinamis dan mengatur menjadi true, membuka evaluasi tren tekanan darah tinggi, notifikasi risiko, dan halaman panduan pencatatan pengukuran di aplikasi \"Kesehatan\" (harap restart ponsel secara manual setelah diterapkan agar berlaku)."
+    static let callScreeningGuide = "【Solusi Koeksistensi Emas \"Penanya Panggilan Mandarin\" dan Apple Intelligence Luar Negeri (Fitur Uji)】\n\nApple menerapkan filter suara berbasis \"Locale\" sistem pada penyaringan panggilan: jika wilayah sistem diatur ke \"Amerika Serikat\" akan kehilangan penanya panggilan Mandarin Tiongkok; jika tetap \"Tiongkok Daratan\" akan memblokir Apple Intelligence.\n\nSatu-satunya empat langkah konfigurasi koeksistensi sempurna yang teruji:\n1. MobileGestalt: aktifkan \"Buka Batasan Wilayah (LL / LL/A)\" di halaman ini dan isi model regulasi AS yang sesuai;\n2. Pengaturan Sistem -> Umum -> Bahasa & Wilayah: ubah \"Wilayah\" menjadi 【Taiwan】, bahasa pilihan pertama tetap 【Mandarin Sederhana】;\n3. Pengaturan Sistem -> Apple Intelligence & Siri: atur bahasa Siri ke 【Mandarin (Mandarin - Tiongkok Daratan)】;\n4. Aturan split-routing: guzzoni.apple.com dan *.siri.apple.com harus melalui 【DIRECT langsung + IP asli (always-real-ip)】 untuk mencegah error Siri, hanya arahkan apple-relay.apple.com, gspe1-ssl.ls.apple.com, dan OpenAI ke node AS (dapat mengekspor modul Surge sekali klik di \"Pusat Grup Bersama Aplikasi Lintas Container\")."
+    static let expNotice = "【Pemberitahuan Fitur Uji】Semua sakelar di grup ini secara runtime menganalisis slot boolean CacheData asli (QType=11) secara real-time dari libMobileGestalt.dylib perangkat dan memverifikasi CacheUUID, panjang byte total, dan bit valid slot sebelum menulis. Karena tingkat dukungan ISP, sensor, atau daemon wilayah (eligibilityd) lapisan bawah berbeda-beda antar model, sebagian fitur hanya membuka entri UI sistem ketika tidak ada hardware fisik. Harap 【restart ponsel secara manual】 setelah diterapkan untuk memverifikasi efek, dapat dimatikan atau dipulihkan kapan saja dari cadangan."
+    static let expShutterMuteInfo = "【Fitur Uji】RegionalBehaviorShutterClick tradisional adalah probe dinamis read-only (slot = -1), penulisan langsung ke CacheExtra tidak efektif. Sakelar ini menggabungkan modifikasi 3 slot boolean CacheData asli:\n• DeviceSupportsRegionalCameraShutterRelaxation = true\n• KeyboardMutePreservesRegionalShutterClickBehavior = false\n• ...ForLegacyDevices = false\nDapat mencoba membuka suara rana kamera wajib pada model versi Jepang (J/A) dan Korea (KH/A) tanpa mengubah wilayah penjualan seluruh perangkat (harap restart ponsel secara manual setelah diterapkan agar berlaku)."
+    static let expStudioMicsInfo = "【Fitur Uji】Mengaktifkan slot penangkapan mikrofon array ganda high-low power bersamaan DeviceSupportsConcurrentHPLPMics (dI30ovtFUIeLioNQKDMbGQ), menyediakan penanda kemampuan hardware lapisan bawah untuk overdub studio Voice Memos dan pemisahan vokal multitrack (memerlukan dukungan DSP mikrofon, berlaku setelah restart)."
+    static let expPhotoToneInfo = "【Fitur Uji】Sinkron mengaktifkan tiga slot boolean pipeline pasca-pemrosesan imaging PhotosLocalLight, ToneMapping, dan HDRDeferredProcessing, meningkatkan kemampuan redraw cahaya lokal galeri, pemetaan nada generasi baru, dan render delay HDR mendalam (berlaku setelah restart)."
+    static let expSpatialStereoInfo = "【Fitur Uji】Sinkron mengaktifkan tiga slot penangkapan video SpatialOverCapture, StereoAudioRecording, dan P3ColorspaceVideoRecording, membuka rekonstruksi sudut pandang spasial ultra-wide, penangkapan audio stereo, dan dukungan encoding video wide color gamut P3 (berlaku setelah restart)."
+    static let expCamControlInfo = "【Fitur Uji】Sinkron mengaktifkan empat slot interaksi CameraButtonCapability, TouchSensitiveCameraControl, HardwareDetents, dan CameraHaptics, membuka panel konfigurasi kontrol kamera ketuk lembut/geser zoom kapasitif \"Pengaturan -> Kamera -> Kontrol Kamera\" secara lengkap (model tanpa tombol fisik hanya menampilkan panel pengaturan, berlaku setelah restart)."
+    static let expLegacyBatteryInfo = "【Fitur Uji】Mengaktifkan slot DeviceShowsBatteryModelInformationLegacyHW dan DynamicEndOfChargeLegacyHW, mencoba menampilkan tanggal produksi baterai, waktu penggunaan pertama, dan jumlah siklus pengisian presisi di \"Pengaturan -> Baterai / Tentang Perangkat\" iPhone / iPad lama (berlaku setelah restart; juga dapat menggunakan modul \"Telemetri Baterai Fisik dan Termal\" di alat ini untuk membaca data lapisan bawah secara langsung)."
+    static let expHighLumAODInfo = "【Fitur Uji】Sinkron mengaktifkan slot HighLuminanceAlwaysOnDisplay dan AlwaysOnDisplayFlipbook, membuka strategi always-on display kecerahan tinggi outdoor dan render frame buffer flipbook hemat daya (catatan: mengaktifkan AOD pada layar non-LTPO akan meningkatkan konsumsi daya standby, berlaku setelah restart)."
+    static let expCarPlay2Info = "【Fitur Uji】Mengaktifkan slot DeviceSupportsCarPlay2 (PR+xeEtTAiUN0R25+EYGfw), mengaktifkan dukungan protokol车载 CarPlay Ultra multi-layar instrumen full LCD generasi baru (berlaku setelah restart)."
+    static let expTouch120Info = "【Fitur Uji】Mengaktifkan slot TouchDelivery120Hz (2OK50OGmkXM1ospsh766WQ), mengaktifkan pipeline pengiriman event sampling touch 120Hz ke sistem (catatan: panel layar fisik 60Hz tidak dapat menembus refresh rate gambar 60fps, hanya berlaku pada lapisan pengiriman sampling touch, berlaku setelah restart)."
+    static let expHearingAidInfo = "【Fitur Uji】Sinkron mengaktifkan tiga slot boolean berurutan hearingaid-audio-equalization, hearingaid-low-energy-audio, dan hearingaid-power-reduction, bekerja sama dengan AirPods Pro 2 / 3 untuk mencoba membuka ekualisasi kesehatan pendengaran dan kemampuan bantu dengar klinis (sebagian wilayah masih dibatasi oleh pagar medis eligibilityd, berlaku setelah restart)."
+    static let expSleepApneaInfo = "【Fitur Uji】Mengaktifkan slot DeviceSupportsBreathingDisturbancesMeasurements (e0HV2blYUDBk/MsMEQACNA), membuka halaman evaluasi tren risiko sleep apnea \"Kesehatan -> Pernapasan -> Gangguan Pernapasan\" (memerlukan data pemantauan tidur Apple Watch, berlaku setelah restart)."
+    static let expUSBloodOxygenInfo = "【Fitur Uji】Mengatur slot DeviceSupportsUSLegallyCompliantBloodOxygen (E4vGMChwcVRKD8hMVxnRvg) menjadi false, membuka blokir pengukuran SpO2 lapisan perangkat lunak perangkat versi AS (LL/A) yang dipicu oleh larangan paten (model versi Tiongkok secara native sudah false, tidak perlu diaktifkan, berlaku setelah restart)."
+    static let expWorkoutUltraInfo = "【Fitur Uji】Sinkron mengaktifkan slot WorkoutUltraMode dan DeviceSupportsTimeInDaylight, membuka mode bantuan olahraga outdoor ekstrem dan entri statistik pemantauan cahaya lingkungan \"Waktu di Bawah Sinar Matahari\" Kesehatan (berlaku setelah restart)."
+    static let expSiriHubInfo = "【Peringatan Pagar Pengaman】Pengujian perangkat asli menunjukkan: DeviceSupportsSiriHub (waGD2UTpntjbDXD1r3oALQ) adalah penanda routing eksklusif hardware hub rumah dengan layar (HomeAccessory / HomePad).\n\n⚠️ Mengaktifkannya pada iPhone / iPad akan menyebabkan assistantd meminta aset model SiriHub yang tidak ada, membuat Apple Intelligence macet tak terbatas pada \"Sedang menambahkan konten dukungan Siri, sebelum pembaruan selesai, Siri tidak dapat digunakan\"!\n\nPagar pengaman telah mengunci secara default untuk mencegah pengaktifan baru opsi ini pada iPhone / iPad; jika Anda pernah mengaktifkan sakelar ini di versi lama, cukup matikan opsi ini (atau gunakan kartu pemeriksaan Apple Intelligence di atas untuk perbaikan sekali klik) dan restart ponsel secara manual untuk memulihkan normal."
+    static let spoofUseless = "Penyamaran model perangkat dapat menyebabkan fitur hardware seperti Face ID tidak berfungsi! Hardware perangkat Anda sendiri sudah mendukung Apple Intelligence secara native, tidak perlu memodifikasi opsi ini (perangkat versi Tiongkok hanya perlu mengaktifkan \"Buka Batasan Wilayah\" di atas)."
+    static let spoofAI = "Untuk model lama yang tidak mendukung Apple Intelligence, hanya menyalakan sakelar tidak dapat mengunduh model AI on-device, juga perlu menyamar sebagai model yang didukung; namun penyamaran model dapat menyebabkan Face ID tidak berfungsi. Setelah membatalkan penyamaran model, jangan pernah masuk lagi ke halaman \"Pengaturan -> Apple Intelligence & Siri\"."
+    static let subtype = "Hanya modifikasi Subtype perangkat jika Anda ingin menyesuaikan posisi vertikal Dynamic Island atau karakteristik resolusi layar. Jika ingin mengaktifkan Dynamic Island pada model non-Dynamic Island, harap gunakan bersama sakelar \"Aktifkan Dynamic Island\" di bawah!"
+    static let mgResetComp = "Cache MobileGestalt saat ini telah dihapus dan cadangan lama telah diarsipkan dengan aman. Harap segera 【restart perangkat Anda secara manual】, sistem akan meregenerasi parameter pabrik 100% murni dari fuse hardware saat boot."
+    static let revertComp = "Cadangan pabrik perangkat telah dipulihkan melalui verifikasi SHA-256 dan validasi penulisan fisik disk, dan residu sakelar kustom lokal telah disinkronkan dan dibersihkan. Disarankan 【restart ponsel secara manual sekali】 untuk memastikan semua parameter lapisan bawah sepenuhnya dipulihkan."
+    static let revertConfirm = "Akan segera mengeksekusi pemulihan parameter pabrik perangkat:\n\n1. Secara ketat memverifikasi ringkasan SHA-256, versi sistem, CacheUUID, dan model hardware asli dari cadangan pabrik;\n2. Memulihkan MobileGestalt melalui penulisan disk in-place tanpa jendela zero-byte (pwrite + F_FULLFSYNC) dan verifikasi baca balik;\n3. Sinkron mereset nilai kunci kustom lokal, nama model kustom, dan sakelar gerbang out-of-bound, mencegah penulisan balik residu."
+    static let globalFactoryRestoreConfirm = "Akan segera mengeksekusi pemulihan parameter pabrik asli semua modul sekali klik:\n\n1. Memulihkan dan memverifikasi cadangan pabrik MobileGestalt perangkat (termasuk SHA-256 dan verifikasi penulisan fisik disk);\n2. Menghapus teks bagian bawah layar kunci, plat nama aset perangkat, dan residu pseudo-supervisi pihak ketiga (otomatis melindungi MDM perusahaan asli);\n3. Membersihkan cache keypad dial kustom dan mereset semua status preferensi lokal."
 
     // settings
-    static let mgResetSavWarn = "重新生成原始备份前，请确保当前已还原所有修改，否则当前处于开启状态的修改会被写入新的原始备份中！"
-    static let hidTweakWarn = "显示被隐藏的修改项后，你将能看到当前机型本已原生支持或不兼容的底层开关。盲目改动可能导致功能异常甚至数据丢失！"
+    static let mgResetSavWarn = "Sebelum meregenerasi cadangan asli, pastikan semua modifikasi saat ini telah dipulihkan, jika tidak, modifikasi yang sedang aktif akan ditulis ke cadangan asli baru!"
+    static let hidTweakWarn = "Setelah menampilkan item modifikasi tersembunyi, Anda akan dapat melihat sakelar lapisan bawah yang sudah didukung native atau tidak kompatibel dengan model saat ini. Perubahan buta dapat menyebabkan fungsi abnormal bahkan kehilangan data!"
 }
 
 enum MGKey {
@@ -162,7 +162,7 @@ enum MGKey {
     static let modelNameOuter1 = "Z/dqyWS6OZTRy10UcmUAhw" // DeviceProductDescription
     static let modelNameOuter2 = "bbtR9jQx50Fv5Af/affNtA" // MarketingNameString
 
-    // [测试特性] Experimental CacheData Boolean Slot Keys
+    // [Fitur Uji] Experimental CacheData Boolean Slot Keys
     static let shutterRelaxation = "P4ZJVy/zYuLy4ejRKP+0DA"
     static let shutterKeyboardMutePreserve = "bGUN8lS6sYzy3xhePubp8A"
     static let shutterLegacyMutePreserve = "Bim3FC83Te8QX1kfSpqYKQ"
@@ -360,8 +360,8 @@ final class GestaltStore: ObservableObject {
         }, set: { enabled in
             if enabled {
                 Alertinator.shared.alert(
-                    title: "安全护栏已拦截高危操作！",
-                    body: "在 iPhone 上强制启用 iPadOS 界面需篡改未经验证的 CacheData 偏移，在锁屏密码或横竖屏切换时极易引发无限白苹果重启与触控冻结，防白苹果护栏已永久禁用该功能。"
+                    title: "Pagar pengaman memblokir operasi berisiko tinggi!",
+                    body: "Memaksa mengaktifkan antarmuka iPadOS pada iPhone memerlukan manipulasi offset CacheData yang tidak terverifikasi, sangat mudah memicu reboot bootloop tak terbatas dan pembekuan touch saat kata sandi layar kunci atau rotasi layar, pagar anti-bootloop telah menonaktifkan fitur ini secara permanen."
                 )
             } else {
                 self.objectWillChange.send()
@@ -445,7 +445,7 @@ final class GestaltStore: ObservableObject {
             set: { enabled in
                 self.objectWillChange.send()
                 if enabled {
-                    Alertinator.shared.alert(title: "解除地区限制提示", body: MGMsg.region)
+                    Alertinator.shared.alert(title: "Pemberitahuan Buka Batasan Wilayah", body: MGMsg.region)
                     self.applyRegionUnlock(mode: self.preferredRegionUnlockMode)
                 } else {
                     if let ogCode = self.originalCacheExtraValue(forKey: MGKey.regionCode) as? String, !ogCode.isEmpty {
@@ -595,13 +595,13 @@ final class GestaltStore: ObservableObject {
             set: { enabled in
                 switch MGCacheDataCoordinator.shared.resolveValidated(for: self.mgCurrentDict) {
                 case .failure(let err):
-                    Alertinator.shared.alert(title: "动态解析失败，已拒绝修改！", body: err.localizedDescription)
+                    Alertinator.shared.alert(title: "Resolusi dinamis gagal, modifikasi ditolak!", body: err.localizedDescription)
                 case .success((let layout, var data)):
                     let savedOrig = NSDictionary(contentsOf: MGURL.savedGestaltURL)
                     for key in keys {
                         guard let slotIdx = layout.featureSlotIndices[key],
                               layout.validateSingleBooleanSlot(slotIdx, in: data) else {
-                            Alertinator.shared.alert(title: "当前系统不支持该槽位！", body: "未能在当前系统库与缓存中验证槽位 \(key) 的有效性，已拒绝修改。")
+                            Alertinator.shared.alert(title: "Sistem saat ini tidak mendukung slot ini!", body: "Tidak dapat memverifikasi validitas slot \(key) di pustaka sistem dan cache saat ini, modifikasi ditolak.")
                             return
                         }
                         if enabled {
@@ -621,7 +621,7 @@ final class GestaltStore: ObservableObject {
                     testDict["CacheData"] = data
                     switch layout.validatePlist(testDict) {
                     case .failure(let err):
-                        Alertinator.shared.alert(title: "缓存数据校验未通过，已拒绝修改！", body: err.localizedDescription)
+                        Alertinator.shared.alert(title: "Validasi data cache gagal, modifikasi ditolak!", body: err.localizedDescription)
                     case .success:
                         self.objectWillChange.send()
                         for key in keys {
@@ -698,7 +698,7 @@ final class GestaltStore: ObservableObject {
             set: { enabled in
                 switch MGCacheDataCoordinator.shared.resolveValidated(for: self.mgCurrentDict) {
                 case .failure(let err):
-                    Alertinator.shared.alert(title: "动态解析失败，已拒绝修改！", body: err.localizedDescription)
+                    Alertinator.shared.alert(title: "Resolusi dinamis gagal, modifikasi ditolak!", body: err.localizedDescription)
                 case .success((let layout, var data)):
                     let savedOrig = NSDictionary(contentsOf: MGURL.savedGestaltURL)
                     var touchedKeys: [String] = []
@@ -706,7 +706,7 @@ final class GestaltStore: ObservableObject {
                         guard let slotIdx = layout.featureSlotIndices[rule.key],
                               layout.validateSingleBooleanSlot(slotIdx, in: data) else {
                             if rule.required {
-                                Alertinator.shared.alert(title: "当前系统不支持该实验性槽位！", body: "未能在当前系统库与缓存中验证槽位 \(rule.key) 的有效性，已拒绝修改。")
+                                Alertinator.shared.alert(title: "Sistem saat ini tidak mendukung slot eksperimental ini!", body: "Tidak dapat memverifikasi validitas slot \(rule.key) di pustaka sistem dan cache saat ini, modifikasi ditolak.")
                                 return
                             }
                             continue
@@ -730,7 +730,7 @@ final class GestaltStore: ObservableObject {
                     testDict["CacheData"] = data
                     switch layout.validatePlist(testDict) {
                     case .failure(let err):
-                        Alertinator.shared.alert(title: "缓存数据校验未通过，已拒绝修改！", body: err.localizedDescription)
+                        Alertinator.shared.alert(title: "Validasi data cache gagal, modifikasi ditolak!", body: err.localizedDescription)
                     case .success:
                         self.objectWillChange.send()
                         for key in touchedKeys {
@@ -766,7 +766,7 @@ final class GestaltStore: ObservableObject {
             set: { enabled in
                 if enabled {
                     Alertinator.shared.alert(
-                        title: "安全护栏已拦截冲突开关！",
+                        title: "Pagar pengaman memblokir sakelar konflik!",
                         body: MGMsg.expSiriHubInfo
                     )
                     return
@@ -844,7 +844,7 @@ final class GestaltStore: ObservableObject {
             set: { enabled in
                 if enabled {
                     Alertinator.shared.alert(
-                        title: "安全护栏已拦截冲突开关！",
+                        title: "Pagar pengaman memblokir sakelar konflik!",
                         body: MGMsg.advAppleIntell
                     )
                     return
@@ -968,8 +968,8 @@ final class GestaltStore: ObservableObject {
             set: { enabled in
                 switch MGCacheDataCoordinator.shared.resolveValidated(for: self.mgCurrentDict) {
                 case .failure(let err):
-                    print("[!] (mg-cache) 拒绝修改 green-tea：\(err.localizedDescription)")
-                    Alertinator.shared.alert(title: "动态解析失败，已拒绝修改！", body: err.localizedDescription)
+                    print("[!] (mg-cache) menolak modifikasi green-tea: \(err.localizedDescription)")
+                    Alertinator.shared.alert(title: "Resolusi dinamis gagal, modifikasi ditolak!", body: err.localizedDescription)
                 case .success((let layout, var data)):
                     let savedOrig = NSDictionary(contentsOf: MGURL.savedGestaltURL)
                     if enabled {
@@ -990,8 +990,8 @@ final class GestaltStore: ObservableObject {
                     testDict["CacheData"] = data
                     switch layout.validatePlist(testDict) {
                     case .failure(let err):
-                        print("[!] (mg-cache) 修改后自检未通过，拒绝修改：\(err.localizedDescription)")
-                        Alertinator.shared.alert(title: "缓存数据校验未通过，已拒绝修改！", body: err.localizedDescription)
+                        print("[!] (mg-cache) self-check pasca-modifikasi gagal, menolak modifikasi: \(err.localizedDescription)")
+                        Alertinator.shared.alert(title: "Validasi data cache gagal, modifikasi ditolak!", body: err.localizedDescription)
                     case .success:
                         self.objectWillChange.send()
                         self.mgCurrentDict["CacheData"] = data
@@ -1013,11 +1013,11 @@ final class GestaltStore: ObservableObject {
             set: { enabled in
                 switch MGCacheDataCoordinator.shared.resolveValidated(for: self.mgCurrentDict, checkWapiSlot: true) {
                 case .failure(let err):
-                    print("[!] (mg-cache) 拒绝修改 wapi：\(err.localizedDescription)")
-                    Alertinator.shared.alert(title: "动态解析失败，已拒绝修改！", body: err.localizedDescription)
+                    print("[!] (mg-cache) menolak modifikasi wapi: \(err.localizedDescription)")
+                    Alertinator.shared.alert(title: "Resolusi dinamis gagal, modifikasi ditolak!", body: err.localizedDescription)
                 case .success((let layout, var data)):
                     guard let wOff = layout.wapiOffset else {
-                        Alertinator.shared.alert(title: "动态解析失败，已拒绝修改！", body: "当前系统库未能唯一解析 wapi 槽位偏移。")
+                        Alertinator.shared.alert(title: "Resolusi dinamis gagal, modifikasi ditolak!", body: "Pustaka sistem saat ini tidak dapat menyelesaikan offset slot wapi secara unik.")
                         return
                     }
                     let savedOrig = NSDictionary(contentsOf: MGURL.savedGestaltURL)
@@ -1037,13 +1037,13 @@ final class GestaltStore: ObservableObject {
                     testDict["CacheData"] = data
                     switch layout.validatePlist(testDict, checkWapiSlot: true) {
                     case .failure(let err):
-                        print("[!] (mg-cache) 修改后自检未通过，拒绝修改：\(err.localizedDescription)")
-                        Alertinator.shared.alert(title: "缓存数据校验未通过，已拒绝修改！", body: err.localizedDescription)
+                        print("[!] (mg-cache) self-check pasca-modifikasi gagal, menolak modifikasi: \(err.localizedDescription)")
+                        Alertinator.shared.alert(title: "Validasi data cache gagal, modifikasi ditolak!", body: err.localizedDescription)
                     case .success:
                         self.objectWillChange.send()
                         self.mgCurrentDict["CacheData"] = data
                         if enabled {
-                            Alertinator.shared.alert(title: "无线局域网改 Wi-Fi 重要提示", body: MGMsg.wapiToWifi)
+                            Alertinator.shared.alert(title: "Pemberitahuan Penting WLAN menjadi Wi-Fi", body: MGMsg.wapiToWifi)
                         }
                     }
                 }
