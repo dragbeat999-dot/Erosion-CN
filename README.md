@@ -1,160 +1,160 @@
 <div align="center">
   <br>
-  <a href="https://github.com/Kianuni/Erosion-CN/releases/latest"><img src="./PreviewIcon.png" alt="App Icon" width="150"></a>
+  <a href="https://github.com/Kianuni/Erosion-CN/releases/latest"><img src="./PreviewIcon.png" alt="Ikon Aplikasi" width="150"></a>
   <br>
   <h1>Erosion-CN</h1>
-  <p>基于 <a href="https://github.com/forcequitOS/worse_query">worse_query</a> 的 iOS / iPadOS 系统配置与 MobileGestalt 研究工具箱（简体中文防白苹果安全加固版）</p>
-  <p>支持 iOS / iPadOS 27.0 – 27.2 / 27.3 beta 1（完整支持）以及 iOS / iPadOS 26.x（部分支持）。</p>
-  <a href="https://github.com/Kianuni/Erosion-CN/releases/latest"><img alt="GitHub Releases" src="https://img.shields.io/github/v/release/Kianuni/Erosion-CN?style=flat-square&color=CF7D46&label=%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC"></a>
-  <a href="https://github.com/jailbreakdotparty/Erosion"><img alt="Upstream Repo" src="https://img.shields.io/badge/%E4%B8%8A%E6%B8%B8%E4%BB%93%E5%BA%93-jailbreakdotparty%2FErosion-3868DB?style=flat-square"></a>
-  <a href="./LICENSE"><img alt="License" src="https://img.shields.io/badge/License-GPLv3-blue?style=flat-square"></a>
+  <p>Toolbox riset konfigurasi sistem dan MobileGestalt untuk iOS / iPadOS berbasis <a href="https://github.com/forcequitOS/worse_query">worse_query</a> (versi bahasa Indonesia dengan penguatan keamanan anti-"white Apple"/bootloop)</p>
+  <p>Mendukung penuh iOS / iPadOS 27.0 – 27.2 / 27.3 beta 1, dan dukungan sebagian untuk iOS / iPadOS 26.x.</p>
+  <a href="https://github.com/Kianuni/Erosion-CN/releases/latest"><img alt="GitHub Releases" src="https://img.shields.io/github/v/release/Kianuni/Erosion-CN?style=flat-square&color=CF7D46&label=Versi%20Terbaru"></a>
+  <a href="https://github.com/jailbreakdotparty/Erosion"><img alt="Repo Upstream" src="https://img.shields.io/badge/Repo_Upstream-jailbreakdotparty%2FErosion-3868DB?style=flat-square"></a>
+  <a href="./LICENSE"><img alt="Lisensi" src="https://img.shields.io/badge/License-GPLv3-blue?style=flat-square"></a>
 </div>
 
 ---
 
-## 项目简介与核心改进
+## Pengantar Proyek dan Peningkatan Utama
 
-**Erosion-CN** 分支衍生自官方上游项目 **[jailbreakdotparty/Erosion](https://github.com/jailbreakdotparty/Erosion)**，完成了 **100% 简体中文界面本地化**，修复了原版多项严重真机 Bug，并进行了系统级防白苹果安全加固与底层能力扩展：
+Fork **Erosion-CN** diturunkan dari proyek upstream resmi **[jailbreakdotparty/Erosion](https://github.com/jailbreakdotparty/Erosion)**. Fork ini menyediakan **lokalisasi antarmuka 100% ke bahasa Indonesia**, memperbaiki sejumlah bug serius versi asli di perangkat nyata, serta menambahkan penguatan keamanan tingkat sistem agar anti-"white Apple" dan perluasan kemampuan di level bawah:
 
-1. **修复重启后修改自动失效还原（反弹回原厂状态）的严重 Bug**
-   - 原版在未手动切换过设置开关时，`mgWriteAtomically` 默认返回 `false`，导致实际走了临时文件替换（`replaceItemAt`），破坏了系统缓存文件的 Inode 与 `_mobilegestalt` POSIX 属主权限，设备一重启即被系统丢弃重建；同时原版在 iOS 27 上额外注入了非缓存键 `RegionInfo`（`zHeENZu+wbg7PUprwNwBWg`），触发开机缓存合法性校验整包重置。
-   - 本分支已默认强制锁定原位覆盖写入，严格遵循 iOS 27 原厂缓存键结构，并自动匹配写入对应机型的监管型号（`RegulatoryModelNumber`），**真正做到持久化生效、重启不反弹**。
-2. **修复内置 Plist 编辑器破坏布尔值与相机浮点参数导致「相机黑屏」的严重 Bug**
-   - 原版 `PlistManager` 将 `CFBoolean`（`<true/>` / `<false/>`）以及整数值 `Double`（如相机变焦倍率 `1.0`、`2.0`、`5.0` 等）误判转换为了 `<integer>` 整型，导致编辑保存 `MobileGestalt` 后系统相机取景直接黑屏。
-   - 本分支改用 `CFBooleanGetTypeID()` 与 `CFNumberIsFloatType()` 精确识别底层 CoreFoundation 类型，保留原始 Plist 根类型与编码格式，并对未修改项执行 **100% 原样无损直通（Lossless Pass-through）**，彻底解决相机黑屏问题。
-3. **零 0 字节窗口原位写入协议（`pwrite` + 按需尾截断 + `F_FULLFSYNC`）**
-   - 重构底层文件 I/O：不再先执行 `ftruncate(fd, 0)` 清空系统文件，而是直接从偏移 `0` 原位覆盖写入、写完后按需裁剪尾部，并调用 `fcntl(fd, F_FULLFSYNC)` 强制刷新 APFS 与物理闪存缓存，断电或异常中断绝不留空文件。
-4. **写入前变更对比预览（Diff Preview）+ 写后全量读回校验与自动回滚**
-   - 点击「应用」时逐条展示所有待修改键值与十六进制槽位对比（`修改前 → 修改后`）；
-   - 写入前自动保存 `PreApplyGestalt.plist` 快照，写入后立即从磁盘读回并做二进制 Plist 反序列化与严格类型校验，一旦出现任何不一致立即自动原位回滚。
-5. **本机 `libMobileGestalt.dylib` 运行时动态偏移解析（零硬编码）**
-   - 在设备运行时只读扫描内存中加载的 `/usr/lib/libMobileGestalt.dylib` 查询描述符表，实时计算当前机型与当前系统版本的 `CacheUUID`、总槽位数及布尔槽位偏移（`green-tea`、`not-green-tea`、`wapi`）；
-   - **严格多重校验门控**：仅当本机 `CacheUUID` 唯一匹配、总长度精确等于 `槽位数 × 9`、有效位 `validity == 1`、8 字节槽位填充全为 `0` 且无任何无关字节变动时才允许修改；解析未通过时自动锁定开关并拦截写入。
-6. **双重原厂金库备份（跨卸载重装不丢备份）、四重指纹防呆与一键恢复原机出厂参数**
-   - **沙盒 + 系统安全金库双冗余备份**：生成原始备份 `OriginalGestalt.plist` 时同步计算 `SHA-256` 摘要并镜像锁定至系统级共享容器安全金库（标记 `isExcludedFromBackup = true` 防换机污染）——**即使侧载证书过期卸载重装应用，也能自动无损找回最初未修改的原厂备份**，并支持手动导入/导出外部 `.plist` 备份及首次备份脏状态检测；
-   - **全模块一键恢复原机出厂参数**：主页与 `MobileGestalt` 页顶均内置「一键恢复原机出厂参数」，强制核对 `SHA-256`、`CacheVersion`、`CacheUUID`、`CacheData` 长度与真实内核硬件 `ProductType`，同步清空本地自定义开关残留、锁屏文字/铭牌、伪监管文件与拨号盘缓存；跨 iOS 版本 OTA 升级拦截时可直接一键联动「重建系统纯净原厂缓存」。
-7. **重签证书 `App Group` 自动探测与高危软砖项拆除**
-   - 运行时通过 `SecTaskCopyValueForEntitlement` 与纯 Swift Mach-O `LC_CODE_SIGNATURE` 签名段解析自动匹配任意重签工具注入的可用 `group.*` 容器；
-   - 默认移除并拦截上游版本中存在软砖/无限设置向导隐患的高危功能（如 iPhone 正则盲改切片的 iPadOS 模式、个人零售设备的监管模式开关、非缓存键注入等）。
-8. **完善机型适配、iOS 27 进阶 AI 能力解锁与实用工具优化**
-   - 补全 iPhone 15 / 16 / 17 / Air / 18 / Duo 全系列及 M 系列 iPad 监管型号映射与硬件特征表，修复原版“80% 充电上限”与“开机提示音”硬件判断互换笔误及自定义键值恒写入 `true` 的 Bug；
-   - **Apple 智能子能力打包与进阶槽位冲突保护**：「启用 Apple 智能开关」自动联动解锁旧机型缺失的相册「消除」(Clean Up) 与备忘录「手写体合成」能力；针对实验性 `Personal Translator` / `Audio Intelligence` 槽位在 iPhone / iPad 上强开会导致 `ModelCatalog` 资产校验断路、使照片「高质量」消除报错的问题，内置自动防呆锁定与一键修复；
-   - 新增 iOS 26/27「液态玻璃低功耗渲染（省电模式）」开关与机型外层描述同步；
-   - 修复文件浏览器搜索栏失效与失焦清空问题，采用 `stat()` 动态探测本机实时最大 Inode 基线配合 `pathleak` 加速容器扫描（并为动态壁纸与拨号盘页面加入异步加载进度动画），同时新增核心缓存目录 0 秒一键直达入口；
-9. **新增应用存档管理与容器缓存清理模块（`v0.6.0`）**
-   - **应用与游戏存档备份、还原与修改器 (`AppDataBackupView`)**：自动扫描本机第三方应用与单机游戏容器，支持一键将 `Documents` 与 `Library/Preferences` 打包备份为 `.zip`、导出分享、跨重装自动匹配最新容器 UUID 原位还原存档，并支持一键跳入存档目录调用内置无损 Plist/文本编辑器修改；
-   - **容器级缓存扫描与清理 (`CacheCleanerView`)**：专治 iOS「系统数据（其他）」暴涨，按体积排行展示各应用容器的 `Library/Caches` 与 `tmp` 可释放空间，支持单应用或批量一键清理（严格保护 `Documents`、聊天记录数据库与登录态）。
-10. **新增真机底层生效核验探针、Apple 智能四要素一键体检、影像/健康硬件槽位解锁与全链路沙盒审计加固（`v0.7.2`）**
-    - **真机 `MobileGestalt` 底层生效核验与动态槽位实时探针 (`MGInspectorView`)**：纯只读调用系统库 `MGCopyAnswer` 实时读取当前真机生效值，并与 `OriginalGestalt.plist` 原厂备份、当前 `CacheData / CacheExtra` 待写配置进行三源同屏对比；同时提供本机全量 `720+` 个二进制 `CacheData` 槽位的动态解析检索与自由键名实时探针；
-    - **Apple 智能 (Apple Intelligence) 激活四要素一键体检面板 (`AppleIntelligenceCheckupCard`)**：实时聚合核验「销售地区 `LL/LL/A`」、「美版监管型号 `Axxxx`（基于真实主板型号防伪装误判）」、「端侧 AI 芯片准入」及「系统实时生效回读」，并在原生 AI 机型上自动锁定 `InternalInstall` 互斥开关，支持一键自动配齐全部缺失项；
-    - **影像与健康进阶能力解锁（`CacheData` 二进制硬件槽位直写）**：针对 `libMobileGestalt.dylib` 中 `_MGCacheSetValueForKey` 的 `validity` 短路机制（仅写 `CacheExtra` 会被系统直接忽略的硬件设备树属性），通过运行时动态槽位解析直接写入 `CacheData`，新增 **相册与相机「混音 (Audio Mix)」**、**空间音频录制与 FaceTime 空间音频**、**按下快门瞬间抓拍 (Responsive Shutter)** 与 **健康「高血压趋势评估模式」** 4 项开关，并内置本机原生硬件防降级保护锁；
-    - **全链路沙盒逃逸与文件编辑安全加固（`v0.7.2`）**：修复内置 Plist 编辑器因 `@Binding` 原地变异导致保存回旧值的 Bug；重构 `WorseQuerySwift` 支持只读容器令牌保留（`requireWrite: false`），修复 `System` / `AppGroup` 容器浏览、容器排序重复扫描、符号链接类型识别、壁纸与拨号盘父容器授权、存档备份还原 xattr 核验与 Zip Slip 防护等 24 个文件的边界缺陷。
-11. **全量 `MobileGestalt` 槽位双写晋升、14 项底层硬件实验开关与 6 大跨容器系统模块（`v0.8.0` 测试特性）**
-    - **14 项既有功能晋升 `CacheData + CacheExtra` 全量双写**：将灵动岛、全天候显示、液态玻璃低功耗渲染、80% 充电上限、开机提示音、车祸检测、PWM 防频闪、相机控制键、操作按钮、轻点唤醒、台前调度等 14 项既有功能全面纳入运行时 `CacheData` 槽位双写表，彻底突破 `_MGCacheSetValueForKey` 槽位短路；
-    - **新增 14 项 `[测试特性]` 二进制 `CacheData` 硬件特性包**（均经真机 `libMobileGestalt.dylib` 校验 `slot >= 0, queryType == 11` 且带原生硬件防降级锁）：日韩版真·相机快门静音（3 槽联动）、高低功耗双麦并发拾音（录音棚叠录底座）、相册局部光影重绘与新一代色调映射、超取景框捕获与 P3 广色域立体声视频、相机控制电容滑动变焦与触觉阻尼完整面板、旧机型显示电池循环次数与生产日期、户外高亮全天候显示与 Flipbook 帧缓冲、CarPlay Ultra 多屏车载协议、120Hz 触控采样事件投递、AirPods 临床听力均衡与低功耗助听器模式（3 槽联动）、睡眠呼吸暂停风险趋势检测、解除美版血氧软件专利限制、户外极限运动模式与日光照射监测、端侧 Siri Hub 路由与指令模型动态剪枝，并附「国行普通话来电询问 + 海外 Apple 智能」共存配置指南；
-    - **6 大跳出 `MobileGestalt` 的跨容器实验模块（`[测试特性]`）**：
-      1. **`CSStore2` 极速容器与中文应用名映射引擎 (`CSStoreResolver` / `CSStoreEngine`)**：解析 LaunchServices `"bdsl"` 二进制数据库，`<50ms` 秒级映射全部应用容器与 AppGroup UUID（自动降级回退 `pathleak`）；
-      2. **物理电池真实寿命与芯片温控遥测 (`PowerTelemetryView`)**：基于 APFS `clonefile()` 零锁只读快照解析 `CurrentPowerlog.PLSQL`，查看原始毫安时容量 (`RawMaxCapacity`)、精确循环次数、实时充放电瓦数、电芯温度及历史热节流事件；
-      3. **系统崩溃与 Jetsam 杀后台分析器 (`CrashDiagnosticsView`)**：解析 `osanalytics` `.ips` 诊断日志，分类统计内存强杀 (`298`)、进程崩溃 (`309`) 与看门狗重置 (`210`)，支持安全清理日志释放空间；
-      4. **锁屏防丢资产铭牌与伪监管死锁体检 (`ConfigView`)**：支持 `AssetTagInformation` 锁屏铭牌定制，并实时体检第三方伪监管残留（防 OTA 升级后触发 Setup Assistant 403 激活死锁，支持保留锁屏文字单独清理）；
-      5. **跨容器 `AppGroup` 分流规则注入与 Safari 书签导出 (`AppGroupHubView`)**：一键生成或向 Surge 共享组注入国行普通话来电询问直连 + 海外 AI 分流 `.sgmodule`，并支持通过零锁快照无损导出 Safari 书签（HTML / JSON）；
-      6. **语音备忘录与通话录音无损提取 + 端侧 AI 模型体检 (`VoiceMemosAIView`)**：跨容器关联 `CloudRecordings.db` 标题批量打包导出无损 `.m4a` 音轨，并只读探测离线翻译与语音模型缓存。
-12. **地区解锁细化、脏环境一键直关、`SiriHub` / 照片「高质量消除」防冲突护栏与 `Surge / Stash` 双格式分流（`v0.8.1 – v0.8.5`）**
-    - **新增地区修改细化子选项**：在「解除地区限制（国行 AI / 美版 LL/A）」下方提供双模式切换——默认 **「完整美版 LL + LL/A」**（同步映射美版监管型号 `Axxxx`，跨区域受限特性最完整）；可选 **「仅改区域代码 LL（保留 CH/A 后缀与双卡兼容）」**（仅将 `RegionCode` 改为 `LL`，完整保留原机 `CH/A` 销售地区后缀与原厂监管型号，满足基础 Apple 智能准入的同时避免国行双实体卡槽 + eSIM 机型的美版无卡槽型号映射冲突）；
-    - **污染基线布尔开关直关加固与双重 AI 资产冲突护栏（`v0.8.2 – v0.8.5`）**：若安装本应用前设备已被其他工具开启 `InternalInstall` / `InternalBuild` 等互斥项（导致 `OriginalGestalt.plist` 记录了脏值 `1`），直接关闭对应开关即可一键从 `CacheExtra` 彻底剥离残留键；同时针对在 iPhone / iPad 上开启会导致 Siri 无限卡死的 `DeviceSupportsSiriHub` 以及强开会导致**照片「高质量」消除报错**的非原生 `Audio Intelligence` 实验槽位，均已从一键配齐中移除并加入自动防呆锁定与四要素体检一键自愈修复（同时精确识别并保留 iPhone 18 Pro 系列原厂自带的 `Personal Translator = true` 原生基线，杜绝误报与误清零）；
-    - **`Surge (.sgmodule)` + `Stash (.stoverride / YAML)` 双格式完整分流导出**：共享组中心支持切换导出 Surge 模块与 Stash 覆写文件（内置 `always-real-ip` / `fake-ip-filter`、Siri 主网关直连、PCC 隐私计算中继、OpenAI 及 Google 视觉智能全套置顶规则）。
+1. **Memperbaiki bug serius: perubahan hilang/kembali ke kondisi pabrik setelah restart**
+   - Pada versi asli, bila saklar pengaturan belum pernah diubah secara manual, `mgWriteAtomically` secara default mengembalikan `false`. Akibatnya penulisan berjalan lewat penggantian file sementara (`replaceItemAt`), yang merusak Inode file cache sistem dan hak kepemilikan POSIX `_mobilegestalt`, sehingga cache dibuang dan dibuat ulang oleh sistem begitu perangkat restart. Selain itu, versi asli di iOS 27 menyuntikkan key non-cache `RegionInfo` (`zHeENZu+wbg7PUprwNwBWg`), yang memicu reset seluruh cache pada pemeriksaan validitas cache saat boot.
+   - Fork ini sudah mengunci default ke penulisan menimpa di tempat (in-place), mengikuti struktur key cache bawaan pabrik iOS 27 secara ketat, dan otomatis menulis nomor model regulasi (`RegulatoryModelNumber`) yang sesuai dengan tipe perangkat. Hasilnya, **perubahan benar-benar permanen dan tidak kembali setelah restart**.
+2. **Memperbaiki bug serius editor Plist bawaan yang merusak nilai boolean dan parameter float kamera sehingga "kamera layar hitam"**
+   - `PlistManager` versi asli salah mengonversi `CFBoolean` (`<true/>` / `<false/>`) serta nilai `Double` yang bulat (misalnya rasio zoom kamera `1.0`, `2.0`, `5.0`) menjadi tipe integer `<integer>`. Akibatnya, setelah `MobileGestalt` diedit dan disimpan, tampilan bidik kamera sistem menjadi hitam.
+   - Fork ini memakai `CFBooleanGetTypeID()` dan `CFNumberIsFloatType()` untuk mengenali tipe CoreFoundation yang sebenarnya secara akurat, mempertahankan tipe root dan format encoding Plist asli, serta menjalankan **pass-through lossless 100% (Lossless Pass-through)** untuk item yang tidak diubah. Masalah kamera layar hitam pun tuntas.
+3. **Protokol tulis in-place "tanpa jendela 0 byte" (`pwrite` + pemotongan ekor sesuai kebutuhan + `F_FULLFSYNC`)**
+   - I/O file tingkat bawah dirancang ulang: tidak lagi menjalankan `ftruncate(fd, 0)` untuk mengosongkan file sistem terlebih dahulu. Data langsung ditimpa dari offset `0`, ekor dipotong bila perlu setelah selesai, lalu `fcntl(fd, F_FULLFSYNC)` dipanggil untuk memaksa flush cache APFS dan flash fisik. Listrik mati atau proses terhenti mendadak tidak akan meninggalkan file kosong.
+4. **Pratinjau perbandingan perubahan sebelum menulis (Diff Preview) + verifikasi baca-ulang penuh setelah menulis dan rollback otomatis**
+   - Saat menekan "Terapkan", semua pasangan key-nilai yang akan diubah dan perbandingan slot heksadesimal ditampilkan satu per satu (`sebelum → sesudah`).
+   - Snapshot `PreApplyGestalt.plist` disimpan otomatis sebelum menulis. Setelah menulis, data langsung dibaca ulang dari disk, dideserialisasi sebagai Plist biner, dan diverifikasi tipenya secara ketat. Bila ada ketidakcocokan sekecil apa pun, rollback in-place dijalankan otomatis.
+5. **Penguraian offset dinamis `libMobileGestalt.dylib` lokal saat runtime (tanpa hardcode)**
+   - Saat dijalankan di perangkat, aplikasi memindai (hanya baca) tabel deskriptor kueri `/usr/lib/libMobileGestalt.dylib` yang dimuat di memori, lalu menghitung secara real-time `CacheUUID`, jumlah total slot, dan offset slot boolean (`green-tea`, `not-green-tea`, `wapi`) untuk model perangkat dan versi sistem saat ini;
+   - **Gerbang validasi berlapis yang ketat**: perubahan hanya diizinkan jika `CacheUUID` lokal cocok secara unik, panjang total tepat sama dengan `jumlah slot × 9`, bit valid `validity == 1`, padding slot 8 byte seluruhnya `0`, dan tidak ada perubahan byte lain yang tidak terkait. Bila penguraian gagal lolos, saklar dikunci otomatis dan penulisan diblokir.
+6. **Backup pabrik ganda ("brankas ganda", tidak hilang meski aplikasi dihapus dan dipasang ulang), pengaman empat sidik jari, dan pemulihan satu ketuk ke parameter pabrik asli**
+   - **Cadangan redundan ganda: sandbox + brankas aman sistem**: saat `OriginalGestalt.plist` (cadangan asli) dibuat, digest `SHA-256` dihitung sekaligus dan dikunci sebagai cermin di brankas aman kontainer bersama tingkat sistem (ditandai `isExcludedFromBackup = true` agar tidak mencemari saat ganti perangkat). **Meskipun sertifikat sideload kedaluwarsa dan aplikasi dihapus lalu dipasang ulang, cadangan pabrik asli yang belum dimodifikasi tetap otomatis ditemukan kembali tanpa kerusakan.** Aplikasi juga mendukung impor/ekspor manual cadangan `.plist` eksternal dan deteksi status kotor pada cadangan pertama;
+   - **Pemulihan parameter pabrik satu ketuk untuk semua modul**: tombol "Pulihkan Parameter Pabrik Asli Satu Ketuk" tersedia di beranda dan di bagian atas halaman `MobileGestalt`. Tombol ini memaksa pencocokan `SHA-256`, `CacheVersion`, `CacheUUID`, panjang `CacheData`, dan `ProductType` perangkat keras kernel yang asli. Sisa saklar kustom lokal, teks layar kunci/pelat nama, file regulasi palsu, dan cache dial pad dibersihkan sekaligus. Bila pembaruan OTA lintas versi iOS tertahan, tombol ini terhubung langsung ke "Bangun Ulang Cache Pabrik Murni Sistem".
+7. **Deteksi otomatis `App Group` untuk sertifikat re-sign dan pencabutan fitur berisiko tinggi yang bisa menyebabkan soft brick**
+   - Saat runtime, aplikasi memakai `SecTaskCopyValueForEntitlement` dan pengurai segmen tanda tangan `LC_CODE_SIGNATURE` Mach-O murni Swift untuk mencocokkan kontainer `group.*` yang tersedia dan disuntikkan oleh alat re-sign apa pun;
+   - Fitur berisiko tinggi dari versi upstream yang berpotensi menyebabkan soft brick atau wizard pengaturan tanpa akhir dihapus dan diblokir secara default (misalnya mode iPadOS pada iPhone lewat modifikasi irisan regex buta, saklar mode supervisi untuk perangkat ritel pribadi, dan injeksi key non-cache).
+8. **Penyempurnaan kecocokan model, pembukaan kemampuan AI lanjutan iOS 27, dan optimasi alat bantu**
+   - Melengkapi pemetaan model regulasi dan tabel fitur perangkat keras untuk seluruh seri iPhone 15 / 16 / 17 / Air / 18 / Duo serta iPad seri M. Memperbaiki salah tulis tertukarnya penilaian perangkat keras "batas pengisian 80%" dan "suara saat menyala", serta bug nilai key kustom yang selalu ditulis sebagai `true`;
+   - **Paket sub-kemampuan Apple Intelligence dan perlindungan konflik slot lanjutan**: "Aktifkan Apple Intelligence" otomatis ikut membuka kemampuan yang tidak ada di perangkat lama, yaitu Clean Up (Hapus) di Foto dan "sintesis tulisan tangan" di Catatan. Slot eksperimental `Personal Translator` / `Audio Intelligence`, bila dipaksa aktif di iPhone / iPad, memutus validasi aset `ModelCatalog` dan membuat penghapusan "kualitas tinggi" di Foto error. Untuk itu tersedia kunci pengaman otomatis dan perbaikan satu ketuk;
+   - Menambahkan saklar "render low-power Liquid Glass (mode hemat daya)" untuk iOS 26/27 beserta sinkronisasi deskripsi luar model;
+   - Memperbaiki bilah pencarian pada penjelajah file yang tidak berfungsi dan isi yang terhapus saat kehilangan fokus. Aplikasi memakai `stat()` untuk mendeteksi baseline Inode maksimum real-time perangkat dan `pathleak` untuk mempercepat pemindaian kontainer (disertai animasi progres pemuatan asinkron pada halaman wallpaper dinamis dan dial pad), serta menambahkan pintasan 0 detik ke direktori cache inti.
+9. **Modul baru manajemen save aplikasi dan pembersihan cache kontainer (`v0.6.0`)**
+   - **Backup, restore, dan editor save aplikasi/game (`AppDataBackupView`)**: otomatis memindai kontainer aplikasi pihak ketiga dan game offline di perangkat. Mendukung backup satu ketuk `Documents` dan `Library/Preferences` ke `.zip`, ekspor/bagikan, pemulihan in-place yang otomatis mencocokkan UUID kontainer terbaru meski aplikasi dipasang ulang, serta lompat satu ketuk ke direktori save untuk diedit dengan editor Plist/teks lossless bawaan;
+   - **Pemindaian dan pembersihan cache tingkat kontainer (`CacheCleanerView`)**: khusus mengatasi "Data Sistem (Lainnya)" iOS yang membengkak. Menampilkan ruang yang dapat dibebaskan dari `Library/Caches` dan `tmp` tiap kontainer aplikasi, diurutkan berdasarkan ukuran, dengan pembersihan satu ketuk per aplikasi atau massal (`Documents`, database riwayat obrolan, dan status login dilindungi ketat).
+10. **Probe verifikasi efektivitas di perangkat nyata, pemeriksaan satu ketuk empat syarat Apple Intelligence, pembukaan slot perangkat keras kamera/kesehatan, dan penguatan audit sandbox menyeluruh (`v0.7.2`)**
+    - **Verifikasi efektivitas `MobileGestalt` tingkat bawah di perangkat nyata dan probe slot dinamis real-time (`MGInspectorView`)**: memanggil `MGCopyAnswer` dari library sistem secara hanya-baca untuk membaca nilai yang sedang berlaku di perangkat nyata, lalu membandingkannya berdampingan dalam satu layar dengan tiga sumber: cadangan pabrik `OriginalGestalt.plist` dan konfigurasi `CacheData / CacheExtra` yang menunggu ditulis. Juga menyediakan penguraian dan pencarian dinamis atas seluruh `720+` slot biner `CacheData` perangkat, serta probe real-time untuk nama key bebas;
+    - **Panel pemeriksaan satu ketuk empat syarat aktivasi Apple Intelligence (`AppleIntelligenceCheckupCard`)**: menggabungkan dan memverifikasi secara real-time "wilayah penjualan `LL/LL/A`", "nomor model regulasi versi AS `Axxxx` (berdasarkan model motherboard asli agar tidak salah deteksi akibat penyamaran)", "izin chip AI on-device", dan "pembacaan ulang efektivitas di sistem". Pada model dengan AI bawaan, saklar yang saling eksklusif `InternalInstall` dikunci otomatis, dan semua item yang kurang bisa dilengkapi otomatis dengan satu ketuk;
+    - **Pembukaan kemampuan kamera dan kesehatan lanjutan (penulisan langsung slot perangkat keras biner `CacheData`)**: untuk mekanisme hubung singkat `validity` pada `_MGCacheSetValueForKey` di `libMobileGestalt.dylib` (properti pohon perangkat keras yang diabaikan sistem bila hanya ditulis ke `CacheExtra`), aplikasi menulis langsung ke `CacheData` lewat penguraian slot dinamis saat runtime. Ditambahkan 4 saklar baru: **"Audio Mix" di Foto dan Kamera**, **perekaman audio spasial dan audio spasial FaceTime**, **menangkap momen saat rana ditekan (Responsive Shutter)**, dan **"mode evaluasi tren hipertensi" di Kesehatan**, dengan kunci perlindungan anti-downgrade perangkat keras asli bawaan;
+    - **Penguatan keamanan sandbox escape dan penyuntingan file di seluruh jalur (`v0.7.2`)**: memperbaiki bug editor Plist bawaan di mana mutasi in-place `@Binding` membuat penyimpanan kembali ke nilai lama; merombak `WorseQuerySwift` agar mendukung pemeliharaan token kontainer hanya-baca (`requireWrite: false`); memperbaiki 24 cacat batas pada file, termasuk penjelajahan kontainer `System` / `AppGroup`, pemindaian ganda pada pengurutan kontainer, pengenalan tipe symlink, otorisasi kontainer induk wallpaper dan dial pad, verifikasi xattr pada backup/restore save, dan perlindungan Zip Slip.
+11. **Promosi penulisan ganda penuh slot `MobileGestalt`, 14 saklar eksperimen perangkat keras tingkat bawah, dan 6 modul sistem lintas kontainer (fitur uji `v0.8.0`)**
+    - **14 fitur yang sudah ada dipromosikan ke penulisan ganda penuh `CacheData + CacheExtra`**: Dynamic Island, Always-On Display, render low-power Liquid Glass, batas pengisian 80%, suara saat menyala, deteksi tabrakan mobil, anti-kedip PWM, tombol kontrol kamera, tombol aksi, ketuk untuk membangunkan, Stage Manager, dan lainnya kini masuk ke tabel penulisan ganda slot `CacheData` saat runtime. Ini sepenuhnya mengatasi hubung singkat slot pada `_MGCacheSetValueForKey`;
+    - **14 paket fitur perangkat keras biner `CacheData` baru berlabel `[Fitur Uji]`** (semuanya diverifikasi di `libMobileGestalt.dylib` perangkat nyata dengan `slot >= 0, queryType == 11` dan dilengkapi kunci anti-downgrade perangkat keras asli): suara rana kamera benar-benar senyap untuk versi Jepang/Korea (3 slot terhubung), perekaman bersamaan mikrofon daya tinggi dan rendah (dasar overdub studio rekaman), pencahayaan ulang lokal Foto dan tone mapping generasi baru, penangkapan di luar bingkai bidik dan video stereo gamut luas P3, panel lengkap kontrol kamera berupa zoom geser kapasitif dan peredam haptik, tampilan siklus baterai dan tanggal produksi pada model lama, Always-On Display outdoor kecerahan tinggi dan frame buffer Flipbook, protokol multi-layar mobil CarPlay Ultra, pengiriman event sampling sentuh 120Hz, penyetelan ekualiser pendengaran klinis AirPods dan mode alat bantu dengar daya rendah (3 slot terhubung), deteksi tren risiko sleep apnea, pencabutan pembatasan paten perangkat lunak oksigen darah versi AS, mode olahraga ekstrem outdoor dan pemantauan paparan sinar matahari, serta routing Siri Hub on-device dan pemangkasan dinamis model perintah. Disertai panduan konfigurasi agar "Tanyakan Alasan Panggilan berbahasa Mandarin Tiongkok Daratan" dan Apple Intelligence luar negeri dapat berjalan berdampingan;
+    - **6 modul eksperimen lintas kontainer di luar `MobileGestalt` (`[Fitur Uji]`)**:
+      1. **Mesin pemetaan kontainer super cepat `CSStore2` dan nama aplikasi bahasa Mandarin (`CSStoreResolver` / `CSStoreEngine`)**: mengurai database biner LaunchServices `"bdsl"` dan memetakan seluruh kontainer aplikasi serta UUID AppGroup dalam `<50ms` (otomatis fallback ke `pathleak`);
+      2. **Telemetri umur baterai fisik sebenarnya dan suhu chip (`PowerTelemetryView`)**: mengurai `CurrentPowerlog.PLSQL` lewat snapshot hanya-baca tanpa kunci berbasis `clonefile()` APFS. Menampilkan kapasitas mAh asli (`RawMaxCapacity`), jumlah siklus yang akurat, watt pengisian/pengosongan real-time, suhu sel baterai, dan riwayat kejadian thermal throttling;
+      3. **Penganalisis crash sistem dan Jetsam (aplikasi dimatikan di latar belakang) (`CrashDiagnosticsView`)**: mengurai log diagnostik `.ips` dari `osanalytics`. Mengklasifikasi dan menghitung kill karena memori (`298`), crash proses (`309`), dan reset watchdog (`210`), serta mendukung pembersihan log yang aman untuk membebaskan ruang;
+      4. **Pelat nama anti-kehilangan di layar kunci dan pemeriksaan deadlock regulasi palsu (`ConfigView`)**: mendukung kustomisasi pelat nama layar kunci `AssetTagInformation` dan memeriksa sisa regulasi palsu pihak ketiga secara real-time (mencegah deadlock aktivasi 403 Setup Assistant setelah pembaruan OTA), dengan opsi membersihkannya sambil mempertahankan teks layar kunci;
+      5. **Injeksi aturan pemisahan lalu lintas `AppGroup` lintas kontainer dan ekspor bookmark Safari (`AppGroupHubView`)**: membuat atau menyuntikkan `.sgmodule` ke grup bersama Surge dengan satu ketuk, berisi koneksi langsung untuk Tanyakan Alasan Panggilan berbahasa Mandarin Tiongkok Daratan dan pemisahan lalu lintas AI luar negeri. Mendukung ekspor bookmark Safari tanpa kerusakan (HTML / JSON) lewat snapshot tanpa kunci;
+      6. **Ekstraksi lossless Voice Memos dan rekaman panggilan + pemeriksaan model AI on-device (`VoiceMemosAIView`)**: mengaitkan `CloudRecordings.db` lintas kontainer berdasarkan judul, lalu mengemas dan mengekspor trek audio `.m4a` lossless secara massal. Juga memeriksa (hanya-baca) cache model terjemahan offline dan model suara.
+12. **Penyempurnaan unlock wilayah, penonaktifan langsung di lingkungan kotor, pagar pengaman anti-konflik `SiriHub` / "kualitas tinggi" penghapus Foto, dan ekspor pemisahan lalu lintas dua format `Surge / Stash` (`v0.8.1 – v0.8.5`)**
+    - **Sub-opsi baru pengubahan wilayah yang lebih rinci**: di bawah "Hapus Pembatasan Wilayah (AI Tiongkok Daratan / `LL/A` AS)" tersedia pilihan dua mode. Default adalah **"LL + LL/A AS penuh"** (sekaligus memetakan nomor model regulasi AS `Axxxx`, dengan fitur lintas wilayah terlengkap). Opsi lainnya adalah **"Ubah kode wilayah menjadi LL saja (pertahankan akhiran CH/A dan kompatibilitas dual SIM)"**, yang hanya mengubah `RegionCode` menjadi `LL` dan mempertahankan penuh akhiran wilayah penjualan `CH/A` asli beserta nomor model regulasi pabrik. Ini memenuhi syarat dasar Apple Intelligence sekaligus menghindari konflik pemetaan model AS tanpa slot kartu pada perangkat China Daratan dengan dua slot SIM fisik + eSIM;
+    - **Penguatan penonaktifan langsung saklar boolean pada baseline yang tercemar dan pagar pengaman konflik aset AI ganda (`v0.8.2 – v0.8.5`)**: bila sebelum aplikasi ini dipasang perangkat sudah diaktifkan `InternalInstall` / `InternalBuild` atau item eksklusif lain oleh alat lain (sehingga `OriginalGestalt.plist` mencatat nilai kotor `1`), cukup matikan saklar terkait untuk menghapus key sisa dari `CacheExtra` dengan satu ketuk. Selain itu, `DeviceSupportsSiriHub` (yang bila diaktifkan di iPhone / iPad membuat Siri macet tanpa akhir) dan slot eksperimental non-native `Audio Intelligence` (yang bila dipaksa aktif membuat penghapus **"kualitas tinggi" Foto error**) telah dikeluarkan dari fitur "lengkapi satu ketuk", ditambah kunci pengaman otomatis dan perbaikan mandiri satu ketuk lewat pemeriksaan empat syarat. Baseline asli `Personal Translator = true` bawaan pabrik pada seri iPhone 18 Pro juga dikenali dan dipertahankan secara akurat untuk mencegah salah lapor dan salah pengosongan;
+    - **Ekspor pemisahan lalu lintas lengkap dua format `Surge (.sgmodule)` + `Stash (.stoverride / YAML)`**: pusat grup bersama mendukung pergantian ekspor antara modul Surge dan file override Stash (berisi `always-real-ip` / `fake-ip-filter`, koneksi langsung gateway utama Siri, relay komputasi privat PCC, serta seluruh aturan prioritas teratas untuk OpenAI dan Google Visual Intelligence).
 
 ---
 
-## 系统兼容性
+## Kompatibilitas Sistem
 
 > [!IMPORTANT]
-> 操作前请务必通过电脑完整备份设备重要数据！修改系统底层配置存在潜在风险，仅供安全研究与学习交流，请仅在本人持有的设备上使用并自行承担风险。
+> Sebelum mengoperasikan, pastikan Anda mencadangkan data penting perangkat secara lengkap lewat komputer! Memodifikasi konfigurasi tingkat bawah sistem memiliki risiko. Proyek ini hanya untuk riset keamanan dan pertukaran pembelajaran. Gunakan hanya pada perangkat milik Anda sendiri dan tanggung sendiri risikonya.
 
-- **iOS / iPadOS 27.0 – 27.2.1**、**27.3 beta 1**（完整支持所有功能，包括 `MobileGestalt` 读取与安全写入）
-- **iOS / iPadOS 26.0 – 26.7.2**（部分支持：可使用锁屏壁纸、拨号键盘美化、锁屏底部签名文字与部分容器浏览；受底层沙盒限制，iOS 26 不支持写入系统 `MobileGestalt`）
+- **iOS / iPadOS 27.0 – 27.2.1** dan **27.3 beta 1** (semua fitur didukung penuh, termasuk pembacaan dan penulisan aman `MobileGestalt`)
+- **iOS / iPadOS 26.0 – 26.7.2** (dukungan sebagian: dapat memakai wallpaper layar kunci, penghiasan dial pad, teks tanda tangan di bagian bawah layar kunci, dan sebagian penjelajahan kontainer. Karena batasan sandbox tingkat bawah, iOS 26 tidak mendukung penulisan `MobileGestalt` sistem)
 
 ---
 
-## 安装与签名要求
+## Persyaratan Instalasi dan Penandatanganan
 
 > [!WARNING]
-> 本项目底层依赖至少一个有效的 `App Group` 容器权限。请使用支持保留或注入 App Group 的个人 Apple ID 自签工具（如 **SideStore / AltStore / Feather / Sideloadly / Impactor / iLoader**）或带 App Group 权限的开发者证书签名安装。
+> Proyek ini bergantung pada setidaknya satu izin kontainer `App Group` yang valid. Gunakan alat self-sign dengan Apple ID pribadi yang mendukung pelestarian atau injeksi App Group (seperti **SideStore / AltStore / Feather / Sideloadly / Impactor / iLoader**), atau tanda tangani dengan sertifikat developer yang memiliki izin App Group.
 
-1. 前往 [Releases 页面](https://github.com/Kianuni/Erosion-CN/releases/latest) 下载最新的 `Erosion_v0.8.5_zh-Hans.ipa`。
-2. 使用上述签名工具安装至设备；首次运行可在「主页」日志确认已成功识别 `App Group`。
-3. 详细使用说明与原厂状态恢复教程请查阅：
-   - 📘 [USAGE_GUIDE.md（安装与使用指南）](./USAGE_GUIDE.md)
-   - 🔄 [RESTORE_CHA.md（无损恢复出厂状态指南）](./RESTORE_CHA.md)
-
----
-
-## 常见问题与排障指南 (FAQ / Q&A)
-
-### Q1：为什么打开了开关，eSIM 还是没生效？或者国行 18 Pro / 18 Pro Max 改完后「添加 eSIM」反而消失了？
-请按以下 6 种情况逐一排查：
-1. **国行 iPhone 18 Pro / 18 Pro Max（`A3715` / `A3718`）插着双实体卡（或背面副卡）触发基带卡槽冲突（18 系列最常见！）**  
-   国行 18 Pro / Pro Max 为特殊的**「正反双实体 SIM 卡槽 + 内置 eSIM」三通道复用硬件**，而美版 `LL/A`（`A3472` / `A3473`）为无卡槽纯 eSIM 机型（国际版也仅正面单卡槽）。若卡托内插着两张实体卡（或插在卡托背面副卡槽）重启，基带检测到卡槽占用冲突会临时隐藏「添加 eSIM」与 `EID`（或导致背面副卡不工作）。  
-   ✅ **真机实测 100% 解决与双实体卡共存步骤（「空卡写卡法」）**：
-   - ① **先拔出 SIM 卡托（不插任何实体卡，保持空卡状态）**，在 Erosion-CN 开启「解除地区限制」+「解除国行底层限制」点击应用后 **空卡关机冷重启**（注：若在 `27.3 beta 1` 空卡下仍隐藏入口，可先关闭上方地区限制、**仅单开「解除国行底层限制」空卡重启**，「添加 eSIM」必出）；
-   - ② 空卡开机连 Wi-Fi（挂外区节点 + 开启飞行模式），扫码把需要的海外 eSIM 全部添加完毕；
-   - ③ **插回实体卡策略**：若平时只需 **1 张实体卡 + 多张海外/国内 eSIM**，将实体卡装在卡托**正面（主卡槽）**即可直接共存；若平时还需使用**卡托背面第 2 张实体卡**，写完海外 eSIM 后进 Erosion-CN **单独关闭「解除国行底层限制」（保留上方「解除地区限制」开启，且自 `v0.8.1` 起还可在下方修改模式切换为「仅改区域代码 LL（保留 CH/A 后缀与双卡兼容）」以保留原厂 `CH/A` 与监管型号）**，应用重启后再插回正反双实体卡——背面实体卡即可恢复工作，且已写入芯片的海外 eSIM 依然完整保留、可随时在设置中切换启用！
-2. **只点了「注销 (Respring)」，没有「手动关机重启」**  
-   「解除国行底层限制」修改的是二进制 `CacheData`（`green-tea` 槽位）。负责蜂窝基带与 eUICC 芯片的守护进程（`CommCenter`、`ctkd`）在注销桌面时**不会重载缓存**，甚至会因新旧区域参数半同步导致「添加 eSIM」入口临时隐藏。**写入后必须手动滑动关机、等待黑屏后再按电源键开机（冷重启）** 才会生效。
-3. **只改了 `LL/A`，漏开了「解除国行底层限制 (eSIM / FaceTime 音频)」**  
-   常规解锁必须将 **「解除地区限制（国行 AI / 美版 LL/A）」** 与下方的 **「解除国行底层限制 (eSIM / FaceTime 音频)」** **两个开关同时打开**并冷重启；若只改了上方的 `LL/A` 而未解开下方的 `green-tea` 硬件锁，系统校验区域冲突同样会屏蔽 eSIM 菜单。
-4. **误开了「机型伪装 (`ProductType`)」或曾用其他改机工具盲改过缓存**  
-   原生 AI 机型**严禁修改机型标识符**（如把国行主板 `iPhone19,7` 强改成美版 `iPhone19,3`），否则基带校验失配会导致整个 eSIM 菜单消失。若之前被其他工具改坏，请点击 `MobileGestalt` 右上角 **`⋯` →「清除并重建缓存」** 并重启恢复纯净原厂基线，再重新按需开启开关。
-5. **在中国大陆境内扫码添加海外 eSIM 时提示“不支持 / 无法激活”**  
-   若「添加 eSIM」按钮已出现，但扫码瞬间被拦截，是系统激活时通过境内基站/定位触发了位置校验。扫码写卡时请开启 **飞行模式 + 连接 Wi-Fi（挂全局海外代理）**（必要时临时关闭 `设置 → 隐私与安全性 → 定位服务 → 系统服务` 中的「蜂窝网络搜索 / 无线局域网与蓝牙」），写卡成功后再恢复正常即可长期双待使用。
-6. **老款纯双实体卡槽国行机型的物理硬件限制**  
-   仅自带物理 `eUICC` 安全芯片的国行机型（如 **国行 iPhone Air、内置物理 eSIM 的 iPhone 18 系列** 等）支持解锁海外 eSIM 自由扫码；早期**纯双实体 nano-SIM 卡槽且主板物理空焊 `eUICC` 芯片**的常规国行机型属于硬件缺失，开启该开关仅用于解锁 **FaceTime 音频（语音通话）** 与 AI 区域准入，无法凭空生成物理 eSIM 芯片。
-
-### Q2：需要开启「监管模式 (Supervision)」吗？以前别的工具留下的伪监管怎么清理？
-* **完全不需要，且严禁在个人零售设备上开启伪监管！** Erosion-CN 的所有解锁均直接安全作用于 `MobileGestalt` 缓存，零监管依赖。
-* 许多早期改机工具注入的伪造 `CloudConfigurationDetails.plist` 缺失合法的 MDM 证书链，一旦后续 OTA 升级系统，极易在开机激活向导卡死 **403「远程管理」白屏死锁**。你可随时进入本应用 `功能修改 → 系统配置与监管` 一键体检并安全清除伪监管残留（真实企业/教育 MDM 会被自动识别保护）。
-
-### Q3：满血使用 Apple Intelligence + ChatGPT（同时保留国行普通话「询问来电原因」）怎么设地区和代理规则？
-* **系统语言与地区黄金组合**（⚠️ **切勿将系统地区设为「美国」**，否则会丢失中文普通话「询问来电原因」来电筛选！）：
-  1. 在 Erosion-CN 开启 **「解除地区限制 (LL / LL/A)」+「解除国行底层限制」** 并冷重启；
-  2. `设置 → 通用 → 语言与地区`：**地区改为「台湾」**，首选语言第一项保持 **「简体中文」**；
-  3. `设置 → Apple 智能与 Siri`：Siri 语言设为 **「中文（普通话 - 中国大陆）」**（若 ChatGPT 扩展偶发回复繁体，在 `扩展 → ChatGPT` 登录并在自定义指令写一句“始终使用简体中文回答”即可）。
-* **代理分流规则（Surge / Stash / Loon / Shadowrocket 通用铁律）**：
-  1. **Siri 核心域名必须 `DIRECT` 直连 + 真实 IP（严禁走代理或 Fake-IP）**：将 `guzzoni.apple.com`、`*.siri.apple.com`、`dejavu.apple.com`、`sequoia.apple.com`、`*.smoot.apple.com` 设为 `DIRECT`，并在 Surge `[General]` 中把 `guzzoni.apple.com, *.guzzoni.apple.com, *.siri.apple.com` 加入 `skip-proxy` 与 `always-real-ip`（否则 Siri 必报「碰到了一点问题」）；
-  2. **仅将 AI 准入与中继走低延迟美区节点**：将 `gspe1-ssl.ls.apple.com`、`apple-relay.apple.com`、`apple-relay.cloudflare.com`、`apple-relay.fastly-edge.com`、`apple-relay.akamaized.net`、`cp4.cloudflare.com` 及 OpenAI 域名分流至低延迟**美国节点**（切勿屏蔽 `apple-relay.*` 的 UDP 443 QUIC 流量）；
-  3. **关闭冲突重写模块**：硬件级改好 `LL/A` 后，请**关闭** `iRingo / NSRingo` 的「定位」与「Siri」模块，防止 MitM 劫持导致断连；
-  4. 💡 **一键导出模块**：可直接在 App 内打开 `功能修改 → [测试特性] 共享组分流规则与书签导出`，一键生成并导出完整配好的 `.sgmodule` 分流模块。
-
-### Q4：Siri 聊天已经正常了，为什么「Siri 相机 / 视觉智能 (Visual Intelligence)」或图乐园一直提示不可用？
-请依次核对以下 4 项条件：
-1. **系统地区不能停留在「中国大陆」**：前往 `设置 → 通用 → 语言与地区`，将 **「地区」改为「台湾」**（海外版视觉智能绑定 ChatGPT 与 Google 识图，在「中国大陆」系统地区下会被直接锁死报不可用；改「台湾」既能解锁视觉智能，又能保留普通话来电询问）。
-2. **定位准入与 Google / Relay 分流缺失**：视觉智能每次唤起都会实时请求 `gspe1-ssl.ls.apple.com` 校验所在地，并调用 `apple-relay.*` + OpenAI（左下角提问）以及 **`*.google.com`（右下角 Google 识图搜索）**。请确认上述域名均已分流至**美国节点**，且已**关闭 `iRingo / NSRingo` 的定位与 Siri 模块**。
-3. **端侧视觉模型尚未下完，或残留国行千问缓存**：视觉智能与图乐园（`Image Playground`）依赖独立的端侧多模态视觉模型（与文本 Siri 分开下载，体积较大），请连接 Wi-Fi 并插上充电器等待后台静默下载完成；若此前曾在测试版开启过国行合规版（千问/百度）AI，请前往 `设置 → Apple 智能与 Siri` 先关闭总开关、重启一次手机后再重新打开以刷新外区模型。
-4. **唤醒方式注意**：海外版视觉智能入口不在普通「相机」App 内，需在锁屏或亮屏时**长按**机身右侧「相机控制」实体按键（短按仅打开普通相机），或在控制中心添加「视觉智能」按钮开启。
-
-### Q5：开启「将“无线局域网”显示为“Wi-Fi”」有什么需要注意的副作用？
-开启后系统网络权限会完全切换为国际版逻辑——**会丢失国行独有的单应用「不允许联网（同时禁止 Wi-Fi 与蜂窝数据）」选项**（国际版仅允许关闭单个 App 的「蜂窝数据」，无法禁止其使用 Wi-Fi 联网）。如果你需要彻底禁止第三方输入法或离线 App 联网，请保持此项**关闭**；已开启者随时关闭开关重新应用并重启即可恢复。
-
-### Q6：为什么照片「消除」在「快速」模式下正常，切成「高质量」就报错“消除此照片时出错”？另外要不要升 27.3 beta？
-* **请关闭「解锁 iOS 27 进阶 AI 能力 `[测试特性]`」（`v0.8.5` 已内置自动防呆锁定与一键修复）**：真机（`iPhone 18 Pro Max · iPhone19,7`）底层探针核验表明，照片「快速」消除走本地独立 GAN 模型，而「高质量」消除走云端扩散模型管线 (`ServerDiffusionInpainting`)；在 iPhone / iPad 上强行开启非原生的 `Audio Intelligence` (`rb2tKZxlj0Gm2tBmUQSLqQ`，槽位 `#178`) 实验槽位会导致模型管线校验断路，连带使「高质量」消除报错（常规通话录音、语音备忘录转写与系统翻译无需此开关，且 iPhone 18 Pro 系列原厂自带的 `Personal Translator = true` 会被自动识别保护）。升级 `v0.8.5` 后若提示冲突，关闭该项（或点击顶部体检卡片「一键配齐 / 修复」）并应用重启即可恢复。
-* **切勿盲目升级新测试版**：底层 `worse_query` 写入漏洞目前仅确认支持至 **`iOS 27.0 – 27.2.1` 及 `iOS 27.3 beta 1`**。请务必关闭系统自动更新，**切勿升级至 `27.3 beta 2` 及后续新测试版**，以免漏洞封堵后失去底层修改能力。
-
-### Q7：自签证书 7 天过期、卸载重装 App 会导致修改失效或丢失原厂备份吗？
-* **都不会。** 所有修改均以原位覆盖方式持久化保存在系统缓存中，无需后台常驻，证书过期打不开或删除 App **完全不影响已生效的功能**。
-* `v0.8.0` 内置了**应用沙盒 + 系统安全金库 `SHA-256` 双重备份冗余**，即便因证书掉签卸载重装 App，重新打开时也会自动从系统金库无损找回你最初未修改的原厂备份。
-
-### Q8：还有哪些特性属于纯物理硬件限制，改 `MobileGestalt` 也无法解锁？
-包括 **卫星离网通信与紧急求救**（射频/基带固件锁 + 境内无地面站授权）、**5G 毫米波 (mmWave)**（国行无毫米波天线模组）、**纯双实体卡槽老机型的 eSIM**（无物理 `eUICC` 芯片）以及 **60Hz 屏幕强开 120Hz 刷新率**（屏幕面板物理上限）。本项目对纯物理限制均如实说明，不做虚假开关误导。
-
-### Q9：万一改出异常，或者之前被别的工具改出「相机黑屏 / eSIM 消失」，怎么一键救回？
-* **一直使用 Erosion-CN 修改的用户**：直接点击主页或 `MobileGestalt` 页顶的 **「一键恢复原厂」**，校验 `SHA-256` 后一键还原原厂参数并清空锁屏铭牌/伪监管/拨号盘残留，手动重启即 100% 恢复出厂状态。
-* **安装本工具前已被其他工具改坏缓存的用户**：点击 `MobileGestalt` 右上角 **`⋯` →「清除并重建缓存」**，随后立即**手动关机重启手机**——iOS 将在开机时直接从主板硬件熔丝重新生成 100% 纯净的原厂缓存，相机黑屏、eSIM 消失等软故障均可彻底自愈。
+1. Buka [halaman Releases](https://github.com/Kianuni/Erosion-CN/releases/latest) dan unduh `Erosion_v0.8.5_zh-Hans.ipa` versi terbaru.
+2. Pasang ke perangkat dengan alat penandatanganan di atas. Saat pertama dijalankan, Anda dapat memastikan di log "Beranda" bahwa `App Group` berhasil dikenali.
+3. Untuk petunjuk penggunaan lengkap dan tutorial pemulihan ke kondisi pabrik, lihat:
+   - 📘 [USAGE_GUIDE.md (Panduan Instalasi dan Penggunaan)](./USAGE_GUIDE.md)
+   - 🔄 [RESTORE_CHA.md (Panduan Pemulihan ke Kondisi Pabrik Tanpa Kerusakan)](./RESTORE_CHA.md)
 
 ---
 
-## 自行编译
+## Pertanyaan Umum dan Panduan Troubleshooting (FAQ / Q&A)
 
-在安装有 Xcode 26 / 27 的 macOS 环境中克隆本仓库并执行构建脚本即可生成未签名 `.ipa`（已自动内嵌标准 entitlements）：
+### Q1: Mengapa eSIM tetap tidak aktif padahal saklar sudah dinyalakan? Atau mengapa di iPhone 18 Pro / 18 Pro Max versi China Daratan, "Tambah eSIM" malah hilang setelah diubah?
+Periksa 6 kemungkinan berikut satu per satu:
+1. **iPhone 18 Pro / 18 Pro Max versi China Daratan (`A3715` / `A3718`) dengan dua SIM fisik terpasang (atau SIM kedua di sisi belakang) memicu konflik slot baseband (paling sering terjadi pada seri 18!)**  
+   iPhone 18 Pro / Pro Max versi China Daratan memiliki perangkat keras khusus dengan **"dua slot SIM fisik depan-belakang + eSIM bawaan", tiga kanal yang dipakai bergantian**. Sebaliknya, `LL/A` versi AS (`A3472` / `A3473`) adalah model eSIM murni tanpa slot kartu (versi internasional pun hanya punya satu slot di sisi depan). Jika baki berisi dua kartu fisik (atau kartu dipasang di slot kedua sisi belakang baki) lalu perangkat di-restart, baseband mendeteksi konflik pemakaian slot dan sementara menyembunyikan "Tambah eSIM" serta `EID` (atau membuat SIM kedua di sisi belakang tidak berfungsi).  
+   ✅ **Langkah yang terbukti 100% berhasil di perangkat nyata, sekaligus agar dua SIM fisik tetap bisa dipakai ("metode tulis kartu dengan baki kosong")**:
+   - ① **Cabut baki SIM terlebih dahulu (jangan pasang kartu fisik apa pun, biarkan kosong)**. Di Erosion-CN, aktifkan "Hapus Pembatasan Wilayah" + "Hapus Pembatasan Tingkat Bawah China Daratan", tekan terapkan, lalu **matikan perangkat dalam kondisi tanpa kartu dan lakukan cold restart**. (Catatan: jika di `27.3 beta 1` entri masih tersembunyi pada kondisi tanpa kartu, matikan dulu pembatasan wilayah di atas, lalu **hanya nyalakan "Hapus Pembatasan Tingkat Bawah China Daratan" dan restart tanpa kartu**. "Tambah eSIM" pasti muncul);
+   - ② Setelah menyala tanpa kartu, sambungkan ke Wi-Fi (gunakan node luar negeri + aktifkan mode pesawat), lalu pindai kode QR untuk menambahkan semua eSIM luar negeri yang dibutuhkan hingga selesai;
+   - ③ **Strategi memasang kembali kartu fisik**: jika Anda biasanya hanya butuh **1 kartu fisik + beberapa eSIM luar negeri/dalam negeri**, pasang kartu fisik di **sisi depan baki (slot utama)** dan semuanya dapat langsung berjalan berdampingan. Jika Anda juga butuh **kartu fisik ke-2 di sisi belakang baki**, setelah selesai menulis eSIM luar negeri, buka Erosion-CN lalu **matikan hanya "Hapus Pembatasan Tingkat Bawah China Daratan" (biarkan "Hapus Pembatasan Wilayah" di atasnya tetap menyala; mulai `v0.8.1` Anda juga dapat mengganti mode pengubahan di bawahnya ke "Ubah kode wilayah menjadi LL saja (pertahankan akhiran CH/A dan kompatibilitas dual SIM)" agar `CH/A` dan nomor model regulasi pabrik tetap terjaga)**. Setelah aplikasi di-restart, pasang kembali dua kartu fisik depan-belakang. Kartu fisik di sisi belakang akan berfungsi kembali, dan eSIM luar negeri yang sudah tertulis di chip tetap utuh serta dapat diaktifkan kapan saja lewat Pengaturan!
+2. **Hanya menekan "Respring" tanpa "mematikan dan menyalakan ulang secara manual"**  
+   "Hapus Pembatasan Tingkat Bawah China Daratan" mengubah `CacheData` biner (slot `green-tea`). Daemon yang mengurus baseband seluler dan chip eUICC (`CommCenter`, `ctkd`) **tidak memuat ulang cache** saat respring, bahkan dapat menyembunyikan sementara entri "Tambah eSIM" karena parameter wilayah lama dan baru setengah tersinkron. **Setelah menulis, Anda wajib mematikan perangkat secara manual dengan geser, menunggu layar hitam, lalu menekan tombol daya untuk menyalakan (cold restart)** agar berlaku.
+3. **Hanya mengubah `LL/A` tetapi lupa menyalakan "Hapus Pembatasan Tingkat Bawah China Daratan (eSIM / Audio FaceTime)"**  
+   Pembukaan normal mengharuskan **"Hapus Pembatasan Wilayah (AI Tiongkok Daratan / `LL/A` AS)"** dan **"Hapus Pembatasan Tingkat Bawah China Daratan (eSIM / Audio FaceTime)" di bawahnya, kedua saklar dinyalakan bersamaan**, lalu cold restart. Jika hanya `LL/A` di atas yang diubah dan kunci perangkat keras `green-tea` di bawahnya tidak dibuka, sistem yang memeriksa konflik wilayah tetap menyembunyikan menu eSIM.
+4. **Salah menyalakan "Penyamaran Model (`ProductType`)" atau pernah memodifikasi cache secara buta dengan alat modifikasi lain**  
+   **Dilarang keras** mengubah pengenal model pada perangkat dengan AI bawaan (misalnya memaksa motherboard China Daratan `iPhone19,7` menjadi versi AS `iPhone19,3`), karena ketidakcocokan verifikasi baseband membuat seluruh menu eSIM hilang. Jika sebelumnya sudah rusak oleh alat lain, ketuk **`⋯` → "Hapus dan Bangun Ulang Cache"** di kanan atas `MobileGestalt`, lalu restart untuk memulihkan baseline pabrik murni, kemudian nyalakan saklar sesuai kebutuhan.
+5. **Saat memindai kode QR untuk menambah eSIM luar negeri di daratan Tiongkok muncul pesan "tidak didukung / tidak dapat diaktifkan"**  
+   Jika tombol "Tambah eSIM" sudah muncul tetapi langsung diblokir saat memindai, itu karena sistem memicu pemeriksaan lokasi lewat BTS/lokasi dalam negeri saat aktivasi. Saat menulis kartu, aktifkan **mode pesawat + sambung Wi-Fi (dengan proxy global luar negeri)**. Bila perlu, matikan sementara "Pencarian Seluler / Wi-Fi & Bluetooth" di `Pengaturan → Privasi & Keamanan → Layanan Lokasi → Layanan Sistem`. Setelah penulisan berhasil, kembalikan seperti semula dan Anda dapat memakai dual standby dalam jangka panjang.
+6. **Batasan perangkat keras fisik pada model China Daratan lama dengan dua slot SIM fisik murni**  
+   Hanya model China Daratan yang membawa chip keamanan `eUICC` fisik (seperti **iPhone Air China Daratan, seri iPhone 18 dengan eSIM fisik bawaan**, dan sejenisnya) yang mendukung pemindaian bebas eSIM luar negeri. Model China Daratan reguler awal dengan **dua slot nano-SIM fisik murni dan motherboard yang chip `eUICC`-nya tidak disolder secara fisik** tidak memiliki perangkat keras tersebut. Menyalakan saklar ini pada model itu hanya membuka **Audio FaceTime (panggilan suara)** dan izin wilayah AI, dan tidak bisa menciptakan chip eSIM fisik dari nol.
+
+### Q2: Apakah perlu menyalakan "Mode Supervisi (Supervision)"? Bagaimana membersihkan supervisi palsu yang ditinggalkan alat lain sebelumnya?
+* **Sama sekali tidak perlu, dan dilarang keras menyalakan supervisi palsu pada perangkat ritel pribadi!** Semua pembukaan di Erosion-CN bekerja langsung dan aman pada cache `MobileGestalt`, tanpa ketergantungan pada supervisi.
+* Banyak alat modifikasi lama menyuntikkan `CloudConfigurationDetails.plist` palsu yang tidak memiliki rantai sertifikat MDM yang sah. Begitu sistem di-upgrade lewat OTA, wizard aktivasi saat boot sangat mudah macet pada **layar putih "Manajemen Jarak Jauh" 403**. Anda dapat kapan saja masuk ke `Modifikasi Fitur → Konfigurasi Sistem & Supervisi` di aplikasi ini untuk pemeriksaan satu ketuk dan membersihkan sisa supervisi palsu dengan aman (MDM perusahaan/pendidikan yang asli akan otomatis dikenali dan dilindungi).
+
+### Q3: Bagaimana mengatur wilayah dan aturan proxy untuk memakai Apple Intelligence + ChatGPT secara penuh, sambil tetap mempertahankan "Tanyakan Alasan Panggilan" berbahasa Mandarin China Daratan?
+* **Kombinasi emas bahasa dan wilayah sistem** (⚠️ **jangan sekali-kali mengatur wilayah sistem ke "Amerika Serikat"**, karena Anda akan kehilangan penyaringan panggilan "Tanyakan Alasan Panggilan" berbahasa Mandarin!):
+  1. Di Erosion-CN, nyalakan **"Hapus Pembatasan Wilayah (LL / LL/A)" + "Hapus Pembatasan Tingkat Bawah China Daratan"** lalu lakukan cold restart;
+  2. `Pengaturan → Umum → Bahasa & Wilayah`: **ubah Wilayah ke "Taiwan"**, dan pertahankan **"Mandarin Sederhana"** di urutan pertama bahasa pilihan;
+  3. `Pengaturan → Apple Intelligence & Siri`: atur bahasa Siri ke **"Mandarin (Tiongkok Daratan)"** (jika ekstensi ChatGPT kadang membalas dalam aksara tradisional, masuk ke `Ekstensi → ChatGPT`, login, lalu tulis satu kalimat di instruksi kustom: "Selalu jawab dalam Mandarin Sederhana").
+* **Aturan pemisahan lalu lintas proxy (kaidah baku untuk Surge / Stash / Loon / Shadowrocket)**:
+  1. **Domain inti Siri wajib `DIRECT` (koneksi langsung) + IP asli (dilarang lewat proxy atau Fake-IP)**: atur `guzzoni.apple.com`, `*.siri.apple.com`, `dejavu.apple.com`, `sequoia.apple.com`, `*.smoot.apple.com` ke `DIRECT`, dan di `[General]` Surge masukkan `guzzoni.apple.com, *.guzzoni.apple.com, *.siri.apple.com` ke `skip-proxy` dan `always-real-ip` (jika tidak, Siri pasti melapor "Ada sedikit masalah");
+  2. **Hanya arahkan izin akses AI dan relay ke node AS berlatensi rendah**: arahkan `gspe1-ssl.ls.apple.com`, `apple-relay.apple.com`, `apple-relay.cloudflare.com`, `apple-relay.fastly-edge.com`, `apple-relay.akamaized.net`, `cp4.cloudflare.com`, dan domain OpenAI ke **node Amerika Serikat** berlatensi rendah (jangan blokir lalu lintas UDP 443 QUIC milik `apple-relay.*`);
+  3. **Matikan modul rewrite yang bertentangan**: setelah `LL/A` diubah di tingkat perangkat keras, **matikan** modul "Lokasi" dan "Siri" milik `iRingo / NSRingo` agar pembajakan MitM tidak menyebabkan koneksi terputus;
+  4. 💡 **Ekspor modul satu ketuk**: Anda dapat langsung membuka `Modifikasi Fitur → [Fitur Uji] Pemisahan Lalu Lintas Grup Bersama dan Ekspor Bookmark` di dalam aplikasi untuk membuat dan mengekspor modul pemisahan `.sgmodule` yang sudah terkonfigurasi lengkap dengan satu ketuk.
+
+### Q4: Chat Siri sudah normal, mengapa "Kamera Siri / Visual Intelligence" atau Image Playground terus menampilkan tidak tersedia?
+Periksa 4 syarat berikut secara berurutan:
+1. **Wilayah sistem tidak boleh tetap di "Tiongkok Daratan"**: buka `Pengaturan → Umum → Bahasa & Wilayah` dan **ubah "Wilayah" ke "Taiwan"** (Visual Intelligence versi luar negeri terikat dengan ChatGPT dan pencarian gambar Google, dan akan langsung terkunci dengan pesan tidak tersedia bila wilayah sistem "Tiongkok Daratan". Mengubahnya ke "Taiwan" membuka Visual Intelligence sekaligus mempertahankan Tanyakan Alasan Panggilan berbahasa Mandarin).
+2. **Izin lokasi serta pemisahan lalu lintas Google / Relay belum lengkap**: setiap kali Visual Intelligence dipanggil, ia meminta `gspe1-ssl.ls.apple.com` secara real-time untuk memverifikasi lokasi Anda, lalu memanggil `apple-relay.*` + OpenAI (bertanya di kiri bawah) serta **`*.google.com` (pencarian gambar Google di kanan bawah)**. Pastikan semua domain di atas sudah dialihkan ke **node Amerika Serikat**, dan **modul lokasi dan Siri `iRingo / NSRingo` sudah dimatikan**.
+3. **Model visual on-device belum selesai diunduh, atau masih ada sisa cache Qianwen versi China Daratan**: Visual Intelligence dan Image Playground (`Image Playground`) bergantung pada model multimodal visual on-device tersendiri (diunduh terpisah dari Siri teks dan berukuran besar). Sambungkan ke Wi-Fi, colokkan pengisi daya, dan tunggu hingga unduhan senyap di latar belakang selesai. Jika sebelumnya Anda pernah menyalakan AI versi patuh regulasi China Daratan (Qianwen/Baidu) di versi beta, buka `Pengaturan → Apple Intelligence & Siri`, matikan saklar utama terlebih dahulu, restart ponsel sekali, lalu nyalakan lagi untuk menyegarkan model luar negeri.
+4. **Cara memanggil**: pintu masuk Visual Intelligence versi luar negeri tidak ada di dalam aplikasi "Kamera" biasa. **Tekan lama** tombol fisik "Kontrol Kamera" di sisi kanan perangkat saat layar kunci atau layar menyala (tekan singkat hanya membuka kamera biasa), atau tambahkan tombol "Visual Intelligence" di Pusat Kontrol.
+
+### Q5: Apa efek samping yang perlu diperhatikan saat menyalakan "Tampilkan 'WLAN' sebagai 'Wi-Fi'"?
+Setelah dinyalakan, izin jaringan sistem sepenuhnya beralih ke logika versi internasional. **Opsi khusus China Daratan "Jangan Izinkan Akses Jaringan (melarang Wi-Fi dan data seluler sekaligus)" per aplikasi akan hilang** (versi internasional hanya mengizinkan mematikan "Data Seluler" satu aplikasi, dan tidak bisa melarangnya memakai Wi-Fi). Jika Anda perlu melarang sepenuhnya aplikasi input pihak ketiga atau aplikasi offline mengakses jaringan, biarkan opsi ini **mati**. Bagi yang sudah menyalakannya, matikan saklar, terapkan ulang, dan restart kapan saja untuk memulihkan.
+
+### Q6: Mengapa penghapus Foto bekerja normal pada mode "Cepat", tetapi error "Terjadi kesalahan saat menghapus foto ini" ketika diganti ke "Kualitas Tinggi"? Dan apakah perlu upgrade ke 27.3 beta?
+* **Matikan "Buka Kemampuan AI Lanjutan iOS 27 `[Fitur Uji]`" (`v0.8.5` sudah memiliki kunci pengaman otomatis dan perbaikan satu ketuk)**: verifikasi probe tingkat bawah di perangkat nyata (`iPhone 18 Pro Max · iPhone19,7`) menunjukkan bahwa penghapusan "Cepat" di Foto memakai model GAN lokal tersendiri, sedangkan penghapusan "Kualitas Tinggi" memakai pipeline model difusi di cloud (`ServerDiffusionInpainting`). Memaksa slot eksperimental non-native `Audio Intelligence` (`rb2tKZxlj0Gm2tBmUQSLqQ`, slot `#178`) di iPhone / iPad memutus validasi pipeline model dan ikut membuat penghapusan "Kualitas Tinggi" error. (Rekaman panggilan biasa, transkripsi Voice Memos, dan terjemahan sistem tidak membutuhkan saklar ini, dan `Personal Translator = true` bawaan pabrik pada seri iPhone 18 Pro akan dikenali dan dilindungi otomatis.) Setelah upgrade ke `v0.8.5`, jika muncul pesan konflik, matikan item tersebut (atau ketuk "Lengkapi / Perbaiki Satu Ketuk" di kartu pemeriksaan bagian atas), lalu terapkan dan restart untuk memulihkan.
+* **Jangan upgrade ke versi beta baru secara gegabah**: celah penulisan `worse_query` di tingkat bawah saat ini hanya terkonfirmasi mendukung hingga **`iOS 27.0 – 27.2.1` dan `iOS 27.3 beta 1`**. Pastikan Anda mematikan pembaruan otomatis sistem dan **jangan upgrade ke `27.3 beta 2` maupun beta berikutnya**, agar tidak kehilangan kemampuan modifikasi tingkat bawah setelah celah ditutup.
+
+### Q7: Apakah sertifikat self-sign yang kedaluwarsa dalam 7 hari, atau menghapus dan memasang ulang aplikasi, membuat perubahan hilang atau cadangan pabrik hilang?
+* **Tidak keduanya.** Semua perubahan disimpan permanen di cache sistem lewat penimpaan in-place, tidak memerlukan proses latar belakang. Aplikasi yang tidak bisa dibuka karena sertifikat kedaluwarsa, atau dihapus, **sama sekali tidak memengaruhi fitur yang sudah berlaku**.
+* `v0.8.0` memiliki **redundansi cadangan ganda sandbox aplikasi + brankas aman sistem dengan `SHA-256`**. Bahkan jika aplikasi dihapus dan dipasang ulang karena tanda tangan sertifikat habis, saat dibuka kembali aplikasi akan otomatis menemukan kembali cadangan pabrik asli Anda yang belum dimodifikasi dari brankas sistem tanpa kerusakan.
+
+### Q8: Fitur apa lagi yang merupakan batasan perangkat keras fisik murni dan tidak bisa dibuka meski `MobileGestalt` diubah?
+Termasuk **komunikasi satelit di luar jaringan dan SOS darurat** (kunci firmware RF/baseband + tidak ada izin stasiun darat di wilayah daratan), **5G milimeter wave (mmWave)** (versi China Daratan tidak memiliki modul antena mmWave), **eSIM pada model lama dengan dua slot SIM fisik murni** (tidak ada chip `eUICC` fisik), serta **memaksa layar 60Hz menjadi refresh rate 120Hz** (batas fisik panel layar). Proyek ini menjelaskan semua batasan fisik murni apa adanya dan tidak menyediakan saklar palsu yang menyesatkan.
+
+### Q9: Jika terjadi kelainan setelah perubahan, atau sebelumnya sudah rusak oleh alat lain menjadi "kamera layar hitam / eSIM hilang", bagaimana menyelamatkannya dengan satu ketuk?
+* **Pengguna yang selalu memodifikasi dengan Erosion-CN**: langsung ketuk **"Pulihkan ke Pabrik Satu Ketuk"** di beranda atau di bagian atas halaman `MobileGestalt`. Setelah verifikasi `SHA-256`, parameter pabrik dipulihkan dengan satu ketuk dan sisa pelat nama layar kunci/supervisi palsu/dial pad dibersihkan. Setelah restart manual, kondisi pabrik pulih 100%.
+* **Pengguna yang cache-nya sudah rusak oleh alat lain sebelum alat ini dipasang**: ketuk **`⋯` → "Hapus dan Bangun Ulang Cache"** di kanan atas `MobileGestalt`, lalu segera **matikan dan restart ponsel secara manual**. Saat boot, iOS akan langsung membangun ulang cache pabrik yang 100% murni dari fuse perangkat keras motherboard, sehingga gangguan ringan seperti kamera layar hitam dan eSIM hilang dapat pulih sepenuhnya.
+
+---
+
+## Kompilasi Sendiri
+
+Di lingkungan macOS yang terpasang Xcode 26 / 27, kloning repositori ini lalu jalankan skrip build untuk menghasilkan `.ipa` tanpa tanda tangan (standar entitlements sudah tertanam otomatis):
 
 ```bash
 git clone https://github.com/Kianuni/Erosion-CN.git
@@ -165,24 +165,24 @@ chmod +x ipabuild.sh
 
 ---
 
-## 致谢与开源许可 (Credits & License)
+## Ucapan Terima Kasih dan Lisensi Open Source (Credits & License)
 
-本项目基于 **[GNU General Public License v3.0 (GPLv3)](./LICENSE)** 开源，谨向上游作者与社区研究者致以诚挚感谢：
+Proyek ini bersumber terbuka di bawah **[GNU General Public License v3.0 (GPLv3)](./LICENSE)**. Kami menyampaikan terima kasih yang tulus kepada para penulis upstream dan peneliti komunitas:
 
-### 特别致谢（特性借鉴与研究参考）
-- **[huamidev / GestaltX](https://github.com/huamidev/GestaltX)** — 特别感谢 `GestaltX` 项目的优秀工程设计与思路启发，本分支的本机 `libMobileGestalt.dylib` 查询描述符动态偏移解析、变更对比预览（Diff Preview）、写后磁盘读回校验、运行时重签 `App Group` 自动探测以及液态玻璃低功耗渲染键值等改进均借鉴并参考了 `GestaltX` 的设计。
-- **[KirbySD](https://www.v2ex.com/t/1246550)** — 感谢分享 `MobileGestalt` 二进制 `CacheData` 中 `green-tea` / `not-green-tea` 布尔槽位的原始研究思路。
-- **[PoomSmart / MGKeys](https://github.com/PoomSmart/MGKeys)** — 感谢长期维护与整理 `MobileGestalt` 混淆键值映射表。
-- **[kolbicz / WQFiles](https://github.com/kolbicz/WQFiles)** — 感谢分享 LaunchServices `.csstore` (`"bdsl"`) 容器图谱解析研究思路（GPLv3）。
+### Terima kasih khusus (pengadopsian fitur dan referensi riset)
+- **[huamidev / GestaltX](https://github.com/huamidev/GestaltX)** — Terima kasih khusus atas desain rekayasa dan inspirasi ide dari proyek `GestaltX`. Penguraian offset dinamis deskriptor kueri `libMobileGestalt.dylib` lokal, pratinjau perbandingan perubahan (Diff Preview), verifikasi baca-ulang disk setelah menulis, deteksi otomatis `App Group` re-sign saat runtime, serta nilai key render low-power Liquid Glass pada fork ini mengadopsi dan merujuk pada desain `GestaltX`.
+- **[KirbySD](https://www.v2ex.com/t/1246550)** — Terima kasih telah membagikan ide riset asli tentang slot boolean `green-tea` / `not-green-tea` pada `CacheData` biner `MobileGestalt`.
+- **[PoomSmart / MGKeys](https://github.com/PoomSmart/MGKeys)** — Terima kasih atas pemeliharaan jangka panjang dan penyusunan tabel pemetaan key `MobileGestalt` yang diobfuskasi.
+- **[kolbicz / WQFiles](https://github.com/kolbicz/WQFiles)** — Terima kasih telah membagikan ide riset penguraian peta kontainer LaunchServices `.csstore` (`"bdsl"`) (GPLv3).
 
-### 上游主项目与漏洞研究致谢
-- **[jailbreakdotparty / Erosion](https://github.com/jailbreakdotparty/Erosion)** & **[lunginspector](https://github.com/lunginspector)** — 上游主仓库与核心架构作者
-- **[forcequitOS](https://github.com/forcequitOS)** & **[0xjohnnydev](https://github.com/0xjohnnydev)** — `worse_query` 沙盒研究作者
-- **[skadz108](https://github.com/skadz108)** & **[rooootdev](https://github.com/rooootdev)** — 后端功能组件维护者
-- **[neonmodder123](https://github.com/neonmodder123)** — 免越狱注销方案作者
+### Terima kasih untuk proyek upstream utama dan riset celah
+- **[jailbreakdotparty / Erosion](https://github.com/jailbreakdotparty/Erosion)** & **[lunginspector](https://github.com/lunginspector)** — Repositori upstream utama dan penulis arsitektur inti
+- **[forcequitOS](https://github.com/forcequitOS)** & **[0xjohnnydev](https://github.com/0xjohnnydev)** — Penulis riset sandbox `worse_query`
+- **[skadz108](https://github.com/skadz108)** & **[rooootdev](https://github.com/rooootdev)** — Pemelihara komponen fitur backend
+- **[neonmodder123](https://github.com/neonmodder123)** — Penulis solusi respring tanpa jailbreak
 
 ---
 
-## 免责声明
+## Disclaimer
 
-本项目仅供 iOS 系统安全研究、逆向工程学习与技术交流使用。请严格遵守所在地法律法规与电信合规要求，切勿用于任何非法用途；开发者不对因使用本软件造成的任何数据丢失、功能异常或售后问题承担责任。
+Proyek ini hanya untuk riset keamanan sistem iOS, pembelajaran reverse engineering, dan pertukaran teknis. Patuhi hukum dan peraturan telekomunikasi setempat, dan jangan digunakan untuk tujuan ilegal apa pun. Pengembang tidak bertanggung jawab atas kehilangan data, kelainan fungsi, atau masalah layanan purna jual yang timbul akibat penggunaan perangkat lunak ini.
