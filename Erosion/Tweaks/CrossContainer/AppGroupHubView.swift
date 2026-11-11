@@ -2,7 +2,7 @@
 //  AppGroupHubView.swift
 //  Erosion
 //
-//  [Experimental / 测试特性] Cross-Container AppGroup Hub:
+//  [Experimental / Fitur Uji] Cross-Container AppGroup Hub:
 //  1. Proxy client AppGroup discovery + Apple Intelligence & CN Call Screening .sgmodule generator/injector.
 //  2. Read-only APFS clonefile() Safari Bookmarks.db extractor (HTML & JSON export).
 //
@@ -31,15 +31,15 @@ enum ProxyRuleFormat: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var displayName: String {
         switch self {
-        case .surgeModule: return "Surge / Loon / 小火箭 (.sgmodule)"
-        case .stashOverride: return "Stash 覆写规则 (.stoverride / YAML)"
+        case .surgeModule: return "Surge / Loon / Shadowrocket (.sgmodule)"
+        case .stashOverride: return "Aturan Override Stash (.stoverride / YAML)"
         }
     }
 }
 
 struct AppGroupHubView: View {
     @State private var isScanning = false
-    @State private var scanSummary = "点击右上角刷新扫描本机共享应用组 (AppGroup)"
+    @State private var scanSummary = "Tekan segarkan di kanan atas untuk memindai grup aplikasi bersama (AppGroup) di perangkat"
     @State private var proxyGroups: [DetectedAppGroupItem] = []
     @State private var safariBookmarksDBPath: String?
     @State private var bookmarks: [SafariBookmarkRecord] = []
@@ -51,8 +51,8 @@ struct AppGroupHubView: View {
     private static let knownProxyGroupMap: [String: String] = [
         "group.com.nssurge.inc.surge-ios": "Surge",
         "group.com.nssurge.inc.surge-ios-tf": "Surge (TestFlight)",
-        "group.com.liguangming.Shadowrocket": "Shadowrocket (小火箭)",
-        "group.com.luo.quantumult-x": "Quantumult X (圈 X)",
+        "group.com.liguangming.Shadowrocket": "Shadowrocket",
+        "group.com.luo.quantumult-x": "Quantumult X",
         "group.com.loon.loon": "Loon",
         "group.com.loon0x00.loon": "Loon",
         "group.ws.stash.app": "Stash"
@@ -70,9 +70,9 @@ struct AppGroupHubView: View {
                         .foregroundStyle(Color.orange)
                         .padding(.top, 2)
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("测试特性 · 跨容器 AppGroup 共享组枢纽")
+                        Text("Fitur Uji · Hub Grup Bersama AppGroup Lintas Container")
                             .font(.subheadline.weight(.semibold))
-                        Text("突破单应用沙盒隔离：支持一键生成或向代理工具共享组写入“国行普通话来电询问 + 海外 Apple 智能”共存分流模块，并通过 APFS clonefile() 零锁快照无损导出 Safari 书签。")
+                        Text("Menembus isolasi sandbox satu aplikasi: mendukung pembuatan sekali klik atau penulisan modul split-routing \"Penanya Panggilan Mandarin Tiongkok + Apple Intelligence Luar Negeri\" yang berdampingan ke grup bersama alat proxy, serta ekspor bookmark Safari tanpa kehilangan data melalui snapshot zero-lock APFS clonefile().")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
@@ -82,12 +82,12 @@ struct AppGroupHubView: View {
 
             Section {
                 HStack {
-                    Text("扫描状态")
+                    Text("Status Pemindaian")
                     Spacer()
                     if isScanning {
                         ProgressView()
                     } else {
-                        Text("已识别 \(proxyGroups.count) 个网络工具组")
+                        Text("Terdeteksi \(proxyGroups.count) grup alat jaringan")
                             .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
@@ -96,21 +96,21 @@ struct AppGroupHubView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             } header: {
-                HeaderLabel("共享组探测状态 [测试]", symbol: "square.stack.3d.up")
+                HeaderLabel("Status Deteksi Grup Bersama [Uji]", symbol: "square.stack.3d.up")
             }
 
             Section {
-                Picker("规则格式", selection: $ruleFormat) {
+                Picker("Format Aturan", selection: $ruleFormat) {
                     ForEach(ProxyRuleFormat.allCases) { fmt in
                         Text(fmt.displayName).tag(fmt)
                     }
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("海外 AI 节点策略组名称")
+                    Text("Nama Grup Kebijakan Node AI Luar Negeri")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
-                    TextField("例如 PROXY / AI / 🇺🇸 美国节点", text: $proxyPolicyName)
+                    TextField("Contoh PROXY / AI / 🇺🇸 Node AS", text: $proxyPolicyName)
                         .font(.subheadline.monospaced())
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled(true)
@@ -122,8 +122,8 @@ struct AppGroupHubView: View {
                 } label: {
                     Label(
                         ruleFormat == .stashOverride
-                            ? "导出 .stoverride 覆写文件 (导入 Stash)"
-                            : "导出 .sgmodule 分流模块文件 (通用分享)",
+                            ? "Ekspor File Override .stoverride (Impor ke Stash)"
+                            : "Ekspor File Modul Split-Routing .sgmodule (Berbagi Universal)",
                         systemImage: "square.and.arrow.up"
                     )
                 }
@@ -132,14 +132,14 @@ struct AppGroupHubView: View {
                     UIPasteboard.general.string = currentRuleContent()
                     Haptic.shared.play(.soft)
                     Alertinator.shared.alert(
-                        title: "已拷贝分流规则！",
+                        title: "Aturan split-routing berhasil disalin!",
                         body: ruleFormat == .stashOverride
-                            ? "Stash 覆写规则 (YAML) 已复制到剪贴板，可在 Stash「覆写」中新建或粘贴使用（请确保所选美区节点已开启 udp: true）。"
-                            : "Surge 模块规则已复制到系统剪贴板，可直接粘贴至 Surge / Loon / Shadowrocket 模块配置中。"
+                            ? "Aturan Override Stash (YAML) telah disalin ke clipboard, dapat dibuat atau ditempel di \"Override\" Stash untuk digunakan (pastikan node AS yang dipilih telah mengaktifkan udp: true)."
+                            : "Aturan modul Surge telah disalin ke clipboard sistem, dapat langsung ditempel ke konfigurasi modul Surge / Loon / Shadowrocket."
                     )
                 } label: {
                     Label(
-                        ruleFormat == .stashOverride ? "拷贝 Stash YAML 覆写源码至剪贴板" : "拷贝模块规则源码至剪贴板",
+                        ruleFormat == .stashOverride ? "Salin Sumber Override YAML Stash ke Clipboard" : "Salin Sumber Aturan Modul ke Clipboard",
                         systemImage: "doc.on.doc"
                     )
                 }
@@ -147,18 +147,18 @@ struct AppGroupHubView: View {
                 if let surge = surgeGroup, ruleFormat == .surgeModule {
                     Button {
                         Alertinator.shared.alert(
-                            title: "写入 Surge 共享组目录？ [测试特性]",
-                            body: "请先在后台上滑关闭 Surge 主程序，再点击“确认写入”。写入完成后打开 Surge -> 模块 -> 启用「Erosion 国行 Apple 智能与来电询问分流」即可。",
-                            actionLabel: "确认写入",
+                            title: "Tulis ke direktori grup bersama Surge? [Fitur Uji]",
+                            body: "Harap tutup aplikasi Surge terlebih dahulu dengan menggeser ke atas di latar belakang, lalu tekan \"Konfirmasi Tulis\". Setelah penulisan selesai, buka Surge -> Modul -> aktifkan \"Erosion Apple Intelligence Tiongkok & Penanya Panggilan Split-Routing\".",
+                            actionLabel: "Konfirmasi Tulis",
                             action: { injectModuleIntoSurge(surge) }
                         )
                     } label: {
-                        Label("一键注入至本机 \(surge.clientName) 模块目录 [测试]", systemImage: "bolt.horizontal.circle.fill")
+                        Label("Injeksi Sekali Klik ke Direktori Modul \(surge.clientName) di Perangkat [Uji]", systemImage: "bolt.horizontal.circle.fill")
                     }
                 }
 
                 DisclosureGroup(
-                    ruleFormat == .stashOverride ? "预览生成的 Stash .stoverride (YAML) 内容" : "预览生成的 Surge .sgmodule 规则内容",
+                    ruleFormat == .stashOverride ? "Pratinjau Konten .stoverride Stash (YAML) yang Dihasilkan" : "Pratinjau Konten Aturan .sgmodule Surge yang Dihasilkan",
                     isExpanded: $showRulePreview
                 ) {
                     Text(currentRuleContent())
@@ -168,9 +168,9 @@ struct AppGroupHubView: View {
                         .padding(.vertical, 4)
                 }
             } header: {
-                HeaderLabel("[测试特性] Apple 智能与普通话来电询问共存分流", symbol: "network.badge.shield.half.filled")
+                HeaderLabel("[Fitur Uji] Split-Routing Berdampingan Apple Intelligence & Penanya Panggilan Mandarin", symbol: "network.badge.shield.half.filled")
             } footer: {
-                Text("核心原理：将 guzzoni.apple.com / siri.apple.com / smoot.apple.com 设为 DIRECT 并加入真实 IP 白名单（always-real-ip / fake-ip-filter），保障国行 Siri 与普通话来电筛选秒通；同时将 gspe1-ssl、apple-relay.*、OpenAI 与 Google 视觉智能置顶分流至美区策略组（注意：所选美区节点需支持 UDP/QUIC）。")
+                Text("Prinsip inti: atur guzzoni.apple.com / siri.apple.com / smoot.apple.com menjadi DIRECT dan tambahkan ke whitelist IP asli (always-real-ip / fake-ip-filter), untuk memastikan Siri Tiongkok dan filter panggilan Mandarin tersambung seketika; sekaligus tempatkan gspe1-ssl, apple-relay.*, OpenAI dan Google Visual Intelligence ke paling atas split-routing ke grup kebijakan AS (perhatian: node AS yang dipilih harus mendukung UDP/QUIC).")
             }
 
             if !proxyGroups.isEmpty {
@@ -189,21 +189,21 @@ struct AppGroupHubView: View {
                         }
                     }
                 } header: {
-                    HeaderLabel("本机已安装代理工具共享组 [测试]", symbol: "folder.badge.gearshape")
+                    HeaderLabel("Grup Bersama Alat Proxy Terpasang di Perangkat [Uji]", symbol: "folder.badge.gearshape")
                 }
             }
 
             Section {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Safari 书签数据库快照")
+                        Text("Snapshot Basis Data Bookmark Safari")
                             .font(.subheadline.weight(.medium))
                         if safariBookmarksDBPath != nil {
-                            Text("已无损解析 \(bookmarks.count) 条网址书签（APFS 只读快照）")
+                            Text("Berhasil mengurai \(bookmarks.count) bookmark URL secara lossless (snapshot read-only APFS)")
                                 .font(.caption2)
                                 .foregroundStyle(.green)
                         } else {
-                            Text("暂未定位到可读的 Bookmarks.db 或书签为空")
+                            Text("Belum menemukan Bookmarks.db yang dapat dibaca atau bookmark kosong")
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                         }
@@ -215,18 +215,18 @@ struct AppGroupHubView: View {
                     Button {
                         exportBookmarksHTML()
                     } label: {
-                        Label("导出标准 HTML 书签文件 (兼容全平台浏览器)", systemImage: "globe")
+                        Label("Ekspor File Bookmark HTML Standar (Kompatibel Semua Browser)", systemImage: "globe")
                     }
 
                     Button {
                         exportBookmarksJSON()
                     } label: {
-                        Label("导出 JSON 结构化书签备份", systemImage: "curlybraces")
+                        Label("Ekspor Cadangan Bookmark Terstruktur JSON", systemImage: "curlybraces")
                     }
 
                     ForEach(bookmarks.prefix(8)) { bm in
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(bm.title.isEmpty ? "(无标题书签)" : bm.title)
+                            Text(bm.title.isEmpty ? "(Bookmark tanpa judul)" : bm.title)
                                 .font(.footnote.weight(.medium))
                                 .lineLimit(1)
                             Text(bm.url)
@@ -237,23 +237,23 @@ struct AppGroupHubView: View {
                         .padding(.vertical, 1)
                     }
                     if bookmarks.count > 8 {
-                        Text("… 其余 \(bookmarks.count - 8) 条书签将在导出文件中完整包含")
+                        Text("… \(bookmarks.count - 8) bookmark lainnya akan disertakan lengkap dalam file ekspor")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                 }
             } header: {
-                HeaderLabel("[测试特性] Safari 书签无损跨容器导出", symbol: "book.fill")
+                HeaderLabel("[Fitur Uji] Ekspor Lossless Bookmark Safari Lintas Container", symbol: "book.fill")
             }
         }
-        .navigationTitle("共享组分流与书签")
+        .navigationTitle("Split-Routing Grup Bersama dan Bookmark")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     scanAppGroups()
                 } label: {
-                    Label("刷新", systemImage: "arrow.clockwise")
+                    Label("Segarkan", systemImage: "arrow.clockwise")
                 }
                 .disabled(isScanning)
             }
@@ -282,8 +282,8 @@ struct AppGroupHubView: View {
     private func buildSGModuleContent() -> String {
         let policy = sanitizedPolicy
         return """
-        #!name=Erosion 国行 Apple 智能与来电询问分流 [测试特性]
-        #!desc=由 Erosion 生成：保持国行 Siri 与普通话询问来电原因 (guzzoni) 真实 IP 直连，同时将 Apple Intelligence 隐私云计算、区域定位校验与视觉智能置顶分流至 \(policy)。
+        #!name=Erosion Apple Intelligence Tiongkok & Penanya Panggilan Split-Routing [Fitur Uji]
+        #!desc=Dihasilkan oleh Erosion: menjaga Siri Tiongkok dan penanya panggilan Mandarin (guzzoni) tetap terhubung langsung ke IP asli, sekaligus mengarahkan Apple Intelligence cloud computing privasi, verifikasi lokasi regional, dan visual intelligence ke \(policy) di urutan teratas.
         #!category=Erosion
 
         [General]
@@ -291,14 +291,14 @@ struct AppGroupHubView: View {
         always-real-ip = %APPEND% guzzoni.apple.com, *.guzzoni.apple.com, *.siri.apple.com
 
         [Rule]
-        # 1. 国行 Siri 语音主网关与普通话来电询问必须真实 IP 直连（严禁走代理）
+        # 1. Gateway utama suara Siri Tiongkok dan penanya panggilan Mandarin harus langsung ke IP asli (dilarang keras melalui proxy)
         DOMAIN-SUFFIX,guzzoni.apple.com,DIRECT
         DOMAIN-SUFFIX,siri.apple.com,DIRECT
         DOMAIN,dejavu.apple.com,DIRECT
         DOMAIN,sequoia.apple.com,DIRECT
         DOMAIN-SUFFIX,smoot.apple.com,DIRECT
 
-        # 2. Apple Intelligence 区域定位校验与 PCC 隐私云计算中继（请使用支持 UDP/QUIC 的低延迟美区节点）
+        # 2. Verifikasi lokasi regional Apple Intelligence dan relay PCC cloud computing privasi (gunakan node AS latensi rendah yang mendukung UDP/QUIC)
         DOMAIN,gspe1-ssl.ls.apple.com,\(policy)
         DOMAIN-SUFFIX,apple-relay.apple.com,\(policy)
         DOMAIN-SUFFIX,apple-relay.cloudflare.com,\(policy)
@@ -306,7 +306,7 @@ struct AppGroupHubView: View {
         DOMAIN-SUFFIX,apple-relay.akamaized.net,\(policy)
         DOMAIN-SUFFIX,cp4.cloudflare.com,\(policy)
 
-        # 3. Siri ChatGPT 扩展与视觉智能（提问 + Google 识图）
+        # 3. Ekstensi ChatGPT Siri dan visual intelligence (pertanyaan + pencarian gambar Google)
         DOMAIN-SUFFIX,openai.com,\(policy)
         DOMAIN-SUFFIX,chatgpt.com,\(policy)
         DOMAIN-SUFFIX,oaistatic.com,\(policy)
@@ -320,8 +320,8 @@ struct AppGroupHubView: View {
     private func buildStashOverrideContent() -> String {
         let policy = sanitizedPolicy
         return """
-        name: "Erosion 国行 Apple 智能与来电询问分流"
-        desc: "保持国行 Siri 与普通话询问来电原因 (guzzoni) 真实 IP 直连，同时将 Apple Intelligence 隐私云计算、定位准入与视觉智能置顶分流至 \(policy)（请确保所选美区节点已开启 udp: true）。"
+        name: "Erosion Apple Intelligence Tiongkok & Penanya Panggilan Split-Routing"
+        desc: "Menjaga Siri Tiongkok dan penanya panggilan Mandarin (guzzoni) tetap terhubung langsung ke IP asli, sekaligus mengarahkan Apple Intelligence cloud computing privasi, akses lokasi, dan visual intelligence ke \(policy) di urutan teratas (pastikan node AS yang dipilih telah mengaktifkan udp: true)."
 
         dns:
           fake-ip-filter:
@@ -334,14 +334,14 @@ struct AppGroupHubView: View {
             - "+.push.apple.com"
 
         rules:
-          # 1. 国行 Siri 语音主网关与普通话来电询问必须真实 IP 直连（严禁走代理）
+          # 1. Gateway utama suara Siri Tiongkok dan penanya panggilan Mandarin harus langsung ke IP asli (dilarang keras melalui proxy)
           - DOMAIN-SUFFIX,guzzoni.apple.com,DIRECT
           - DOMAIN-SUFFIX,siri.apple.com,DIRECT
           - DOMAIN,dejavu.apple.com,DIRECT
           - DOMAIN,sequoia.apple.com,DIRECT
           - DOMAIN-SUFFIX,smoot.apple.com,DIRECT
 
-          # 2. Apple Intelligence 区域定位校验与 PCC 隐私云计算中继（置顶防 GEOSITE,apple,DIRECT 抢行）
+          # 2. Verifikasi lokasi regional Apple Intelligence dan relay PCC cloud computing privasi (ditaruh di atas untuk mencegah GEOSITE,apple,DIRECT mendahului)
           - DOMAIN,gspe1-ssl.ls.apple.com,\(policy)
           - DOMAIN-SUFFIX,apple-relay.apple.com,\(policy)
           - DOMAIN-SUFFIX,apple-relay.cloudflare.com,\(policy)
@@ -349,7 +349,7 @@ struct AppGroupHubView: View {
           - DOMAIN-SUFFIX,apple-relay.akamaized.net,\(policy)
           - DOMAIN-SUFFIX,cp4.cloudflare.com,\(policy)
 
-          # 3. Siri ChatGPT 扩展与视觉智能（提问 + Google 识图）
+          # 3. Ekstensi ChatGPT Siri dan visual intelligence (pertanyaan + pencarian gambar Google)
           - DOMAIN-SUFFIX,openai.com,\(policy)
           - DOMAIN-SUFFIX,chatgpt.com,\(policy)
           - DOMAIN-SUFFIX,oaistatic.com,\(policy)
@@ -371,7 +371,7 @@ struct AppGroupHubView: View {
             Haptic.shared.play(.soft)
             presentShareSheet(with: outURL)
         } catch {
-            Alertinator.shared.alert(title: "导出分流文件失败！", body: error.localizedDescription)
+            Alertinator.shared.alert(title: "Gagal mengekspor file split-routing!", body: error.localizedDescription)
         }
     }
 
@@ -381,7 +381,7 @@ struct AppGroupHubView: View {
 
         let rootGrant = wq.grantAccess(path: surge.containerURL.path, requireWrite: true)
         guard rootGrant.0 else {
-            Alertinator.shared.alert(title: "获取 Surge 共享组写入权限失败！", body: rootGrant.2)
+            Alertinator.shared.alert(title: "Gagal mendapatkan izin tulis grup bersama Surge!", body: rootGrant.2)
             return
         }
 
@@ -416,17 +416,17 @@ struct AppGroupHubView: View {
             }
             Haptic.shared.play(.soft)
             Alertinator.shared.alert(
-                title: "已注入 Surge 分流模块！",
-                body: "模块文件已写入：\n\(targetFile.lastPathComponent)\n请打开 Surge 并在「模块」列表中勾选启用。"
+                title: "Modul split-routing Surge berhasil diinjeksi!",
+                body: "File modul telah ditulis:\n\(targetFile.lastPathComponent)\nSilakan buka Surge dan centang aktifkan di daftar \"Modul\"."
             )
         } catch {
-            Alertinator.shared.alert(title: "写入 Surge 模块失败！", body: error.localizedDescription)
+            Alertinator.shared.alert(title: "Gagal menulis modul Surge!", body: error.localizedDescription)
         }
     }
 
     private func scanAppGroups() {
         isScanning = true
-        scanSummary = "正在定位 Safari 书签与共享应用组..."
+        scanSummary = "Sedang menemukan bookmark Safari dan grup aplikasi bersama..."
         DispatchQueue.global(qos: .utility).async {
             // 1. Fast-path: check com.apple.mobilesafari data container first (<20ms via CSStore2)
             var foundSafariDB: String?
@@ -445,7 +445,7 @@ struct AppGroupHubView: View {
                 DispatchQueue.main.async {
                     self.safariBookmarksDBPath = earlyDB
                     self.bookmarks = earlyBookmarks
-                    self.scanSummary = "已加载 \(earlyBookmarks.count) 条 Safari 书签 · 正在枚举共享组..."
+                    self.scanSummary = "Memuat \(earlyBookmarks.count) bookmark Safari · sedang menghitung grup bersama..."
                 }
             }
 
@@ -456,7 +456,7 @@ struct AppGroupHubView: View {
             for (idx, path) in groupPaths.enumerated() {
                 if idx % 25 == 0 {
                     DispatchQueue.main.async {
-                        self.scanSummary = "正在识别共享应用组 (\(idx) / \(groupPaths.count))..."
+                        self.scanSummary = "Sedang mengidentifikasi grup aplikasi bersama (\(idx) / \(groupPaths.count))..."
                     }
                 }
                 let url = URL(fileURLWithPath: path)
@@ -498,7 +498,7 @@ struct AppGroupHubView: View {
                 }
                 self.safariBookmarksDBPath = foundSafariDB
                 self.bookmarks = extractedBookmarks
-                self.scanSummary = "共扫描 \(groupPaths.count) 个共享组容器 · 识别 \(foundProxies.count) 个代理工具与 \(extractedBookmarks.count) 条 Safari 书签"
+                self.scanSummary = "Total \(groupPaths.count) container grup bersama dipindai · terdeteksi \(foundProxies.count) alat proxy dan \(extractedBookmarks.count) bookmark Safari"
                 self.isScanning = false
             }
         }
@@ -530,7 +530,7 @@ struct AppGroupHubView: View {
                 return rows
             }
         } catch {
-            print("(appgroup) Safari Bookmarks snapshot read failed: \(error.localizedDescription)")
+            print("(appgroup) Pembacaan snapshot Bookmark Safari gagal: \(error.localizedDescription)")
             return []
         }
     }
@@ -565,7 +565,7 @@ struct AppGroupHubView: View {
             Haptic.shared.play(.soft)
             presentShareSheet(with: outURL)
         } catch {
-            Alertinator.shared.alert(title: "导出 HTML 书签失败！", body: error.localizedDescription)
+            Alertinator.shared.alert(title: "Gagal mengekspor bookmark HTML!", body: error.localizedDescription)
         }
     }
 
@@ -580,7 +580,7 @@ struct AppGroupHubView: View {
             Haptic.shared.play(.soft)
             presentShareSheet(with: outURL)
         } catch {
-            Alertinator.shared.alert(title: "导出 JSON 书签失败！", body: error.localizedDescription)
+            Alertinator.shared.alert(title: "Gagal mengekspor bookmark JSON!", body: error.localizedDescription)
         }
     }
 }
