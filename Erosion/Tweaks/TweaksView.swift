@@ -7,47 +7,46 @@
 
 import SwiftUI
 
-
 struct TweaksView: View {
     var body: some View {
         NavigationStack {
             List {
                 Section {
-                    NavigationLink("自定义锁屏壁纸", destination: PosterBoardView())
-                    NavigationLink("拨号键盘美化", destination: KeypadView())
+                    NavigationLink("Kustomisasi Wallpaper Layar Kunci", destination: PosterBoardView())
+                    NavigationLink("Perindah Keypad Panggilan", destination: KeypadView())
                 } header: {
-                    HeaderLabel("外观与桌面定制", symbol: "paintbrush")
+                    HeaderLabel("Kustomisasi Tampilan & Desktop", symbol: "paintbrush")
                 }
 
                 Section {
-                    NavigationLink("应用与游戏存档管理", destination: AppDataBackupView())
-                    NavigationLink("容器缓存扫描与清理", destination: CacheCleanerView())
+                    NavigationLink("Manajemen Data Aplikasi & Game", destination: AppDataBackupView())
+                    NavigationLink("Pemindaian & Pembersihan Cache Kontainer", destination: CacheCleanerView())
                 } header: {
-                    HeaderLabel("应用存档与空间清理", symbol: "externaldrive.badge.checkmark")
+                    HeaderLabel("Data Aplikasi & Pembersihan Ruang", symbol: "externaldrive.badge.checkmark")
                 }
                 
                 Section {
                     if raveSupported() || weOnADebugBuild {
-                        NavigationLink("MobileGestalt 修改", destination: GestaltView())
+                        NavigationLink("Modifikasi MobileGestalt", destination: GestaltView())
                     }
-                    NavigationLink("系统配置与监管", destination: ConfigView())
-                    NavigationLink("任意文件替换", destination: OperationsView())
+                    NavigationLink("Konfigurasi & Pengawasan Sistem", destination: ConfigView())
+                    NavigationLink("Penggantian File Sembarang", destination: OperationsView())
                 } header: {
-                    HeaderLabel("系统底层", symbol: "gear")
+                    HeaderLabel("Lapisan Sistem", symbol: "gear")
                 }
 
                 Section {
-                    NavigationLink("[测试特性] 物理电池寿命与温控遥测", destination: PowerTelemetryView())
-                    NavigationLink("[测试特性] 崩溃与 Jetsam 杀后台分析", destination: CrashDiagnosticsView())
-                    NavigationLink("[测试特性] 共享组分流规则与书签导出", destination: AppGroupHubView())
-                    NavigationLink("[测试特性] 语音备忘录提取与 AI 模型体检", destination: VoiceMemosAIView())
+                    NavigationLink("[Fitur Uji] Telemetri Kesehatan Baterai & Suhu", destination: PowerTelemetryView())
+                    NavigationLink("[Fitur Uji] Analisis Crash & Pembunuhan Background oleh Jetsam", destination: CrashDiagnosticsView())
+                    NavigationLink("[Fitur Uji] Aturan Aliran App Group & Ekspor Bookmark", destination: AppGroupHubView())
+                    NavigationLink("[Fitur Uji] Ekstraksi Voice Memo & Pemeriksaan Model AI", destination: VoiceMemosAIView())
                 } header: {
-                    HeaderLabel("跨容器实验特性（测试特性）", symbol: "flask")
+                    HeaderLabel("Fitur Eksperimental Lintas Kontainer (Fitur Uji)", symbol: "flask")
                 } footer: {
-                    Text("以上实验模块与设置页中的「CSStore2 极速容器映射引擎」均为 v0.8.0 测试特性：所有系统数据库均采用 APFS clonefile() 零锁只读快照读取，不修改原始守护进程文件。")
+                    Text("Modul eksperimental di atas dan 'Mesin Pemetaan Kontainer Cepat CSStore2' di halaman pengaturan adalah fitur uji v0.8.0: semua database sistem dibaca menggunakan snapshot read-only tanpa lock dari APFS clonefile(), tanpa memodifikasi file daemon asli.")
                 }
             }
-            .navigationTitle("功能修改")
+            .navigationTitle("Modifikasi Fitur")
         }
     }
 }
