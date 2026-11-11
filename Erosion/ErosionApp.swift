@@ -50,17 +50,17 @@ struct ErosionApp: App {
             TabView {
                 ContentView()
                     .tabItem {
-                        Label("主页", systemImage: "house")
+                        Label("Beranda", systemImage: "house")
                     }
                     .id(0)
                 TweaksView()
                     .tabItem {
-                        Label("功能修改", systemImage: "wrench.and.screwdriver")
+                        Label("Modifikasi Fitur", systemImage: "wrench.and.screwdriver")
                     }
                     .id(1)
                 FMRootView()
                     .tabItem {
-                        Label("文件浏览", systemImage: "folder")
+                        Label("Penjelajah Berkas", systemImage: "folder")
                     }
                     .id(2)
             }
@@ -85,12 +85,12 @@ struct ErosionApp: App {
                 }
                 print("")
                 print("[*] Erosion v\(AppInfo.appVersion) (\(build))")
-                print("[*] 运行环境：\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)，设备标识符：\(machineName()) (\(buildNumber()))")
+                print("[*] Lingkungan: \(UIDevice.current.systemName) \(UIDevice.current.systemVersion), pengenal perangkat: \(machineName()) (\(buildNumber()))")
                 if !isSupported() && !weOnADebugBuild {
-                    Alertinator.shared.alert(title: "当前 \(device.systemName) 版本暂不支持！", body: AppMsg.unsupported, showCancel: false, actionLabel: "退出", action: { exitinator() })
+                    Alertinator.shared.alert(title: "Versi \(device.systemName) saat ini belum didukung!", body: AppMsg.unsupported, showCancel: false, actionLabel: "Keluar", action: { exitinator() })
                 }
                 group = wq.getAppGroup()
-                print("(wq) 当前使用 App Group：\(group)")
+                print("(wq) App Group saat ini: \(group)")
             }
             .overlay {
                 if mgr.shouldRespring {
