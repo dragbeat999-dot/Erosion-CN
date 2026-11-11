@@ -22,7 +22,7 @@ struct PlainToggle: View {
     var maxVrs: Double
     @Binding var isOn: Bool
     
-    public init(_ text: String, subtitle: String = "", icon: String = "", infoType: ToggleInfoType = .none, infoTitle: String = "提示说明", infoMessage: String = "", minVrs: Double = 0.0, maxVrs: Double = 100.0, isOn: Binding<Bool>) {
+    public init(_ text: String, subtitle: String = "", icon: String = "", infoType: ToggleInfoType = .none, infoTitle: String = "Keterangan Bantuan", infoMessage: String = "", minVrs: Double = 0.0, maxVrs: Double = 100.0, isOn: Binding<Bool>) {
         self.text = text
         self.subtitle = subtitle
         self.icon = icon
@@ -66,4 +66,3 @@ struct PlainToggle: View {
         }
     }
 }
-
