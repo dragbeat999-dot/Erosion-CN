@@ -63,7 +63,7 @@ struct CacheCleanerView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(alignment: .firstTextBaseline) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("当前可安全释放缓存")
+                            Text("Cache yang aman dibebaskan saat ini")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                             Text(AppContainerDirectoryHelper.formatBytes(totalReclaimableBytes))
@@ -73,7 +73,7 @@ struct CacheCleanerView: View {
                         Spacer()
                         if totalFreedBytesHistory > 0 {
                             VStack(alignment: .trailing, spacing: 4) {
-                                Text("累计已释放")
+                                Text("Total yang telah dibebaskan")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                 Text(AppContainerDirectoryHelper.formatBytes(Int64(totalFreedBytesHistory)))
@@ -89,7 +89,7 @@ struct CacheCleanerView: View {
                         Button {
                             scanCaches()
                         } label: {
-                            Label("重新扫描", systemImage: "arrow.clockwise")
+                            Label("Pindai Ulang", systemImage: "arrow.clockwise")
                                 .font(.subheadline)
                         }
                         .disabled(isScanning || isCleaning)
@@ -100,15 +100,15 @@ struct CacheCleanerView: View {
                             let selectedCount = filteredEntries.filter(\.isSelected).count
                             guard selectedCount > 0 else { return }
                             Alertinator.shared.alert(
-                                title: "确认清理所选应用缓存吗？",
-                                body: "将清理 \(selectedCount) 个应用容器内的 Library/Caches 与 tmp 临时碎片（预计释放 \(AppContainerDirectoryHelper.formatBytes(selectedReclaimableBytes))）。\n\n安全承诺：绝不触碰 Documents、聊天记录数据库或登录配置。",
-                                actionLabel: "立即清理",
+                                title: "Konfirmasi membersihkan cache aplikasi terpilih?",
+                                body: "Akan membersihkan Library/Caches dan fragmen sementara tmp di dalam container \(selectedCount) aplikasi (perkiraan pembebasan \(AppContainerDirectoryHelper.formatBytes(selectedReclaimableBytes))).\n\nJaminan keamanan: Tidak akan menyentuh Documents, basis data riwayat obrolan, atau konfigurasi login.",
+                                actionLabel: "Bersihkan Sekarang",
                                 action: {
                                     cleanSelectedEntries()
                                 }
                             )
                         } label: {
-                            Label("一键清理已选 (\(AppContainerDirectoryHelper.formatBytes(selectedReclaimableBytes)))", systemImage: "sparkles")
+                            Label("Bersihkan Terpilih Sekali Klik (\(AppContainerDirectoryHelper.formatBytes(selectedReclaimableBytes)))", systemImage: "sparkles")
                                 .font(.subheadline.weight(.semibold))
                         }
                         .disabled(isScanning || isCleaning || selectedReclaimableBytes <= 0)
@@ -117,26 +117,26 @@ struct CacheCleanerView: View {
                 .padding(.vertical, 4)
 
                 PlainToggle(
-                    "显示系统组件容器 (com.apple.*)",
-                    subtitle: "默认包含第三方应用及 Safari 浏览器缓存",
+                    "Tampilkan Container Komponen Sistem (com.apple.*)",
+                    subtitle: "Secara default mencakup cache aplikasi pihak ketiga dan Safari",
                     isOn: $includeSystemContainers
                 )
             } header: {
-                HeaderLabel("空间释放概览", symbol: "chart.pie.fill")
+                HeaderLabel("Ringkasan Pembebasan Ruang", symbol: "chart.pie.fill")
             } footer: {
-                Text("本工具仅清理各容器下的 Library/Caches、tmp 与 WebKit 网页缓存，保留目录本身与权限，100% 不影响应用聊天记录、账号登录态与用户文档。")
+                Text("Alat ini hanya membersihkan Library/Caches, tmp, dan cache web WebKit di setiap container, mempertahankan direktori itu sendiri beserta izinnya, 100% tidak memengaruhi riwayat obrolan aplikasi, status login akun, dan dokumen pengguna.")
             }
 
             Section {
                 if isScanning || isCleaning {
                     HStack(spacing: 10) {
                         ProgressView()
-                        Text(isCleaning ? "正在安全清理所选容器缓存..." : "正在扫描各应用容器缓存体积...")
+                        Text(isCleaning ? "Sedang membersihkan cache container terpilih dengan aman..." : "Sedang memindai ukuran cache container aplikasi...")
                             .foregroundStyle(.secondary)
                     }
                     .padding(.vertical, 6)
                 } else if filteredEntries.isEmpty {
-                    Text("未发现可清理的应用缓存")
+                    Text("Tidak ditemukan cache aplikasi yang dapat dibersihkan")
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(filteredEntries) { entry in
@@ -170,7 +170,7 @@ struct CacheCleanerView: View {
                                     NavigationLink {
                                         ContainerSubdirBrowserView(containerURL: entry.containerURL, relativeSubpath: "Library/Caches")
                                     } label: {
-                                        Text("查看")
+                                        Text("Lihat")
                                             .font(.caption2)
                                     }
                                     .buttonStyle(.borderless)
@@ -178,7 +178,7 @@ struct CacheCleanerView: View {
                                     Button(role: .destructive) {
                                         cleanSingleEntry(entry)
                                     } label: {
-                                        Text("清理")
+                                        Text("Bersihkan")
                                             .font(.caption2.weight(.semibold))
                                     }
                                     .buttonStyle(.borderless)
@@ -190,10 +190,10 @@ struct CacheCleanerView: View {
                 }
             } header: {
                 HStack {
-                    HeaderLabel("容器缓存体积排行 (\(filteredEntries.count))", symbol: "trash.slash.fill")
+                    HeaderLabel("Peringkat Ukuran Cache Container (\(filteredEntries.count))", symbol: "trash.slash.fill")
                     Spacer()
                     if !filteredEntries.isEmpty {
-                        Button(filteredEntries.allSatisfy(\.isSelected) ? "取消全选" : "全选") {
+                        Button(filteredEntries.allSatisfy(\.isSelected) ? "Batal Pilih Semua" : "Pilih Semua") {
                             let target = !filteredEntries.allSatisfy(\.isSelected)
                             let visibleIDs = Set(filteredEntries.map(\.id))
                             for idx in entries.indices where visibleIDs.contains(entries[idx].id) {
@@ -205,9 +205,9 @@ struct CacheCleanerView: View {
                 }
             }
         }
-        .navigationTitle("容器缓存清理")
+        .navigationTitle("Pembersihan Cache Container")
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $searchText, prompt: "搜索应用名称或 Bundle ID")
+        .searchable(text: $searchText, prompt: "Cari nama aplikasi atau Bundle ID")
         .onChange(of: includeSystemContainers) {
             if includeSystemContainers && !entries.contains(where: { $0.bundleID.hasPrefix("com.apple.") && $0.bundleID != "com.apple.mobilesafari" }) && !isScanning {
                 scanCaches()
@@ -305,8 +305,8 @@ struct CacheCleanerView: View {
                 isCleaning = false
                 Haptic.shared.play(.soft)
                 Alertinator.shared.alert(
-                    title: "清理完成！",
-                    body: "已安全清理「\(entry.displayTitle)」缓存，释放空间 \(AppContainerDirectoryHelper.formatBytes(freed))。"
+                    title: "Pembersihan selesai!",
+                    body: "Telah dengan aman membersihkan cache «\(entry.displayTitle)», membebaskan ruang \(AppContainerDirectoryHelper.formatBytes(freed))."
                 )
             }
         }
@@ -330,8 +330,8 @@ struct CacheCleanerView: View {
                 isCleaning = false
                 Haptic.shared.play(.soft)
                 Alertinator.shared.alert(
-                    title: "批量清理完成！",
-                    body: "已成功清理 \(cleanedIDs.count) 个应用的冗余缓存与临时文件，共释放 \(AppContainerDirectoryHelper.formatBytes(totalFreed)) 存储空间！"
+                    title: "Pembersihan massal selesai!",
+                    body: "Berhasil membersihkan cache redundan dan file sementara dari \(cleanedIDs.count) aplikasi, total membebaskan \(AppContainerDirectoryHelper.formatBytes(totalFreed)) ruang penyimpanan!"
                 )
             }
         }
